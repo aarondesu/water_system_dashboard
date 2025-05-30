@@ -6,9 +6,13 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
+import { Provider } from "react-redux";
+import { store } from "./redux/store";
 
 import type { Route } from "./+types/root";
 import "./app.css";
+import { Toaster } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -41,8 +45,24 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+export function HydrateFallback() {
+  return (
+    <div className="flex min-h-svh items-center justify-center bg-muted">
+      <div className="flex flex-col items-center text-center gap-2">
+        <span className="font-bold text-xl">Loading</span>
+        <Loader2 className="animate-spin w-[32px] h-[32px]" />
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
-  return <Outlet />;
+  return (
+    <Provider store={store}>
+      <Toaster position="top-center" />
+      <Outlet />
+    </Provider>
+  );
 }
 
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
