@@ -3,7 +3,7 @@ import SelectSubscriberInput from "./select-subscriber-input";
 import {
   useAssignMeterMutation,
   useClearMeterMutation,
-} from "~/redux/apis/meterapi";
+} from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import type { ApiError } from "~/types";

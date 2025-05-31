@@ -12,7 +12,7 @@ import {
 import { Link } from "react-router";
 import { useState } from "react";
 import ConfirmationDialog from "./confirmation-dialog";
-import { useDeleteMeterMutation } from "~/redux/apis/meterapi";
+import { useDeleteMeterMutation } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 
 interface MeterActionDropdownProps {

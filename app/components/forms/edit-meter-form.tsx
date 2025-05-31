@@ -16,7 +16,7 @@ import SelectSubscriberInput from "../select-subscriber-input";
 import {
   useGetMeterQuery,
   useUpdateMeterMutation,
-} from "~/redux/apis/meterapi";
+} from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import type { ApiError } from "~/types";
 import { useSearchParams } from "react-router";

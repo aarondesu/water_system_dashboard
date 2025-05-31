@@ -4,7 +4,7 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { useGetAllMetersQuery } from "~/redux/apis/meterapi";
+import { useGetAllMetersQuery } from "~/redux/apis/meterApi";
 import type { Meter } from "~/types";
 import { Checkbox } from "../ui/checkbox";
 import { DataTable } from "../ui/data-table";

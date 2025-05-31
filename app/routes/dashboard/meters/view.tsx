@@ -1,7 +1,7 @@
 import MetersTable from "~/components/tables/meters-table";
 
 export function meta() {
-  return [{ title: "View | Dashboard" }];
+  return [{ title: "Meters | Dashboard" }];
 }
 
 export default function ViewMetersPage() {
