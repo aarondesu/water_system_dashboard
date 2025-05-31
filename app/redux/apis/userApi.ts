@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { User } from "~/types";
+import type { ApiError, User } from "~/types";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 const session_token_key = import.meta.env.VITE_TOKEN_KEY;
@@ -26,6 +26,7 @@ export const userApi = createApi({
       }),
       transformResponse: (result: { success: boolean; data: User[] }) =>
         result.data,
+      transformErrorResponse: (response: ApiError) => response,
       providesTags: ["user"],
     }),
     createUser: builder.mutation<void, User>({
@@ -34,6 +35,7 @@ export const userApi = createApi({
         method: "POSt",
         body: data,
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["user"],
     }),
   }),

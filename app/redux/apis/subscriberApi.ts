@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { Subscriber } from "~/types";
+import type { ApiError, Subscriber } from "~/types";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 const session_token_key = import.meta.env.VITE_TOKEN_KEY;
@@ -26,6 +26,7 @@ export const subscriberApi = createApi({
       }),
       transformResponse: (result: { success: boolean; data: Subscriber[] }) =>
         result.data,
+      transformErrorResponse: (response: ApiError) => response,
       providesTags: ["subscriber"],
     }),
     createSubscriber: builder.mutation<void, Subscriber>({
@@ -34,6 +35,7 @@ export const subscriberApi = createApi({
         method: "POST",
         body: data,
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["subscriber"],
     }),
     getSubscriber: builder.query<Subscriber, number>({
@@ -43,6 +45,7 @@ export const subscriberApi = createApi({
       }),
       transformResponse: (result: { success: boolean; data: Subscriber }) =>
         result.data,
+      transformErrorResponse: (response: ApiError) => response,
       providesTags: ["subscriber"],
     }),
     updateSubscriber: builder.mutation<
@@ -57,6 +60,7 @@ export const subscriberApi = createApi({
         method: "PUT",
         body: subscriber,
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["subscriber"],
     }),
     deleteSubscriber: builder.mutation<void, number>({
@@ -64,6 +68,7 @@ export const subscriberApi = createApi({
         url: `/${id}`,
         method: "DELETE",
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["subscriber", "meter"],
     }),
   }),

@@ -28,3 +28,11 @@ export type Meter = {
   note?: string;
   created_at?: string;
 };
+
+export type ApiError = {
+  status: number;
+  data: {
+    success: boolean;
+    errors: string[][];
+  };
+};

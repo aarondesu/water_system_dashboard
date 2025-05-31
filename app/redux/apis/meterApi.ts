@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { type Meter } from "~/types";
+import { type ApiError, type Meter } from "~/types";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 const session_token_key = import.meta.env.VITE_TOKEN_KEY;
@@ -26,6 +26,7 @@ export const meterApi = createApi({
       }),
       transformResponse: (result: { success: boolean; data: Meter[] }) =>
         result.data,
+      transformErrorResponse: (response: ApiError) => response,
       providesTags: ["meter"],
     }),
     createMeter: builder.mutation<void, Meter>({
@@ -38,6 +39,7 @@ export const meterApi = createApi({
           note: data.note,
         },
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["meter"],
     }),
     assignMeter: builder.mutation<void, { id: number; subscriber: number }>({
@@ -45,6 +47,7 @@ export const meterApi = createApi({
         url: `/assign/${id}/${subscriber}/`,
         method: "PUT",
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["meter"],
     }),
     deleteMeter: builder.mutation<void, number>({
@@ -52,6 +55,7 @@ export const meterApi = createApi({
         url: `/${id}`,
         method: "DELETE",
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["meter"],
     }),
   }),

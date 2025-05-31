@@ -1,5 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { LoginDetails } from "~/types";
+import type { ApiError, LoginDetails } from "~/types";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 const session_token_key = import.meta.env.VITE_TOKEN_KEY;
@@ -29,12 +29,14 @@ export const authApi = createApi({
         success: boolean;
         data: { user: any; token: string };
       }) => result.data.token,
+      transformErrorResponse: (response: ApiError) => response,
     }),
     logout: builder.mutation<void, void>({
       query: () => ({
         url: "logout",
         method: "POST",
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["auth"],
     }),
   }),

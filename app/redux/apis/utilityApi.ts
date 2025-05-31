@@ -1,4 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import type { ApiError } from "~/types";
 
 const baseUrl = import.meta.env.VITE_API_URL_BASE;
 const session_token_key = import.meta.env.VITE_TOKEN_KEY;
@@ -22,6 +23,7 @@ export const utilityApi = createApi({
         url: "/sanctum/csrf-cookie",
         method: "GET",
       }),
+      transformErrorResponse: (response: ApiError) => response,
     }),
   }),
 });
