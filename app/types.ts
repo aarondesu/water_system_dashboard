@@ -30,6 +30,15 @@ export type Meter = {
   created_at?: string;
 };
 
+export type Reading = {
+  id?: number;
+  meter_id: number;
+  meter?: Meter;
+  reading: number;
+  note?: string;
+  created_at?: string;
+};
+
 export type ApiError = {
   status: number;
   data: {

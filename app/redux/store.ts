@@ -3,7 +3,8 @@ import { authApi } from "./apis/authApi";
 import { utilityApi } from "./apis/utilityApi";
 import { userApi } from "./apis/userApi";
 import { subscriberApi } from "./apis/subscriberApi";
-import { meterApi } from "./apis/meterapi";
+import { meterApi } from "./apis/meterApi";
+import { readingApi } from "./apis/readingApi";
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +13,7 @@ export const store = configureStore({
     [userApi.reducerPath]: userApi.reducer,
     [subscriberApi.reducerPath]: subscriberApi.reducer,
     [meterApi.reducerPath]: meterApi.reducer,
+    [readingApi.reducerPath]: readingApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat([
@@ -20,6 +22,7 @@ export const store = configureStore({
       userApi.middleware,
       subscriberApi.middleware,
       meterApi.middleware,
+      readingApi.middleware,
     ]),
 });
 

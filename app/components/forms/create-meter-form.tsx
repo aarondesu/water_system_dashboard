@@ -13,7 +13,7 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import SelectSubscriberInput from "../select-subscriber-input";
-import { useCreateMeterMutation } from "~/redux/apis/meterapi";
+import { useCreateMeterMutation } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import type { ApiError } from "~/types";
 
