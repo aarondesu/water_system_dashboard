@@ -19,6 +19,16 @@ export const meterApi = createApi({
     },
   }),
   endpoints: (builder) => ({
+    getMeter: builder.query<Meter, number>({
+      query: (id) => ({
+        url: `/${id}`,
+        method: "GET",
+      }),
+      transformResponse: (result: { success: boolean; data: Meter }) =>
+        result.data,
+      transformErrorResponse: (response: ApiError) => response,
+      providesTags: ["meter"],
+    }),
     getAllMeters: builder.query<Meter[], void>({
       query: () => ({
         url: "/",
@@ -42,9 +52,30 @@ export const meterApi = createApi({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["meter"],
     }),
+    updateMeter: builder.mutation<void, Meter>({
+      query: (data) => ({
+        url: `/${data.id}`,
+        method: "PUT",
+        body: {
+          subscriber_id: data.subscriber_id,
+          number: data.number,
+          note: data.note,
+        },
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["meter"],
+    }),
     assignMeter: builder.mutation<void, { id: number; subscriber: number }>({
       query: ({ id, subscriber }) => ({
         url: `/assign/${id}/${subscriber}/`,
+        method: "PUT",
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["meter"],
+    }),
+    clearMeter: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/clear/${id}`,
         method: "PUT",
       }),
       transformErrorResponse: (response: ApiError) => response,
@@ -65,5 +96,8 @@ export const {
   useGetAllMetersQuery,
   useCreateMeterMutation,
   useAssignMeterMutation,
+  useClearMeterMutation,
   useDeleteMeterMutation,
+  useGetMeterQuery,
+  useUpdateMeterMutation,
 } = meterApi;

@@ -18,7 +18,8 @@ const columns: ColumnDef<Meter>[] = [
     accessorKey: "id",
     header: ({ header }) => <div className="text-center">ID</div>,
     cell: ({ row }) => <div className="text-center">{row.original.id}</div>,
-    size: 20,
+    size: 30,
+    enableHiding: false,
   },
   {
     accessorKey: "number",
@@ -27,6 +28,7 @@ const columns: ColumnDef<Meter>[] = [
       <div className="flex place-content-center">{row.original.number}</div>
     ),
     size: 40,
+    enableHiding: false,
   },
   {
     accessorKey: "subscriber_id",
@@ -41,6 +43,7 @@ const columns: ColumnDef<Meter>[] = [
   {
     id: "actions",
     size: 40,
+    enableHiding: false,
     cell: ({ row }) => <MeterActionDropdown id={row.original.id || 0} />,
   },
 ];

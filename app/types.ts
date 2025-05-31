@@ -25,6 +25,7 @@ export type Meter = {
   id?: number;
   subscriber_id?: number | undefined;
   number: number;
+  status: "active" | "inactive";
   note?: string;
   created_at?: string;
 };

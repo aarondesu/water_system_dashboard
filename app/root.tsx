@@ -13,6 +13,7 @@ import type { Route } from "./+types/root";
 import "./app.css";
 import { Toaster } from "sonner";
 import { Loader2 } from "lucide-react";
+import { useIsMobile } from "./hooks/use-mobile";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -57,9 +58,11 @@ export function HydrateFallback() {
 }
 
 export default function App() {
+  const isMobile = useIsMobile();
+
   return (
     <Provider store={store}>
-      <Toaster position="top-center" />
+      <Toaster position={isMobile ? "top-center" : "bottom-center"} />
       <Outlet />
     </Provider>
   );

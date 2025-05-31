@@ -13,37 +13,48 @@ import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Button } from "../ui/button";
 import SelectSubscriberInput from "../select-subscriber-input";
-import { useCreateMeterMutation } from "~/redux/apis/meterapi";
+import {
+  useGetMeterQuery,
+  useUpdateMeterMutation,
+} from "~/redux/apis/meterapi";
 import { toast } from "sonner";
 import type { ApiError } from "~/types";
+import { useSearchParams } from "react-router";
+import { useEffect } from "react";
 
 const formSchema = z.object({
-  subscriber_id: z.number().optional(),
+  subscriber_id: z.coerce.number().optional(),
   number: z.coerce.number().min(1, "Meter number must be greater than 1"),
-  note: z.string(),
+  note: z.coerce.string(),
   status: z.enum(["active", "inactive"]),
 });
 
-export default function CreateMeterForm() {
-  const [createMeter, result] = useCreateMeterMutation();
+export default function EditMeterForm() {
+  const [params] = useSearchParams();
+  const id = Number(params.get("id"));
+
+  const [updateMeter, result] = useUpdateMeterMutation();
+  const { data, isSuccess } = useGetMeterQuery(id);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      subscriber_id: undefined,
-      number: 0,
-      note: "",
+      subscriber_id: data?.subscriber_id,
+      note: data?.note,
+      number: data?.number,
       status: "inactive",
     },
   });
 
-  const onSubmit = form.handleSubmit((data) => {
-    toast.promise(createMeter(data).unwrap(), {
+  const onSubmit = form.handleSubmit((meterData) => {
+    console.log(meterData);
+
+    toast.promise(updateMeter({ ...meterData, id: data?.id }).unwrap(), {
       loading: "Creating meter...",
       success: () => {
         form.reset(); // Only reset form after successfully creating meter
 
-        return "Successfully created meter!";
+        return "Successfully updated meter!";
       },
       error: (response) => {
         if ("status" in response) {
@@ -54,6 +65,12 @@ export default function CreateMeterForm() {
       },
     });
   });
+
+  useEffect(() => {
+    if (isSuccess) {
+      form.reset(data);
+    }
+  }, [data, isSuccess]);
 
   return (
     <Form {...form}>
@@ -124,7 +141,7 @@ export default function CreateMeterForm() {
             className="w-full md:w-fit"
             disabled={result.isLoading}
           >
-            Create
+            Update
           </Button>
         </div>
       </form>

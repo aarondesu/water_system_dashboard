@@ -38,7 +38,7 @@ export default function SelectSubscriberInput({
           variant="outline"
           role="combobox"
           className={cn(
-            "justify-between w-full",
+            "justify-between max-w-[500px] w-full",
             !value && "text-muted-foreground",
             className
           )}

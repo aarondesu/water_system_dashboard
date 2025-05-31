@@ -112,6 +112,7 @@ export default function SubscribersTable() {
     address: isMobile ? false : true,
     email: false,
     mobile_number: false,
+    first_name: isMobile ? true : false,
   });
   const [sorting, setSorting] = useState<SortingState>([]);
 

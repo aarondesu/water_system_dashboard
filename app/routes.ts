@@ -35,6 +35,7 @@ export default [
       ...prefix("meters", [
         index("routes/dashboard/meters/view.tsx"),
         route("create", "routes/dashboard/meters/create.tsx"),
+        route("edit", "routes/dashboard/meters/edit.tsx"),
       ]),
     ]),
     route("/login", "routes/dashboard/login.tsx"),
