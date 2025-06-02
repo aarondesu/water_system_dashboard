@@ -15,11 +15,19 @@ import { Button } from "../ui/button";
 
 const columns: ColumnDef<Meter>[] = [
   {
-    accessorKey: "id",
-    header: ({ header }) => <div className="text-center">ID</div>,
-    cell: ({ row }) => <div className="text-center">{row.original.id}</div>,
-    size: 30,
-    enableHiding: false,
+    id: "select",
+    header: ({ table }) => (
+      <Checkbox
+        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        checked={
+          table.getIsAllPageRowsSelected() ||
+          (table.getIsSomeRowsSelected() && "indeterminate")
+        }
+      />
+    ),
+    cell: ({ row }) => (
+      <Checkbox onCheckedChange={(value) => row.toggleSelected(!!value)} />
+    ),
   },
   {
     accessorKey: "number",
@@ -27,7 +35,6 @@ const columns: ColumnDef<Meter>[] = [
     cell: ({ row }) => (
       <div className="flex place-content-center">{row.original.number}</div>
     ),
-    size: 40,
     enableHiding: false,
   },
   {
@@ -42,9 +49,12 @@ const columns: ColumnDef<Meter>[] = [
   },
   {
     id: "actions",
-    size: 40,
     enableHiding: false,
-    cell: ({ row }) => <MeterActionDropdown id={row.original.id || 0} />,
+    cell: ({ row }) => (
+      <div className="relativ">
+        <MeterActionDropdown id={row.original.id || 0} />
+      </div>
+    ),
   },
 ];
 

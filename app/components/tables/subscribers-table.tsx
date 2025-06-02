@@ -34,7 +34,6 @@ const columns: ColumnDef<Subscriber>[] = [
     id: "select",
     enableHiding: false,
     enableSorting: false,
-    size: 30,
     header: ({ table }) => (
       <div className="flex justify-center items-center place-self-center">
         <Checkbox
@@ -98,7 +97,6 @@ const columns: ColumnDef<Subscriber>[] = [
     enableHiding: false,
     enableColumnFilter: false,
     enableMultiSort: false,
-    size: 50,
     cell: ({ row }) => <SubscriberActionDropdown id={row.original.id || 0} />,
   },
 ];
@@ -134,7 +132,7 @@ export default function SubscribersTable() {
   });
 
   return (
-    <div className="space-y-3">
+    <div className="flex flex-col w-full space-y-3">
       <DataTable
         isLoading={isLoading}
         table={table}

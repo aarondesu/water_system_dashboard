@@ -16,6 +16,7 @@ import SelectSubscriberInput from "../select-subscriber-input";
 import { useCreateMeterMutation } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import type { ApiError } from "~/types";
+import { useNavigate } from "react-router";
 
 const formSchema = z.object({
   subscriber_id: z.number().optional(),
@@ -26,6 +27,7 @@ const formSchema = z.object({
 
 export default function CreateMeterForm() {
   const [createMeter, result] = useCreateMeterMutation();
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,6 +44,7 @@ export default function CreateMeterForm() {
       loading: "Creating meter...",
       success: () => {
         form.reset(); // Only reset form after successfully creating meter
+        navigate("/dashboard/meters");
 
         return "Successfully created meter!";
       },

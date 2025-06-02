@@ -29,7 +29,7 @@ export default function AssignSubscriberMeter({
   const [open, setOpen] = useState<boolean>(false);
 
   return (
-    <div className="flex gap-1">
+    <div className="flex clear-both mr-8 gap-1">
       <Button
         size="icon"
         variant="outline"

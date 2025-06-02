@@ -41,9 +41,8 @@ const columns: ColumnDef<User>[] = [
     id: "select",
     enableHiding: false,
     enableSorting: false,
-    size: 15,
     header: ({ table }) => (
-      <div className="flex justify-center items-center place-self-center">
+      <div className="flex justify-center items-center">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -55,7 +54,7 @@ const columns: ColumnDef<User>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex justify-center items-center place-self-center">
+      <div className="flex justify-center items-center">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -119,7 +118,6 @@ const columns: ColumnDef<User>[] = [
     enableHiding: false,
     enableColumnFilter: false,
     enableMultiSort: false,
-    size: 50,
     cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

@@ -6,7 +6,7 @@ const session_token_key = import.meta.env.VITE_TOKEN_KEY;
 
 export const subscriberApi = createApi({
   reducerPath: "subscriberApi",
-  tagTypes: ["subscriber", "meter"],
+  tagTypes: ["subscriber"],
   baseQuery: fetchBaseQuery({
     baseUrl: `${baseUrl}subscribers/`,
     prepareHeaders: (headers) => {
@@ -69,7 +69,7 @@ export const subscriberApi = createApi({
         method: "DELETE",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["subscriber", "meter"],
+      invalidatesTags: ["subscriber"],
     }),
   }),
 });
