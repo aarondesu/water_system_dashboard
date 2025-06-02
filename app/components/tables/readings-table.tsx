@@ -4,20 +4,33 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import type { Meter, Reading } from "~/types";
+import type { Meter, Reading, Subscriber } from "~/types";
 import { Checkbox } from "../ui/checkbox";
 import { useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { DataTable } from "../ui/data-table";
 import DataTableNavigation from "../data-table-navigation";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
+import { Link } from "react-router";
+import { Button } from "../ui/button";
 
-const columns: ColumnDef<Reading>[] = [
+const columns: ColumnDef<
+  Reading & { meter: Meter & { subscriber: Subscriber } }
+>[] = [
   {
     id: "select",
     enableHiding: false,
     enableSorting: false,
-    size: 20,
     header: ({ table }) => (
-      <div className="flex justify-center items-center place-self-center">
+      <div className="flex justify-center items-center">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -29,7 +42,7 @@ const columns: ColumnDef<Reading>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex justify-center items-center place-self-center">
+      <div className="flex justify-center items-center">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -41,16 +54,57 @@ const columns: ColumnDef<Reading>[] = [
   {
     accessorKey: "meter.number",
     header: "Meter #",
-    size: 30,
-    cell: ({ row }) => (
-      <div className="text-center">{row.original.meter?.number}</div>
-    ),
     enableHiding: false,
+  },
+  {
+    id: "current_subscriber",
+    header: "Current Subscriber",
+    cell: ({ row }) => (
+      <span className="">
+        {`${row.original.meter.subscriber.last_name}, ${row.original.meter.subscriber.first_name}`}
+      </span>
+    ),
   },
   {
     accessorKey: "reading",
     header: "Current Reading",
+    cell: ({ row }) => (
+      <span className="">{`${row.original.reading} `} m&sup3;</span>
+    ),
     enableHiding: false,
+  },
+  {
+    accessorKey: "created_at",
+    header: "Recorded At",
+  },
+  {
+    id: "actions",
+    cell: ({ row }) => (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <Button variant="ghost" className="h-8 w-8 p-0">
+            <span className="sr-only">Open Menu</span>
+            <MoreHorizontal className="h-4 w-4" />
+          </Button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="end" className="w-48">
+          <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
+          <DropdownMenuSeparator />
+          <DropdownMenuGroup>
+            <DropdownMenuItem asChild>
+              <Link to={`/dashboard/readings/edit?id=${row.original.id}`}>
+                <Pencil />
+                <span>Edit</span>
+              </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem>
+              <Trash2 />
+              <span>Delete</span>
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
+        </DropdownMenuContent>
+      </DropdownMenu>
+    ),
   },
 ];
 
