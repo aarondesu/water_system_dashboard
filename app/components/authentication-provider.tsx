@@ -77,11 +77,19 @@ export function AuthenticationProvider({
     }
   }, [sessionStorage]);
 
-  return (
-    <AuthenticationContext.Provider value={value} {...props}>
-      {children}
-    </AuthenticationContext.Provider>
-  );
+  if (
+    (!sessionStorage.getItem(session_token_key) ||
+      sessionStorage.getItem(session_token_key) === "") &&
+    location.pathname !== "/dashboard/login"
+  ) {
+    return <div className="text-sm">Unauthorized. Redirecting...</div>;
+  } else {
+    return (
+      <AuthenticationContext.Provider value={value} {...props}>
+        {children}
+      </AuthenticationContext.Provider>
+    );
+  }
 }
 
 export function useAuth() {
