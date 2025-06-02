@@ -52,7 +52,7 @@ export function DataTable<TData, TValue>({
   const isMobile = useIsMobile();
 
   return (
-    <div className="space-y-3 select-none">
+    <div className="relative space-y-3 select-none">
       <div className="flex gap-2">
         <div className="flex grow gap-2">{actions && actions}</div>
         <div className="">
@@ -96,75 +96,55 @@ export function DataTable<TData, TValue>({
           )}
         </div>
       </div>
-      <div className="border">
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    className="font-bold"
-                    key={header.id}
-                    style={{
-                      minWidth: header.column.columnDef.size,
-                      maxWidth: header.column.columnDef.size,
-                    }}
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
+      <Table className="border">
+        <TableHeader>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <TableRow key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <TableHead className="font-bold" key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </TableHead>
+              ))}
+            </TableRow>
+          ))}
+        </TableHeader>
+        <TableBody>
+          {!isLoading && table.getRowModel().rows?.length ? (
+            table.getRowModel().rows.map((row) => (
+              <TableRow
+                key={row.id}
+                data-state={row.getIsSelected() && "selected"}
+                onClick={() => {
+                  if (enableSelectRow) {
+                    row.getToggleSelectedHandler();
+                  }
+                }}
+              >
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
                 ))}
               </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {!isLoading && table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                  onClick={() => {
-                    if (enableSelectRow) {
-                      row.getToggleSelectedHandler();
-                    }
-                  }}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className="overflow-hidden"
-                      style={{
-                        minWidth: cell.column.columnDef.size,
-                        maxWidth: cell.column.columnDef.size,
-                      }}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow className="">
-                <TableCell
-                  colSpan={table.getAllColumns().length}
-                  className="font-bold text-center"
-                >
-                  {isLoading ? "Loading data..." : "No records available"}
-                </TableCell>
-              </TableRow>
-            )}
-            {finalRow && finalRow}
-          </TableBody>
-        </Table>
-        {/* <ScrollBar orientation="horizontal" /> */}
-      </div>
+            ))
+          ) : (
+            <TableRow className="">
+              <TableCell
+                colSpan={table.getAllColumns().length}
+                className="font-bold text-center"
+              >
+                {isLoading ? "Loading data..." : "No records available"}
+              </TableCell>
+            </TableRow>
+          )}
+          {finalRow && finalRow}
+        </TableBody>
+      </Table>
     </div>
   );
 }
