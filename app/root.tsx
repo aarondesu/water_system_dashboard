@@ -62,7 +62,7 @@ export default function App() {
 
   return (
     <Provider store={store}>
-      <Toaster position={isMobile ? "top-center" : "bottom-center"} />
+      <Toaster position="bottom-center" />
       <Outlet />
     </Provider>
   );
