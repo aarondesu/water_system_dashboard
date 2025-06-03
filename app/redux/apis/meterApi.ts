@@ -6,7 +6,7 @@ const session_token_key = import.meta.env.VITE_TOKEN_KEY;
 
 export const meterApi = createApi({
   reducerPath: "meterApi",
-  tagTypes: ["meter"],
+  tagTypes: ["meter", "reading"],
   baseQuery: fetchBaseQuery({
     baseUrl: `${baseUrl}meters/`,
     prepareHeaders: (headers) => {
@@ -99,5 +99,6 @@ export const {
   useClearMeterMutation,
   useDeleteMeterMutation,
   useGetMeterQuery,
+  useLazyGetMeterQuery,
   useUpdateMeterMutation,
 } = meterApi;

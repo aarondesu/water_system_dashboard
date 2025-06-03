@@ -12,6 +12,10 @@ import DataTableNavigation from "../data-table-navigation";
 import MeterActionDropdown from "../meter-action-dropdown";
 import AssignSubscriberMeter from "../assign-subscriber-meter";
 import { Button } from "../ui/button";
+import { PlusCircle, RefreshCcw } from "lucide-react";
+import { cn } from "~/lib/utils";
+import { useIsMobile } from "~/hooks/use-mobile";
+import { Link } from "react-router";
 
 const columns: ColumnDef<Meter>[] = [
   {
@@ -59,7 +63,8 @@ const columns: ColumnDef<Meter>[] = [
 ];
 
 export default function MetersTable() {
-  const { data, isLoading } = useGetAllMetersQuery();
+  const { data, isLoading, isFetching, refetch } = useGetAllMetersQuery();
+  const isMobile = useIsMobile();
 
   const table = useReactTable({
     data: data || [],
@@ -70,7 +75,37 @@ export default function MetersTable() {
 
   return (
     <div className="space-y-3">
-      <DataTable isLoading={isLoading} table={table} />
+      <DataTable
+        isLoading={isLoading}
+        table={table}
+        actions={
+          <div className="flex gap-2">
+            <Button
+              size="icon"
+              disabled={isLoading || isFetching}
+              onClick={refetch}
+            >
+              <RefreshCcw
+                className={cn(
+                  "w-4 h-4",
+                  isFetching ? "animate-spin" : "animate-none"
+                )}
+              />
+            </Button>
+            <Button
+              disabled={isLoading}
+              variant="outline"
+              size={isMobile ? "icon" : "default"}
+              asChild
+            >
+              <Link to="/dashboard/readings/create">
+                <PlusCircle className="w-4 h-4" />
+                {!isMobile && <span>Create</span>}
+              </Link>
+            </Button>
+          </div>
+        }
+      />
       <DataTableNavigation table={table} />
     </div>
   );

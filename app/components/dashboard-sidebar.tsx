@@ -1,5 +1,8 @@
 import {
+  Banknote,
   ChevronUp,
+  Coins,
+  DollarSign,
   Droplets,
   Gauge,
   LayoutDashboard,
@@ -7,6 +10,8 @@ import {
   NotebookPen,
   NotepadText,
   Plus,
+  PlusCircle,
+  Receipt,
   User2,
   Users,
   Users2,
@@ -68,7 +73,7 @@ const links: Category[] = [
         icon: Users2,
         action: {
           url: "/dashboard/users/create",
-          icon: Plus,
+          icon: PlusCircle,
         },
       },
     ],
@@ -82,7 +87,7 @@ const links: Category[] = [
         icon: Users,
         action: {
           url: "/dashboard/subscribers/create",
-          icon: Plus,
+          icon: PlusCircle,
         },
       },
       {
@@ -91,13 +96,32 @@ const links: Category[] = [
         icon: Gauge,
         action: {
           url: "/dashboard/meters/create",
-          icon: Plus,
+          icon: PlusCircle,
         },
       },
       {
         label: "Water Readings",
         url: "/dashboard/readings",
         icon: Droplets,
+        action: {
+          url: "/dashboard/readings/create",
+          icon: PlusCircle,
+        },
+      },
+    ],
+  },
+  {
+    label: "Financials",
+    children: [
+      {
+        label: "Invoices",
+        url: "/dashboard/invoices",
+        icon: Receipt,
+      },
+      {
+        label: "Transactions",
+        url: "/dashboard/transactions",
+        icon: Banknote,
       },
     ],
   },

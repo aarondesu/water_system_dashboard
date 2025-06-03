@@ -66,6 +66,14 @@ const columns: ColumnDef<
     ),
   },
   {
+    accessorKey: "start_date",
+    header: "Start Date",
+  },
+  {
+    accessorKey: "end_date",
+    header: "End date",
+  },
+  {
     accessorKey: "reading",
     header: "Current Reading",
     cell: ({ row }) => (
@@ -79,6 +87,8 @@ const columns: ColumnDef<
   },
   {
     id: "actions",
+    enableHiding: false,
+    enableSorting: false,
     cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

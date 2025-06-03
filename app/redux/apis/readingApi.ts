@@ -6,7 +6,7 @@ const session_token_key = import.meta.env.VITE_TOKEN_KEY;
 
 export const readingApi = createApi({
   reducerPath: "readingApi",
-  tagTypes: ["reading"],
+  tagTypes: ["reading", "meter"],
   baseQuery: fetchBaseQuery({
     baseUrl: `${baseUrl}readings/`,
     prepareHeaders: (headers) => {
@@ -34,7 +34,16 @@ export const readingApi = createApi({
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["reading"],
     }),
+    createReading: builder.mutation<void, Reading>({
+      query: (data) => ({
+        url: "/",
+        method: "POST",
+        body: data,
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["reading", "meter"],
+    }),
   }),
 });
 
-export const { useGetAllReadingsQuery } = readingApi;
+export const { useGetAllReadingsQuery, useCreateReadingMutation } = readingApi;
