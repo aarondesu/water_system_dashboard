@@ -12,6 +12,7 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
+import { Skeleton } from "./ui/skeleton";
 
 interface SelectSubscriberInputProps {
   value: number;
@@ -26,7 +27,7 @@ export default function SelectSubscriberInput({
   disabled = false,
   className,
 }: SelectSubscriberInputProps) {
-  const { data, isLoading } = useGetAllSubscribersQuery();
+  const { data, isLoading, isSuccess } = useGetAllSubscribersQuery();
 
   const [open, setOpen] = useState<boolean>(false);
   const subscriber = data?.find((u) => u.id === value);
@@ -45,7 +46,9 @@ export default function SelectSubscriberInput({
           disabled={disabled || isLoading}
         >
           {value
-            ? `${subscriber?.last_name}, ${subscriber?.first_name}`
+            ? subscriber
+              ? `${subscriber?.last_name}, ${subscriber?.first_name}`
+              : "Select User..."
             : "Select User..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
