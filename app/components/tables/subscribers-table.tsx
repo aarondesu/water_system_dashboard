@@ -6,6 +6,8 @@ import {
   type ColumnDef,
   getSortedRowModel,
   type SortingState,
+  type ColumnFiltersState,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { useGetAllSubscribersQuery } from "~/redux/apis/subscriberApi";
 import type { Subscriber } from "~/types";
@@ -20,14 +22,15 @@ import {
   Pencil,
   Plus,
   RefreshCcw,
+  Search,
   Trash2,
 } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn } from "~/lib/utils";
 import { Link } from "react-router";
-import { toast } from "sonner";
 import SubscriberActionDropdown from "../subscriber-action-dropdown";
+import { Input } from "../ui/input";
 
 const columns: ColumnDef<Subscriber>[] = [
   {
@@ -35,7 +38,7 @@ const columns: ColumnDef<Subscriber>[] = [
     enableHiding: false,
     enableSorting: false,
     header: ({ table }) => (
-      <div className="flex justify-center items-center place-self-center">
+      <div className="flex justify-end">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -47,7 +50,7 @@ const columns: ColumnDef<Subscriber>[] = [
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex justify-center items-center place-self-center">
+      <div className="flex justify-end">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -106,13 +109,9 @@ export default function SubscribersTable() {
 
   const { data, isLoading, isFetching, refetch } = useGetAllSubscribersQuery();
 
-  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({
-    address: isMobile ? false : true,
-    email: false,
-    mobile_number: false,
-    first_name: isMobile ? true : false,
-  });
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [globalFilter, setGlobalFilter] = useState<any>([]);
 
   const table = useReactTable({
     columns: columns,
@@ -120,14 +119,12 @@ export default function SubscribersTable() {
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    onColumnVisibilityChange: setColumnVisibility,
     onSortingChange: setSorting,
-    initialState: {
-      columnVisibility: columnVisibility,
-    },
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
     state: {
-      columnVisibility: columnVisibility,
       sorting: sorting,
+      globalFilter: globalFilter,
     },
   });
 
@@ -137,7 +134,7 @@ export default function SubscribersTable() {
         isLoading={isLoading}
         table={table}
         actions={
-          <div className="flex gap-1">
+          <div className="flex w-full gap-1">
             <Button
               size="icon"
               onClick={() => refetch()}
@@ -153,6 +150,7 @@ export default function SubscribersTable() {
             <Button
               size={isMobile ? "icon" : "default"}
               disabled={isLoading}
+              variant="outline"
               asChild
             >
               <Link to="/dashboard/subscribers/create">
@@ -162,6 +160,7 @@ export default function SubscribersTable() {
             </Button>
             <Button
               size={isMobile ? "icon" : "default"}
+              variant="outline"
               disabled={
                 isLoading ||
                 isFetching ||
@@ -172,6 +171,21 @@ export default function SubscribersTable() {
               <Trash2 />
               {!isMobile && <span>Delete</span>}
             </Button>
+            <div className="w-full">
+              <form onClick={(e) => e.preventDefault()}>
+                <div className="flex items-center border p-0 rounded-md">
+                  <Search className="mx-2 w-4 h-4 text-muted-foreground " />
+                  <Input
+                    className="border-transparent shadow-none"
+                    placeholder="Filter columns..."
+                    value={(globalFilter as string) ?? ""}
+                    onChange={(event) =>
+                      table.setGlobalFilter(String(event.target.value))
+                    }
+                  />
+                </div>
+              </form>
+            </div>
           </div>
         }
       />

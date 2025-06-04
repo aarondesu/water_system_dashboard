@@ -39,7 +39,7 @@ export default function SelectSubscriberInput({
           variant="outline"
           role="combobox"
           className={cn(
-            "justify-between w-full  ",
+            "justify-between w-full max-w-[600px]",
             !value && "text-muted-foreground",
             className
           )}
@@ -48,8 +48,8 @@ export default function SelectSubscriberInput({
           {value
             ? subscriber
               ? `${subscriber?.last_name}, ${subscriber?.first_name}`
-              : "Select User..."
-            : "Select User..."}
+              : "Select subscriber..."
+            : "Select subscriber..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>

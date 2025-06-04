@@ -30,7 +30,7 @@ const columns: ColumnDef<
     enableHiding: false,
     enableSorting: false,
     header: ({ table }) => (
-      <div className="flex justify-center items-center">
+      <div className="flex justify-end">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
@@ -42,7 +42,7 @@ const columns: ColumnDef<
       </div>
     ),
     cell: ({ row }) => (
-      <div className="flex justify-center items-center">
+      <div className="flex justify-end">
         <Checkbox
           checked={row.getIsSelected()}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
@@ -53,17 +53,9 @@ const columns: ColumnDef<
   },
   {
     accessorKey: "meter.number",
-    header: "Meter #",
+    header: () => <div className="">Meter #</div>,
+    cell: ({ row }) => <div className="">{row.original.meter.number}</div>,
     enableHiding: false,
-  },
-  {
-    id: "current_subscriber",
-    header: "Current Subscriber",
-    cell: ({ row }) => (
-      <span className="">
-        {`${row.original.meter.subscriber.last_name}, ${row.original.meter.subscriber.first_name}`}
-      </span>
-    ),
   },
   {
     accessorKey: "start_date",

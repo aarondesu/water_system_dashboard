@@ -25,14 +25,6 @@ export default function SubscriberActionDropdown({
   const [deleteSubscriber, deleteResults] = useDeleteSubscriberMutation();
   const [open, setOpen] = useState<boolean>(false);
 
-  const onDeleteSubscriber = (id: number) => {
-    toast.promise(deleteSubscriber(id).unwrap(), {
-      loading: "Deleting subscriber...",
-      success: "Successfully deleted subscriber",
-      error: "Failed to delete subscriber",
-    });
-  };
-
   return (
     <>
       <DropdownMenu>
@@ -65,7 +57,11 @@ export default function SubscriberActionDropdown({
         description="Are you sure you want to delete this subscriber? Action is irreversible."
         action={() => {
           setOpen(false);
-          onDeleteSubscriber(id);
+          toast.promise(deleteSubscriber(id).unwrap(), {
+            loading: "Deleting subscriber...",
+            success: "Successfully deleted subscriber",
+            error: "Failed to delete subscriber",
+          });
         }}
       />
     </>

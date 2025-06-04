@@ -13,6 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import { Input } from "./ui/input";
+import { useForm } from "react-hook-form";
 
 interface DataTableNavigationProps<TData> {
   table: Table<TData>;
@@ -64,9 +66,17 @@ export default function DataTableNavigation<TData>({
             <ChevronLeft />
           </Button>
         </div>
-        <div className="flex items-center text-sm">
-          Pages {table.getState().pagination.pageIndex + 1} of{" "}
-          {table.getPageCount()}
+        <div className="flex flex-row items-center text-sm gap-2">
+          <span>Pages</span>
+          <Input
+            defaultValue={table.getState().pagination.pageIndex + 1}
+            onChange={(target) =>
+              table.setPageIndex(Number(target.currentTarget.value) - 1)
+            }
+            className="w-9 text-center border-transparent"
+          />
+          <span>of</span>
+          <span className="space-x-2">{table.getPageCount()}</span>
         </div>
         <div className="flex gap-2">
           <Button

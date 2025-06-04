@@ -16,6 +16,7 @@ export default function ApplicationSidebarFooter() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
+        ``
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton>
@@ -25,7 +26,7 @@ export default function ApplicationSidebarFooter() {
           </DropdownMenuTrigger>
           <DropdownMenuContent
             side="top"
-            className="w-[var(--radix-popover-trigger-width)]"
+            className="w-[var(--radix-popper-anchor-width)]"
           >
             <DropdownMenuLabel>Account</DropdownMenuLabel>
             <DropdownMenuSeparator />
