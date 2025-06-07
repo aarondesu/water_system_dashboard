@@ -10,10 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Link } from "react-router";
-import ConfirmationDialog from "./confirmation-dialog";
 import { useDeleteSubscriberMutation } from "~/redux/apis/subscriberApi";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useConfirmationDialog } from "./confirmation-dialog-provider";
+import type { ApiError } from "~/types";
 
 interface SubscriberActionDropdownProps {
   id: number;
@@ -23,7 +23,7 @@ export default function SubscriberActionDropdown({
   id,
 }: SubscriberActionDropdownProps) {
   const [deleteSubscriber, deleteResults] = useDeleteSubscriberMutation();
-  const [open, setOpen] = useState<boolean>(false);
+  const { createDialog } = useConfirmationDialog();
 
   return (
     <>
@@ -44,26 +44,34 @@ export default function SubscriberActionDropdown({
                 <span>Edit</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => setOpen(true)}>
+            <DropdownMenuItem
+              onClick={() =>
+                createDialog({
+                  title: "Delete Subscriber",
+                  description:
+                    "Are you sure you want to delete this subscriber? Action is irreversible. Deleting subscriber will unsubscribe them from the current meter they are assigned to",
+                  action: () => {
+                    toast.promise(deleteSubscriber(id).unwrap(), {
+                      loading: "Deleting subscriber...",
+                      success: "Successfully deleted subscriber",
+                      error: (error) => {
+                        if ("data" in error) {
+                          return (error as ApiError).data.errors[0];
+                        } else {
+                          return "Unhandled error";
+                        }
+                      },
+                    });
+                  },
+                })
+              }
+            >
               <Trash2 />
               <span>Delete</span>
             </DropdownMenuItem>
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
-      <ConfirmationDialog
-        open={open}
-        title="Delete Subscriber"
-        description="Are you sure you want to delete this subscriber? Action is irreversible."
-        action={() => {
-          setOpen(false);
-          toast.promise(deleteSubscriber(id).unwrap(), {
-            loading: "Deleting subscriber...",
-            success: "Successfully deleted subscriber",
-            error: "Failed to delete subscriber",
-          });
-        }}
-      />
     </>
   );
 }

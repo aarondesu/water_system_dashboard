@@ -10,7 +10,7 @@ import type { ApiError } from "~/types";
 import { Button } from "./ui/button";
 import { Ban } from "lucide-react";
 import { useIsMobile } from "~/hooks/use-mobile";
-import ConfirmationDialog from "./confirmation-dialog";
+import { useConfirmationDialog } from "./confirmation-dialog-provider";
 
 export interface AssignSubscriberMeterProps {
   id: number;
@@ -24,9 +24,8 @@ export default function AssignSubscriberMeter({
   const [assignMeter, assignResult] = useAssignMeterMutation();
   const [clearMeter, clearResult] = useClearMeterMutation();
   const [value, setValue] = useState<number>(subscriber_id); // Set initial subscriber
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [open, setOpen] = useState<boolean>(false);
+  const { createDialog } = useConfirmationDialog();
 
   return (
     <div className="flex clear-both mr-8 gap-1">
@@ -37,7 +36,23 @@ export default function AssignSubscriberMeter({
           clearResult.isLoading || assignResult.isLoading || value === 0
         }
         onClick={() => {
-          setOpen(true);
+          createDialog({
+            title: "Clear subscriber",
+            description:
+              "Are you sure you want to clear the current subscriber from the meter?",
+            action: () => {
+              toast.promise(clearMeter(id).unwrap(), {
+                loading: "Clearing subscriber from meter...",
+                success: "Successfully cleared subscriber from meter",
+                error: (error) => {
+                  if ("data" in error) {
+                    return (error as ApiError).data.errors[0];
+                  }
+                  return "Unkown error occured";
+                },
+              });
+            },
+          });
         }}
       >
         <Ban className="w-4 h-4" />
@@ -68,29 +83,6 @@ export default function AssignSubscriberMeter({
           );
         }}
         disabled={clearResult.isLoading || assignResult.isLoading}
-      />
-      <ConfirmationDialog
-        title="Clear Subscriber from Meter"
-        description="Are you sure you want to clear subscriber from the meter?"
-        open={open}
-        setOpen={setOpen}
-        action={() => {
-          setValue(0);
-          setOpen(false);
-          toast.promise(clearMeter(id).unwrap(), {
-            loading: "Removing subscriber from meter...",
-            success: "Successfully removed subscriber from meter",
-            error: (response) => {
-              setValue(subscriber_id);
-
-              if ("status" in response) {
-                return (response as ApiError).data.errors[0];
-              } else {
-                return "Unknown Error Occured";
-              }
-            },
-          });
-        }}
       />
     </div>
   );
