@@ -1,52 +1,36 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { ApiError, Subscriber } from "~/types";
+import { baseApi } from "./baseApi";
 
-const baseUrl = import.meta.env.VITE_API_URL;
-const session_token_key = import.meta.env.VITE_TOKEN_KEY;
-
-export const subscriberApi = createApi({
-  reducerPath: "subscriberApi",
-  tagTypes: ["subscriber"],
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${baseUrl}subscribers/`,
-    prepareHeaders: (headers) => {
-      const token = sessionStorage.getItem(session_token_key);
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+export const subscriberApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllSubscribers: builder.query<Subscriber[], void>({
       query: () => ({
-        url: "/",
+        url: "/subscribers",
         method: "GET",
       }),
       transformResponse: (result: { success: boolean; data: Subscriber[] }) =>
         result.data,
       transformErrorResponse: (response: ApiError) => response,
-      providesTags: ["subscriber"],
+      providesTags: ["subscribers"],
     }),
     createSubscriber: builder.mutation<void, Subscriber>({
       query: (data) => ({
-        url: "/",
+        url: "/subscribers",
         method: "POST",
         body: data,
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["subscriber"],
+      invalidatesTags: ["subscribers"],
     }),
     getSubscriber: builder.query<Subscriber, number>({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/subscribers/${id}`,
         method: "GET",
       }),
       transformResponse: (result: { success: boolean; data: Subscriber }) =>
         result.data,
       transformErrorResponse: (response: ApiError) => response,
-      providesTags: ["subscriber"],
+      providesTags: ["subscribers"],
     }),
     updateSubscriber: builder.mutation<
       void,
@@ -56,22 +40,23 @@ export const subscriberApi = createApi({
       }
     >({
       query: ({ subscriber, id }) => ({
-        url: `/${id}`,
+        url: `/subscribers/${id}`,
         method: "PUT",
         body: subscriber,
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["subscriber"],
+      invalidatesTags: ["subscribers"],
     }),
     deleteSubscriber: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/subscribers/${id}`,
         method: "DELETE",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["subscriber"],
+      invalidatesTags: ["subscribers", "meters"],
     }),
   }),
+  overrideExisting: false,
 });
 
 export const {

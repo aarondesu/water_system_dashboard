@@ -1,44 +1,29 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { ApiError, User } from "~/types";
+import { baseApi } from "./baseApi";
 
-const baseUrl = import.meta.env.VITE_API_URL;
-const session_token_key = import.meta.env.VITE_TOKEN_KEY;
-
-export const userApi = createApi({
-  reducerPath: "userApi",
-  tagTypes: ["user"],
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${baseUrl}users/`,
-    prepareHeaders: (headers) => {
-      const token = sessionStorage.getItem(session_token_key);
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+export const userApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllusers: builder.query<User[], void>({
       query: () => ({
-        url: "/",
+        url: "/users",
         method: "GET",
       }),
       transformResponse: (result: { success: boolean; data: User[] }) =>
         result.data,
       transformErrorResponse: (response: ApiError) => response,
-      providesTags: ["user"],
+      providesTags: ["users"],
     }),
     createUser: builder.mutation<void, User>({
       query: (data) => ({
-        url: "/",
+        url: "/users",
         method: "POSt",
         body: data,
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["user"],
+      invalidatesTags: ["users"],
     }),
   }),
+  overrideExisting: false,
 });
 
 export const { useGetAllusersQuery, useCreateUserMutation } = userApi;

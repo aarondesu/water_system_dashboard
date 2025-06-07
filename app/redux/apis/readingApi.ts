@@ -1,4 +1,3 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { buildUrlParams } from "~/lib/utils";
 import type {
   Reading,
@@ -8,24 +7,10 @@ import type {
   PaginationResults,
   PaginationArgs,
 } from "~/types";
+import { baseApi } from "./baseApi";
 
-const baseUrl = import.meta.env.VITE_API_URL;
-const session_token_key = import.meta.env.VITE_TOKEN_KEY;
-
-export const readingApi = createApi({
-  reducerPath: "readingApi",
-  tagTypes: ["reading", "meter"],
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${baseUrl}readings/`,
-    prepareHeaders: (headers) => {
-      const token = sessionStorage.getItem(session_token_key);
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+export const readingApi = baseApi.injectEndpoints({
+  overrideExisting: false,
   endpoints: (builder) => ({
     getAllReadings: builder.query<
       PaginationResults<
@@ -34,7 +19,7 @@ export const readingApi = createApi({
       PaginationArgs & { meter?: string }
     >({
       query: (params) => ({
-        url: buildUrlParams("/", [
+        url: buildUrlParams("/readings", [
           `page=${params.page_index}`,
           `rows=${params.rows}`,
           (params.meter && `meter=${params.meter}`) || "",
@@ -48,24 +33,24 @@ export const readingApi = createApi({
         >;
       }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
-      providesTags: ["reading"],
+      providesTags: ["readings"],
     }),
     createReading: builder.mutation<void, Reading>({
       query: (data) => ({
-        url: "/",
+        url: "/readings",
         method: "POST",
         body: data,
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["reading", "meter"],
+      invalidatesTags: ["readings", "meters"],
     }),
     deleteReading: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/readings/${id}`,
         method: "DELETE",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["reading"],
+      invalidatesTags: ["readings"],
     }),
   }),
 });

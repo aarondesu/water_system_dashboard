@@ -1,27 +1,12 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import type { ApiError, LoginDetails, User } from "~/types";
 
-const baseUrl = import.meta.env.VITE_API_URL;
-const session_token_key = import.meta.env.VITE_TOKEN_KEY;
+import { baseApi } from "./baseApi";
 
-export const authApi = createApi({
-  reducerPath: "authApi",
-  tagTypes: ["auth"],
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${baseUrl}auth/`,
-    prepareHeaders: (headers) => {
-      const token = sessionStorage.getItem(session_token_key);
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+export const authApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     login: builder.mutation<string, LoginDetails>({
       query: (data) => ({
-        url: "login",
+        url: "/auth/login",
         method: "POST",
         body: data,
       }),
@@ -33,7 +18,7 @@ export const authApi = createApi({
     }),
     logout: builder.mutation<void, void>({
       query: () => ({
-        url: "logout",
+        url: "/auth/logout",
         method: "POST",
       }),
       transformErrorResponse: (response: ApiError) => response,
@@ -41,7 +26,7 @@ export const authApi = createApi({
     }),
     user: builder.query<User, void>({
       query: () => ({
-        url: "/user",
+        url: "/auth/user",
         method: "GET",
       }),
       transformErrorResponse: (response: ApiError) => response,
@@ -49,6 +34,7 @@ export const authApi = createApi({
         result.data,
     }),
   }),
+  overrideExisting: false,
 });
 
 export const { useLoginMutation, useLogoutMutation, useUserQuery } = authApi;

@@ -1,47 +1,32 @@
-import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { type ApiError, type Meter } from "~/types";
+import { baseApi } from "./baseApi";
 
-const baseUrl = import.meta.env.VITE_API_URL;
-const session_token_key = import.meta.env.VITE_TOKEN_KEY;
-
-export const meterApi = createApi({
-  reducerPath: "meterApi",
-  tagTypes: ["meter", "reading"],
-  baseQuery: fetchBaseQuery({
-    baseUrl: `${baseUrl}meters/`,
-    prepareHeaders: (headers) => {
-      const token = sessionStorage.getItem(session_token_key);
-      if (token) {
-        headers.set("Authorization", `Bearer ${token}`);
-      }
-
-      return headers;
-    },
-  }),
+export const meterApi = baseApi.injectEndpoints({
+  overrideExisting: false,
   endpoints: (builder) => ({
     getMeter: builder.query<Meter, number>({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/meters/${id}`,
         method: "GET",
       }),
       transformResponse: (result: { success: boolean; data: Meter }) =>
         result.data,
       transformErrorResponse: (response: ApiError) => response,
-      providesTags: ["meter"],
+      providesTags: ["meters"],
     }),
     getAllMeters: builder.query<Meter[], void>({
       query: () => ({
-        url: "/",
+        url: "/meters",
         method: "GET",
       }),
       transformResponse: (result: { success: boolean; data: Meter[] }) =>
         result.data,
       transformErrorResponse: (response: ApiError) => response,
-      providesTags: ["meter"],
+      providesTags: ["meters"],
     }),
     createMeter: builder.mutation<void, Meter>({
       query: (data) => ({
-        url: "/",
+        url: "/meters",
         method: "POST",
         body: {
           subscriber_id: data.subscriber_id,
@@ -50,11 +35,11 @@ export const meterApi = createApi({
         },
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["meter"],
+      invalidatesTags: ["meters"],
     }),
     updateMeter: builder.mutation<void, Meter>({
       query: (data) => ({
-        url: `/${data.id}`,
+        url: `/meters/${data.id}`,
         method: "PUT",
         body: {
           subscriber_id: data.subscriber_id,
@@ -63,31 +48,31 @@ export const meterApi = createApi({
         },
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["meter"],
+      invalidatesTags: ["meters"],
     }),
     assignMeter: builder.mutation<void, { id: number; subscriber: number }>({
       query: ({ id, subscriber }) => ({
-        url: `/assign/${id}/${subscriber}/`,
+        url: `/meters/assign/${id}/${subscriber}/`,
         method: "PUT",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["meter"],
+      invalidatesTags: ["meters"],
     }),
     clearMeter: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/clear/${id}`,
+        url: `/meters/clear/${id}`,
         method: "PUT",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["meter"],
+      invalidatesTags: ["meters", "subscribers"],
     }),
     deleteMeter: builder.mutation<void, number>({
       query: (id) => ({
-        url: `/${id}`,
+        url: `/meters/${id}`,
         method: "DELETE",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["meter"],
+      invalidatesTags: ["meters", "subscribers"],
     }),
   }),
 });
