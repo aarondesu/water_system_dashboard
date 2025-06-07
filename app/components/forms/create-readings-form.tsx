@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "../ui/form";
 import { Input } from "../ui/input";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SelectMeterInput from "../select-meter-input";
 import { useLazyGetMeterQuery } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
@@ -19,7 +19,7 @@ import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
 import DatePicker from "../ui/date-picker";
 import { useCreateReadingMutation } from "~/redux/apis/readingApi";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 
@@ -44,10 +44,13 @@ export default function CreateReadingsForm() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
 
+  const [param] = useSearchParams();
+  const meter_id = Number(param.get("meter")) || 0;
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      meter_id: 0,
+      meter_id: meter_id,
       reading: 0,
       start_date: undefined,
       end_date: undefined,
@@ -65,6 +68,13 @@ export default function CreateReadingsForm() {
       error: "Failed to create reading",
     });
   });
+
+  useEffect(() => {
+    if (param.get("meter")) {
+      setSelected(true);
+      getMeter(meter_id);
+    }
+  }, [param]);
 
   return (
     <Form {...form}>
@@ -135,7 +145,7 @@ export default function CreateReadingsForm() {
                 <FormControl>
                   <DatePicker
                     onSelect={(range) => {
-                      console.log("Test");
+                      console.log(range);
 
                       // Check if from and to are not undefined
                       if (range?.from && range?.to) {

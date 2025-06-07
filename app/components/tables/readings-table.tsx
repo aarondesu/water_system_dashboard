@@ -1,6 +1,7 @@
 import {
   getCoreRowModel,
   getPaginationRowModel,
+  type PaginationState,
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
@@ -9,7 +10,13 @@ import { Checkbox } from "../ui/checkbox";
 import { useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { DataTable } from "../ui/data-table";
 import DataTableNavigation from "../data-table-navigation";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import {
+  CirclePlus,
+  MoreHorizontal,
+  Pencil,
+  RefreshCcw,
+  Trash2,
+} from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +28,11 @@ import {
 } from "../ui/dropdown-menu";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
+import { useState } from "react";
+import ReadingActionDropdown from "../reading-action-dropdown";
+import { cn } from "~/lib/utils";
+import { useIsMobile } from "~/hooks/use-mobile";
+import { Input } from "../ui/input";
 
 const columns: ColumnDef<
   Reading & { meter: Meter & { subscriber: Subscriber } }
@@ -67,7 +79,7 @@ const columns: ColumnDef<
   },
   {
     accessorKey: "reading",
-    header: "Current Reading",
+    header: "Reading",
     cell: ({ row }) => (
       <span className="">{`${row.original.reading} `} m&sup3;</span>
     ),
@@ -81,49 +93,70 @@ const columns: ColumnDef<
     id: "actions",
     enableHiding: false,
     enableSorting: false,
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open Menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Link to={`/dashboard/readings/edit?id=${row.original.id}`}>
-                <Pencil />
-                <span>Edit</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Trash2 />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => <ReadingActionDropdown id={row.original.id || 0} />,
   },
 ];
 
 export default function ReadingsTable() {
-  const { data, isLoading } = useGetAllReadingsQuery();
+  const isMobile = useIsMobile();
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
+
+  const { data, isLoading, isFetching, refetch } = useGetAllReadingsQuery({
+    page_index: pagination.pageIndex + 1,
+    rows: pagination.pageSize,
+  });
 
   const table = useReactTable({
     columns: columns,
-    data: data || [],
+    data: data?.items || [],
     getCoreRowModel: getCoreRowModel(),
+    onPaginationChange: setPagination,
+    manualPagination: true,
     getPaginationRowModel: getPaginationRowModel(),
+    state: {
+      pagination: pagination,
+    },
+    pageCount: data?.pages,
   });
 
   return (
     <div className="space-y-3">
-      <DataTable table={table} isLoading={isLoading} />
-      <DataTableNavigation table={table} />
+      <DataTable
+        table={table}
+        isLoading={isLoading}
+        actions={
+          <div className="flex flex-row gap-2">
+            <Button
+              size="icon"
+              disabled={isLoading || isFetching}
+              onClick={refetch}
+            >
+              <RefreshCcw
+                className={cn(
+                  "w-4 h-4",
+                  isLoading || isFetching ? "animate-spin" : "animate-none"
+                )}
+              />
+            </Button>
+            <Button
+              size={isMobile ? "icon" : "default"}
+              variant="outline"
+              asChild
+            >
+              <Link to="/dashboard/readings/create">
+                <CirclePlus className="w-4 h-4" />
+                {!isMobile && <span>Create</span>}
+              </Link>
+            </Button>
+            <Input className="" placeholder="Search meter..." />
+            <Input className="" placeholder="Search reading..." />
+          </div>
+        }
+      />
+      <DataTableNavigation table={table} isLoading={isLoading || isFetching} />
     </div>
   );
 }
