@@ -53,49 +53,51 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="relative space-y-3 select-none">
-      <div className="flex gap-2">
-        <div className="flex grow gap-2">{actions && actions}</div>
-        <div className="">
-          {hideColumns && (
-            <DropdownMenu onOpenChange={setOpen} open={open}>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="outline"
-                  size={!isMobile ? "default" : "icon"}
-                  className="ml-auto"
-                >
-                  <Settings2 className="w-4 h-4" />
-                  <span className="hidden md:block">View</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel className="font-bold">
-                  Toggle Columns
-                </DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {table
-                  .getAllColumns()
-                  .filter((column) => column.getCanHide())
-                  .map((column) => {
-                    return (
-                      <DropdownMenuCheckboxItem
-                        key={column.id}
-                        className="capitalize"
-                        checked={column.getIsVisible()}
-                        onCheckedChange={(value) => {
-                          column.toggleVisibility(!!value);
-                          setOpen(true);
-                        }}
-                      >
-                        {column.columnDef.header as string}
-                      </DropdownMenuCheckboxItem>
-                    );
-                  })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+      {actions && hideColumns && (
+        <div className="flex gap-2">
+          <div className="flex grow gap-2">{actions && actions}</div>
+          <div className="">
+            {hideColumns && (
+              <DropdownMenu onOpenChange={setOpen} open={open}>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="outline"
+                    size={!isMobile ? "default" : "icon"}
+                    className="ml-auto"
+                  >
+                    <Settings2 className="w-4 h-4" />
+                    <span className="hidden md:block">View</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel className="font-bold">
+                    Toggle Columns
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  {table
+                    .getAllColumns()
+                    .filter((column) => column.getCanHide())
+                    .map((column) => {
+                      return (
+                        <DropdownMenuCheckboxItem
+                          key={column.id}
+                          className="capitalize"
+                          checked={column.getIsVisible()}
+                          onCheckedChange={(value) => {
+                            column.toggleVisibility(!!value);
+                            setOpen(true);
+                          }}
+                        >
+                          {column.columnDef.header as string}
+                        </DropdownMenuCheckboxItem>
+                      );
+                    })}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
         </div>
-      </div>
+      )}
       <Table className="border rounded-md shadow-md">
         <TableHeader className="bg-muted">
           {table.getHeaderGroups().map((headerGroup) => (
