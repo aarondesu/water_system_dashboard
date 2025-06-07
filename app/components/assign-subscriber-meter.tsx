@@ -44,7 +44,7 @@ export default function AssignSubscriberMeter({
       </Button>
       <SelectSubscriberInput
         value={value}
-        className="flex border-transparent shadow-none in-focus-within:border bg-muted"
+        className="flex border-transparent shadow-none in-focus-within:border bg-transparent"
         onSelect={(new_subscriber_id) => {
           setValue(new_subscriber_id);
           toast.promise(
