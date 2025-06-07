@@ -19,6 +19,7 @@ import {
 import { Button } from "../ui/button";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router";
+import ReadingActionDropdown from "../reading-action-dropdown";
 
 interface MeterReadingsTableProps {
   data: Reading[];
@@ -42,32 +43,7 @@ const columns: ColumnDef<Reading>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open Menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Link to={`/dashboard/readings/edit?id=${row.original.id}`}>
-                <Pencil />
-                <span>Edit</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <Trash2 />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
+    cell: ({ row }) => <ReadingActionDropdown id={row.original.id || 0} />,
   },
 ];
 
