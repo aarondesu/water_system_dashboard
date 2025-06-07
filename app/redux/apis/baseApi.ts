@@ -5,7 +5,7 @@ const session_token_key = import.meta.env.VITE_TOKEN_KEY;
 
 export const baseApi = createApi({
   reducerPath: "api",
-  tagTypes: ["auth", "meters", "readings", "users", "subscribers"],
+  tagTypes: ["auth", "meters", "readings", "users", "subscribers", "invoices"],
   baseQuery: fetchBaseQuery({
     baseUrl: baseUrl,
     prepareHeaders: (headers) => {

@@ -41,6 +41,21 @@ export type Meter = {
   readings?: Reading[];
 };
 
+export type Invoice = {
+  id?: number;
+  subscriber_id: number;
+  meter_id: number;
+  previous_reading_id: number;
+  current_reading_id: number;
+  consumption?: number;
+  rate_per_unit: number;
+  amount_due?: number;
+  status: "unpaid" | "partial" | "paid";
+  due_date: string;
+  created_at: string;
+  updated_at: string;
+};
+
 export type ApiError = {
   status: number;
   data: {
