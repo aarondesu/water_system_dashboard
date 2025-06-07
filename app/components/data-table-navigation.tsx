@@ -18,10 +18,12 @@ import { useForm } from "react-hook-form";
 
 interface DataTableNavigationProps<TData> {
   table: Table<TData>;
+  isLoading?: boolean;
 }
 
 export default function DataTableNavigation<TData>({
   table,
+  isLoading = false,
 }: DataTableNavigationProps<TData>) {
   return (
     <div className="flex flex-col-reverse md:flex-row gap-4">
@@ -53,7 +55,7 @@ export default function DataTableNavigation<TData>({
             variant="outline"
             size="icon"
             onClick={() => table.setPageIndex(0)}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!table.getCanPreviousPage() || isLoading}
           >
             <ChevronsLeft />
           </Button>
@@ -61,20 +63,14 @@ export default function DataTableNavigation<TData>({
             variant="outline"
             size="icon"
             onClick={() => table.previousPage()}
-            disabled={!table.getCanPreviousPage()}
+            disabled={!table.getCanPreviousPage() || isLoading}
           >
             <ChevronLeft />
           </Button>
         </div>
         <div className="flex flex-row items-center text-sm gap-2">
           <span>Pages</span>
-          <Input
-            defaultValue={table.getState().pagination.pageIndex + 1}
-            onChange={(target) =>
-              table.setPageIndex(Number(target.currentTarget.value) - 1)
-            }
-            className="w-9 text-center border-transparent"
-          />
+          <span>{table.getState().pagination.pageIndex + 1}</span>
           <span>of</span>
           <span className="space-x-2">{table.getPageCount()}</span>
         </div>
@@ -83,7 +79,7 @@ export default function DataTableNavigation<TData>({
             variant="outline"
             size="icon"
             onClick={() => table.nextPage()}
-            disabled={!table.getCanNextPage()}
+            disabled={!table.getCanNextPage() || isLoading}
           >
             <ChevronRight />
           </Button>
@@ -91,7 +87,7 @@ export default function DataTableNavigation<TData>({
             variant="outline"
             size="icon"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-            disabled={!table.getCanNextPage()}
+            disabled={!table.getCanNextPage() || isLoading}
           >
             <ChevronsRight />
           </Button>
