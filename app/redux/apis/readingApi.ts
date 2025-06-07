@@ -1,5 +1,13 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import type { Reading, ApiError, Meter, Subscriber } from "~/types";
+import { buildUrlParams } from "~/lib/utils";
+import type {
+  Reading,
+  ApiError,
+  Meter,
+  Subscriber,
+  PaginationResults,
+  PaginationArgs,
+} from "~/types";
 
 const baseUrl = import.meta.env.VITE_API_URL;
 const session_token_key = import.meta.env.VITE_TOKEN_KEY;
@@ -20,16 +28,24 @@ export const readingApi = createApi({
   }),
   endpoints: (builder) => ({
     getAllReadings: builder.query<
-      (Reading & { meter: Meter & { subscriber: Subscriber } })[],
-      void
+      PaginationResults<
+        Reading & { meter: Meter & { subscriber: Subscriber } }
+      >,
+      PaginationArgs & { meter?: string }
     >({
-      query: () => ({
-        url: "/",
+      query: (params) => ({
+        url: buildUrlParams("/", [
+          `page=${params.page_index}`,
+          `rows=${params.rows}`,
+          (params.meter && `meter=${params.meter}`) || "",
+        ]),
         method: "GET",
       }),
       transformResponse: (result: {
         success: boolean;
-        data: (Reading & { meter: Meter & { subscriber: Subscriber } })[];
+        data: PaginationResults<
+          Reading & { meter: Meter & { subscriber: Subscriber } }
+        >;
       }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["reading"],
@@ -43,7 +59,19 @@ export const readingApi = createApi({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["reading", "meter"],
     }),
+    deleteReading: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/${id}`,
+        method: "DELETE",
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["reading"],
+    }),
   }),
 });
 
-export const { useGetAllReadingsQuery, useCreateReadingMutation } = readingApi;
+export const {
+  useGetAllReadingsQuery,
+  useCreateReadingMutation,
+  useDeleteReadingMutation,
+} = readingApi;

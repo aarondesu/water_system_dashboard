@@ -48,3 +48,14 @@ export type ApiError = {
     errors: string[][];
   };
 };
+
+export type PaginationArgs = {
+  page_index: number;
+  rows: number;
+  search?: string;
+};
+
+export type PaginationResults<T> = {
+  pages: number;
+  items: T[];
+};
