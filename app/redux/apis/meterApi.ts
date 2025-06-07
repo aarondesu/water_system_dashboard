@@ -52,7 +52,7 @@ export const meterApi = baseApi.injectEndpoints({
     }),
     assignMeter: builder.mutation<void, { id: number; subscriber: number }>({
       query: ({ id, subscriber }) => ({
-        url: `/meters/assign/${id}/${subscriber}/`,
+        url: `/meters/${id}/assign/${subscriber}/`,
         method: "PUT",
       }),
       transformErrorResponse: (response: ApiError) => response,

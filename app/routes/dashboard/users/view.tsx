@@ -10,7 +10,7 @@ export default function ViewUsersPage() {
     <div className="flex flex-col gap-10">
       <div>
         <h2 className="font-bold text-3xl">Users</h2>
-        <span className="text-muted-foreground">View every users here</span>
+        <span className="text-muted-foreground">List of all users</span>
       </div>
       <UsersTable />
     </div>

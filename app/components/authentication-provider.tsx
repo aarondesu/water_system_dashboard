@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useMemo } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
-import { useLogoutMutation } from "~/redux/apis/authApi";
+import { useLogoutMutation, useUserQuery } from "~/redux/apis/authApi";
 
 const session_token_key = import.meta.env.VITE_TOKEN_KEY;
 
@@ -24,6 +24,7 @@ export function AuthenticationProvider({
   ...props
 }: AuthenticationProviderProps) {
   const [logout] = useLogoutMutation();
+  const { data } = useUserQuery();
 
   const location = useLocation();
   const navigate = useNavigate();

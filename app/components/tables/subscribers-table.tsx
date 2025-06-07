@@ -162,10 +162,7 @@ export default function SubscribersTable() {
               size={isMobile ? "icon" : "default"}
               variant="outline"
               disabled={
-                isLoading ||
-                isFetching ||
-                !table.getIsSomeRowsSelected() ||
-                true
+                isLoading || isFetching || !table.getIsSomeRowsSelected()
               }
             >
               <Trash2 />

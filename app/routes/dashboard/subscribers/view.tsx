@@ -9,9 +9,7 @@ export default function ViewReadingsPage() {
     <div className="flex flex-col gap-10">
       <div>
         <h2 className="font-bold text-3xl">Subscribers</h2>
-        <span className="text-muted-foreground">
-          View every subscriber here
-        </span>
+        <span className="text-muted-foreground">List of All subscribers</span>
       </div>
       <SubscribersTable />
     </div>

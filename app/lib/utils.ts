@@ -1,6 +1,11 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
+const formatter = new Intl.NumberFormat("en-us", {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2,
+});
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -13,4 +18,8 @@ export function buildUrlParams(baseUrl: string, params: string[]) {
   });
 
   return url;
+}
+
+export function formatNumber(num: number) {
+  return formatter.format(num);
 }

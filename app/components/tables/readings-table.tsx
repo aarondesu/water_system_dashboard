@@ -10,27 +10,12 @@ import { Checkbox } from "../ui/checkbox";
 import { useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { DataTable } from "../ui/data-table";
 import DataTableNavigation from "../data-table-navigation";
-import {
-  CirclePlus,
-  MoreHorizontal,
-  Pencil,
-  RefreshCcw,
-  Trash2,
-} from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+import { CirclePlus, RefreshCcw } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
 import { useState } from "react";
 import ReadingActionDropdown from "../reading-action-dropdown";
-import { cn } from "~/lib/utils";
+import { cn, formatNumber } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Input } from "../ui/input";
 
@@ -81,7 +66,9 @@ const columns: ColumnDef<
     accessorKey: "reading",
     header: "Reading",
     cell: ({ row }) => (
-      <span className="">{`${row.original.reading} `} m&sup3;</span>
+      <span className="">
+        {`${formatNumber(row.original.reading)} `} m&sup3;
+      </span>
     ),
     enableHiding: false,
   },

@@ -50,7 +50,7 @@ export const readingApi = baseApi.injectEndpoints({
         method: "DELETE",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["readings"],
+      invalidatesTags: ["readings", "meters"],
     }),
   }),
 });

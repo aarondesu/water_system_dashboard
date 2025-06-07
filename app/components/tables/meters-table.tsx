@@ -1,6 +1,8 @@
 import {
   getCoreRowModel,
   getPaginationRowModel,
+  getSortedRowModel,
+  type SortingState,
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
@@ -12,33 +14,65 @@ import DataTableNavigation from "../data-table-navigation";
 import MeterActionDropdown from "../meter-action-dropdown";
 import AssignSubscriberMeter from "../assign-subscriber-meter";
 import { Button } from "../ui/button";
-import { PlusCircle, RefreshCcw } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronsUpDown,
+  ChevronUp,
+  PlusCircle,
+  RefreshCcw,
+} from "lucide-react";
 import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Link } from "react-router";
+import { Badge } from "../ui/badge";
+import { useState } from "react";
 
 const columns: ColumnDef<Meter>[] = [
   {
     id: "select",
+    enableHiding: false,
+    enableSorting: false,
+    enableGlobalFilter: false,
     header: ({ table }) => (
-      <Checkbox
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomeRowsSelected() && "indeterminate")
-        }
-      />
+      <div className="flex justify-end">
+        <Checkbox
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomeRowsSelected() && "indeterminate")
+          }
+        />
+      </div>
     ),
     cell: ({ row }) => (
-      <Checkbox onCheckedChange={(value) => row.toggleSelected(!!value)} />
+      <div className="flex justify-end">
+        <Checkbox
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          checked={row.getIsSelected()}
+        />
+      </div>
     ),
   },
   {
     accessorKey: "number",
-    header: () => <div className="text-center">Meter #</div>,
-    cell: ({ row }) => (
-      <div className="flex place-content-center">{row.original.number}</div>
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Meter #
+        {column.getIsSorted() ? (
+          column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-4 w-4 h-4" />
+          ) : (
+            <ChevronDown className="ml-4 w-4 h-4" />
+          )
+        ) : (
+          <ChevronsUpDown className="ml-4 w-4 h-4" />
+        )}
+      </Button>
     ),
+    cell: ({ row }) => <div className="flex">{row.original.number}</div>,
     enableHiding: false,
   },
   {
@@ -49,6 +83,34 @@ const columns: ColumnDef<Meter>[] = [
         id={row.original.id || 0}
         subscriber_id={row.original.subscriber_id || 0}
       />
+    ),
+  },
+  {
+    accessorKey: "status",
+    enableHiding: false,
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Status
+        {column.getIsSorted() ? (
+          column.getIsSorted() === "asc" ? (
+            <ChevronUp className="ml-4 w-4 h-4" />
+          ) : (
+            <ChevronDown className="ml-4 w-4 h-4" />
+          )
+        ) : (
+          <ChevronsUpDown className="ml-4 w-4 h-4" />
+        )}
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <Badge
+        variant={row.original.status === "active" ? "default" : "destructive"}
+      >
+        {row.original.status}
+      </Badge>
     ),
   },
   {
@@ -66,11 +128,18 @@ export default function MetersTable() {
   const { data, isLoading, isFetching, refetch } = useGetAllMetersQuery();
   const isMobile = useIsMobile();
 
+  const [sorting, setSorting] = useState<SortingState>([]);
+
   const table = useReactTable({
     data: data || [],
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onSortingChange: setSorting,
+    getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting: sorting,
+    },
   });
 
   return (

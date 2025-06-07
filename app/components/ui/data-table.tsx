@@ -53,7 +53,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="relative space-y-3 select-none">
-      {actions && hideColumns && (
+      {(actions || hideColumns) && (
         <div className="flex gap-2">
           <div className="flex grow gap-2">{actions && actions}</div>
           <div className="">

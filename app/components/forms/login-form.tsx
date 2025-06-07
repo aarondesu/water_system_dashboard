@@ -70,9 +70,9 @@ export default function LoginForm({
                 <h1 className="text-xl font-bold">
                   Water Billing & Payment System
                 </h1>
-                {/* <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-sm">
                   Login to your account
-                </p> */}
+                </p>
               </div>
               <FormField
                 control={form.control}

@@ -39,6 +39,8 @@ export default function EditSubscriberForm() {
   const [updateSubscriber, results] = useUpdateSubscriberMutation();
   const { data, isSuccess, isLoading } = useGetSubscriberQuery(id);
 
+  const navigate = useNavigate();
+
   const isLoadingData = isLoading || results.isLoading;
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -164,6 +166,9 @@ export default function EditSubscriberForm() {
           />
         </div>
         <div className="flex flex-col-reverse md:flex-row gap-3 mt-5 md:mt-0">
+          <Button onClick={() => navigate(-1)} variant="outline">
+            Cancel
+          </Button>
           <Button type="submit" disabled={isLoadingData}>
             {isLoading && <Loader2 className="animate-spin" />}
             <span>Save</span>
