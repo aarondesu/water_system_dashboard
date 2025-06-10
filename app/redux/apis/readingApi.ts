@@ -16,13 +16,14 @@ export const readingApi = baseApi.injectEndpoints({
       PaginationResults<
         Reading & { meter: Meter & { subscriber: Subscriber } }
       >,
-      PaginationArgs & { meter?: string }
+      PaginationArgs & { meter?: string; reading?: string }
     >({
       query: (params) => ({
         url: buildUrlParams("/readings", [
           `page=${params.page_index}`,
           `rows=${params.rows}`,
-          (params.meter && `meter=${params.meter}`) || "",
+          params.meter && `meter=${params.meter}`,
+          params.reading && `reading=${params.reading}`,
         ]),
         method: "GET",
       }),
