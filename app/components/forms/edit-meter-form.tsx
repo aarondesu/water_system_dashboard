@@ -19,7 +19,7 @@ import {
 } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import type { ApiError } from "~/types";
-import { useSearchParams } from "react-router";
+import { useParams, useSearchParams } from "react-router";
 import { useEffect } from "react";
 
 const formSchema = z.object({
@@ -30,8 +30,8 @@ const formSchema = z.object({
 });
 
 export default function EditMeterForm() {
-  const [params] = useSearchParams();
-  const id = Number(params.get("id"));
+  const params = useParams();
+  const id = Number(params.id);
 
   const [updateMeter, result] = useUpdateMeterMutation();
   const { data, isSuccess } = useGetMeterQuery(id);

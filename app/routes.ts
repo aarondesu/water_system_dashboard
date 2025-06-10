@@ -28,14 +28,14 @@ export default [
       ...prefix("subscribers", [
         index("routes/dashboard/subscribers/view.tsx"),
         route("create", "routes/dashboard/subscribers/create.tsx"),
-        route("edit", "routes/dashboard/subscribers/edit.tsx"),
+        route("edit/:id", "routes/dashboard/subscribers/edit.tsx"),
       ]),
 
       // Meters
       ...prefix("meters", [
         index("routes/dashboard/meters/view.tsx"),
         route("create", "routes/dashboard/meters/create.tsx"),
-        route("edit", "routes/dashboard/meters/edit.tsx"),
+        route("edit/:id", "routes/dashboard/meters/edit.tsx"),
       ]),
 
       // Invoices

@@ -13,14 +13,13 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import {
-  useCreateSubscriberMutation,
   useGetSubscriberQuery,
   useUpdateSubscriberMutation,
 } from "~/redux/apis/subscriberApi";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
-import { useNavigate, useSearchParams } from "react-router";
-import { useEffect, useMemo } from "react";
+import { useNavigate, useParams } from "react-router";
+import { useEffect } from "react";
 
 const formSchema = z.object({
   first_name: z.string().nonempty({ message: "First Name must not be empty" }),
@@ -33,8 +32,8 @@ const formSchema = z.object({
 });
 
 export default function EditSubscriberForm() {
-  const [params] = useSearchParams();
-  const id = Number(params.get("id"));
+  const params = useParams();
+  const id = Number(params.id);
 
   const [updateSubscriber, results] = useUpdateSubscriberMutation();
   const { data, isSuccess, isLoading } = useGetSubscriberQuery(id);
