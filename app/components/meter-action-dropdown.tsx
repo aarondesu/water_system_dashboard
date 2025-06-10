@@ -1,4 +1,11 @@
-import { Info, MoreHorizontal, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Droplets,
+  Info,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  Trash2,
+} from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -7,6 +14,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuSub,
   DropdownMenuSubContent,
@@ -18,15 +27,24 @@ import { useState } from "react";
 import { useDeleteMeterMutation } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import { useConfirmationDialog } from "./confirmation-dialog-provider";
+import type { Row } from "@tanstack/react-table";
+import type { Meter } from "~/types";
 
 interface MeterActionDropdownProps {
   id: number;
+  row: Row<Meter>;
 }
 
-export default function MeterActionDropdown({ id }: MeterActionDropdownProps) {
+export default function MeterActionDropdown({
+  id,
+  row,
+}: MeterActionDropdownProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [deleteMeter, result] = useDeleteMeterMutation();
   const { createDialog } = useConfirmationDialog();
+  const [status, setStatus] = useState<"active" | "inactive">(
+    row.original.status
+  );
 
   return (
     <>
@@ -42,7 +60,7 @@ export default function MeterActionDropdown({ id }: MeterActionDropdownProps) {
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
             <Link to={`/dashboard/readings/create?meter=${id}`}>
-              <Plus />
+              <Droplets />
               <span>Create Reading</span>
             </Link>
           </DropdownMenuItem>
@@ -56,13 +74,24 @@ export default function MeterActionDropdown({ id }: MeterActionDropdownProps) {
               </DropdownMenuSubTrigger>
               <DropdownMenuPortal>
                 <DropdownMenuSubContent>
-                  <DropdownMenuItem>Active</DropdownMenuItem>
-                  <DropdownMenuItem>Inactive</DropdownMenuItem>
+                  <DropdownMenuRadioGroup
+                    value={status}
+                    onValueChange={(value) =>
+                      setStatus(value === "active" ? "active" : "inactive")
+                    }
+                  >
+                    <DropdownMenuRadioItem value="active">
+                      Active
+                    </DropdownMenuRadioItem>
+                    <DropdownMenuRadioItem value="inactive">
+                      Inactive
+                    </DropdownMenuRadioItem>
+                  </DropdownMenuRadioGroup>
                 </DropdownMenuSubContent>
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuItem asChild>
-              <Link to={`/dashboard/meters/edit?id=${id}`}>
+              <Link to={`/dashboard/meters/edit/${id}`}>
                 <Pencil />
                 <span>Edit</span>
               </Link>

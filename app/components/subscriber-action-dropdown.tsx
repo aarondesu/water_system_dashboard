@@ -39,7 +39,7 @@ export default function SubscriberActionDropdown({
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
-              <Link to={`/dashboard/subscribers/edit?id=${id}`}>
+              <Link to={`/dashboard/subscribers/edit/${id}`}>
                 <Pencil />
                 <span>Edit</span>
               </Link>
