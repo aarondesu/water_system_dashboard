@@ -151,9 +151,6 @@ export default function CreateReadingsForm() {
                       if (range?.from && range?.to) {
                         form.setValue("start_date", range.from);
                         form.setValue("end_date", range.to);
-
-                        console.log(form.getValues("start_date"));
-                        console.log(form.getValues("end_date"));
                       }
                     }}
                     className="w-full"
