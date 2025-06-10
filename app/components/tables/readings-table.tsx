@@ -13,11 +13,12 @@ import DataTableNavigation from "../data-table-navigation";
 import { CirclePlus, RefreshCcw } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import ReadingActionDropdown from "../reading-action-dropdown";
 import { cn, formatNumber } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Input } from "../ui/input";
+import dayjs from "dayjs";
 
 const columns: ColumnDef<
   Reading & { meter: Meter & { subscriber: Subscriber } }
@@ -55,12 +56,15 @@ const columns: ColumnDef<
     enableHiding: false,
   },
   {
-    accessorKey: "start_date",
-    header: "Start Date",
-  },
-  {
-    accessorKey: "end_date",
-    header: "End date",
+    id: "date",
+    header: "Reading Period",
+    cell: ({ row }) => {
+      return (
+        <span className="flex flex-row gap-2">
+          {`${row.original.start_date} ~ ${row.original.end_date}`}
+        </span>
+      );
+    },
   },
   {
     accessorKey: "reading",
@@ -86,6 +90,8 @@ const columns: ColumnDef<
 
 export default function ReadingsTable() {
   const isMobile = useIsMobile();
+  const [meter, setMeter] = useState<string>("");
+  const [reading, setReading] = useState<string>("");
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
     pageSize: 10,
@@ -94,6 +100,8 @@ export default function ReadingsTable() {
   const { data, isLoading, isFetching, refetch } = useGetAllReadingsQuery({
     page_index: pagination.pageIndex + 1,
     rows: pagination.pageSize,
+    meter: meter,
+    reading: reading,
   });
 
   const table = useReactTable({
@@ -138,8 +146,21 @@ export default function ReadingsTable() {
                 {!isMobile && <span>Create</span>}
               </Link>
             </Button>
-            <Input className="" placeholder="Search meter..." />
-            <Input className="" placeholder="Search reading..." />
+            <form
+              onSubmit={(form) => {
+                form.preventDefault();
+                console.log(form);
+              }}
+              className="flex flex-row gap-1"
+            >
+              <Input className="" placeholder="Search meter..." name="meter" />
+              <Input
+                className=""
+                placeholder="Search reading..."
+                name="reading"
+              />
+              <Input type="submit" hidden />
+            </form>
           </div>
         }
       />
