@@ -27,7 +27,9 @@ export default function SelectSubscriberInput({
   disabled = false,
   className,
 }: SelectSubscriberInputProps) {
-  const { data, isLoading, isSuccess } = useGetAllSubscribersQuery();
+  const { data, isLoading, isSuccess } = useGetAllSubscribersQuery({
+    order: "asc",
+  });
 
   const [open, setOpen] = useState<boolean>(false);
   const subscriber = data?.find((u) => u.id === value);
@@ -39,7 +41,7 @@ export default function SelectSubscriberInput({
           variant="outline"
           role="combobox"
           className={cn(
-            "justify-between w-full max-w-[600px]",
+            "justify-between w-full",
             !value && "text-muted-foreground",
             className
           )}
