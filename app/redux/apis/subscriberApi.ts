@@ -1,11 +1,17 @@
-import type { ApiError, Subscriber } from "~/types";
+import type { ApiError, Meter, Subscriber } from "~/types";
 import { baseApi } from "./baseApi";
+import { buildUrlParams } from "~/lib/utils";
 
 export const subscriberApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
-    getAllSubscribers: builder.query<Subscriber[], void>({
-      query: () => ({
-        url: "/subscribers",
+    getAllSubscribers: builder.query<
+      Subscriber[],
+      { order?: "asc" | "desc" | undefined }
+    >({
+      query: (params) => ({
+        url: buildUrlParams("/subscribers", [
+          params.order && `order=${params.order}`,
+        ]),
         method: "GET",
       }),
       transformResponse: (result: { success: boolean; data: Subscriber[] }) =>
@@ -22,13 +28,15 @@ export const subscriberApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["subscribers"],
     }),
-    getSubscriber: builder.query<Subscriber, number>({
+    getSubscriber: builder.query<Subscriber & { meter: Meter }, number>({
       query: (id) => ({
         url: `/subscribers/${id}`,
         method: "GET",
       }),
-      transformResponse: (result: { success: boolean; data: Subscriber }) =>
-        result.data,
+      transformResponse: (result: {
+        success: boolean;
+        data: Subscriber & { meter: Meter };
+      }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["subscribers"],
     }),
