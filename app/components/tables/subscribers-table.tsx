@@ -68,7 +68,7 @@ const columns: ColumnDef<Subscriber>[] = [
         className="flex items-center gap-2 font-bold"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Last Name
+        Name
         {column.getIsSorted() === false ? (
           <ChevronsUpDown />
         ) : column.getIsSorted() === "asc" ? (
@@ -78,10 +78,15 @@ const columns: ColumnDef<Subscriber>[] = [
         )}
       </Button>
     ),
-  },
-  {
-    accessorKey: "first_name",
-    header: "First Name",
+    cell: ({ row }) => (
+      <Link
+        to={`/dashboard/subscribers/view?id=${row.original.id}`}
+        className="space-x-2 border-b border-dotted border-b-blue-700"
+      >
+        <span>{row.original.last_name},</span>
+        <span>{row.original.first_name}</span>
+      </Link>
+    ),
   },
   {
     accessorKey: "address",
@@ -107,7 +112,9 @@ const columns: ColumnDef<Subscriber>[] = [
 export default function SubscribersTable() {
   const isMobile = useIsMobile();
 
-  const { data, isLoading, isFetching, refetch } = useGetAllSubscribersQuery();
+  const { data, isLoading, isFetching, refetch } = useGetAllSubscribersQuery(
+    {}
+  );
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);

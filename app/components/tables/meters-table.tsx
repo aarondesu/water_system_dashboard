@@ -72,7 +72,11 @@ const columns: ColumnDef<Meter>[] = [
         )}
       </Button>
     ),
-    cell: ({ row }) => <div className="flex">{row.original.number}</div>,
+    cell: ({ row }) => (
+      <Link to={`/dashboard/meters/${row.original.id}`} className="flex">
+        {row.original.number}
+      </Link>
+    ),
     enableHiding: false,
   },
   {
@@ -118,7 +122,7 @@ const columns: ColumnDef<Meter>[] = [
     enableHiding: false,
     cell: ({ row }) => (
       <div className="relativ">
-        <MeterActionDropdown id={row.original.id || 0} />
+        <MeterActionDropdown id={row.original.id || 0} row={row} />
       </div>
     ),
   },
@@ -167,7 +171,7 @@ export default function MetersTable() {
               size={isMobile ? "icon" : "default"}
               asChild
             >
-              <Link to="/dashboard/readings/create">
+              <Link to="/dashboard/meters/create">
                 <PlusCircle className="w-4 h-4" />
                 {!isMobile && <span>Create</span>}
               </Link>

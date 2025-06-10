@@ -179,6 +179,7 @@ export default function UsersTable() {
             <Button
               asChild
               disabled={isLoading || isFetching}
+              variant="outline"
               size={isMobile ? "icon" : "default"}
             >
               <Link to="/dashboard/users/create">
@@ -187,6 +188,7 @@ export default function UsersTable() {
               </Link>
             </Button>
             <Button
+              variant="outline"
               disabled={
                 isLoading || isFetching || !table.getIsSomeRowsSelected()
               }
