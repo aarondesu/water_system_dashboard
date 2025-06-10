@@ -20,6 +20,7 @@ import { Button } from "../ui/button";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 import ReadingActionDropdown from "../reading-action-dropdown";
+import { Badge } from "../ui/badge";
 
 interface MeterReadingsTableProps {
   data: Reading[];
@@ -39,6 +40,14 @@ const columns: ColumnDef<Reading>[] = [
   {
     accessorKey: "created_at",
     header: "Recorded At",
+    cell: ({ row }) => {
+      return (
+        <span className="flex gap-8">
+          {row.original.created_at}
+          {row.id === "0" && <Badge>Latest!</Badge>}
+        </span>
+      );
+    },
     enableHiding: false,
   },
   {
