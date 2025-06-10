@@ -29,7 +29,16 @@ export const invoiceApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["invoices"],
     }),
+    createInvoice: builder.mutation<void, Invoice>({
+      query: (data) => ({
+        url: "/invoices",
+        method: "POST",
+        body: data,
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["invoices"],
+    }),
   }),
 });
 
-export const { useGetAllInvoiceQuery } = invoiceApi;
+export const { useGetAllInvoiceQuery, useCreateInvoiceMutation } = invoiceApi;

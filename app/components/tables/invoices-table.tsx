@@ -83,6 +83,7 @@ const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
   {
     accessorKey: "amount_due",
     header: "Amount Due",
+    enableHiding: false,
     cell: ({ row }) => (
       <span>&#8369; {formatNumber(row.original?.amount_due || 0)}</span>
     ),
@@ -104,6 +105,7 @@ const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
   },
   {
     id: "actions",
+    enableHiding: false,
     cell: ({ row }) => (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -134,7 +136,7 @@ export default function InvoicesTable() {
     pageSize: 10,
   });
   const { data, isLoading, isFetching, refetch } = useGetAllInvoiceQuery({
-    page_index: pagination.pageIndex,
+    page_index: pagination.pageIndex + 1,
     rows: pagination.pageSize,
   });
 

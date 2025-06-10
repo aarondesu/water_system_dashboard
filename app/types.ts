@@ -50,10 +50,10 @@ export type Invoice = {
   consumption?: number;
   rate_per_unit: number;
   amount_due?: number;
-  status: "unpaid" | "partial" | "paid";
-  due_date: string;
-  created_at: string;
-  updated_at: string;
+  status?: "unpaid" | "partial" | "paid";
+  due_date: Date;
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type ApiError = {
