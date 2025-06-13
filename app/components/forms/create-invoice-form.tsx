@@ -286,8 +286,8 @@ export default function CreateInvoiceForm() {
                 &#8369;{" "}
                 {formatNumber(
                   Number(form.watch("rate_per_unit") || 0) *
-                    (currentReading?.reading || 0) -
-                    (previousReading?.reading || 0)
+                    ((currentReading?.reading || 0) -
+                      (previousReading?.reading || 0))
                 )}
               </span>
             </div>
