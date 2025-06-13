@@ -1,12 +1,6 @@
 import type React from "react";
 import { cn } from "~/lib/utils";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
+import { Card, CardContent } from "../ui/card";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -21,11 +15,13 @@ import {
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useLoginMutation } from "~/redux/apis/authApi";
-import { Loader2 } from "lucide-react";
+import { CircleAlert, CircleCheck, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "../authentication-provider";
 
 import logo from "~/assets/logoipsum-282.svg";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import type { ApiError } from "~/types";
 
 const formSchema = z.object({
   username: z.string({ required_error: "Username is required" }),
@@ -74,6 +70,21 @@ export default function LoginForm({
                   Login to your account
                 </p>
               </div>
+              {results.isError && (
+                <Alert variant="destructive">
+                  <CircleAlert />
+                  <AlertTitle>Login Failed</AlertTitle>
+                  <AlertDescription>
+                    <ul className="list-inside list-disc text-sm">
+                      {(results.error as ApiError).data.errors.map(
+                        (error, index) => (
+                          <li key={index}>{error}</li>
+                        )
+                      )}
+                    </ul>
+                  </AlertDescription>
+                </Alert>
+              )}
               <FormField
                 control={form.control}
                 name="username"
