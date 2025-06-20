@@ -75,6 +75,7 @@ export default function CreateMeterForm() {
                     console.log(id);
                     form.setValue("subscriber_id", id);
                   }}
+                  skipMeter={true}
                   disabled={result.isLoading}
                 />
               </FormControl>

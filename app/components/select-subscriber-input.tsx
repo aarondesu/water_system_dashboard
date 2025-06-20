@@ -19,6 +19,7 @@ interface SelectSubscriberInputProps {
   onSelect: (id: number) => void;
   disabled?: boolean;
   className?: string;
+  skipMeter?: boolean;
 }
 
 export default function SelectSubscriberInput({
@@ -26,6 +27,7 @@ export default function SelectSubscriberInput({
   onSelect,
   disabled = false,
   className,
+  skipMeter = false,
 }: SelectSubscriberInputProps) {
   const { data, isLoading, isSuccess } = useGetAllSubscribersQuery({
     order: "asc",
@@ -62,18 +64,22 @@ export default function SelectSubscriberInput({
             <CommandEmpty>No Subscriber Found</CommandEmpty>
             <CommandGroup>
               {data &&
-                data.map((subscriber) => (
-                  <CommandItem
-                    key={subscriber.id}
-                    value={`${subscriber.last_name},${subscriber.first_name}`}
-                    onSelect={() => {
-                      onSelect(subscriber.id || 0);
-                      setOpen(false);
-                    }}
-                  >
-                    {`${subscriber.last_name}, ${subscriber.first_name}`}
-                  </CommandItem>
-                ))}
+                data.map((subscriber) => {
+                  if (skipMeter && subscriber.meter) return false;
+
+                  return (
+                    <CommandItem
+                      key={subscriber.id}
+                      value={`${subscriber.last_name},${subscriber.first_name}`}
+                      onSelect={() => {
+                        onSelect(subscriber.id || 0);
+                        setOpen(false);
+                      }}
+                    >
+                      {`${subscriber.last_name}, ${subscriber.first_name}`}
+                    </CommandItem>
+                  );
+                })}
             </CommandGroup>
           </CommandList>
         </Command>

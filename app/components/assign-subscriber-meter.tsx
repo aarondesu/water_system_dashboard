@@ -60,6 +60,7 @@ export default function AssignSubscriberMeter({
       <SelectSubscriberInput
         value={value}
         className="flex border-transparent shadow-none in-focus-within:border bg-transparent"
+        skipMeter={true}
         onSelect={(new_subscriber_id) => {
           setValue(new_subscriber_id);
           toast.promise(
