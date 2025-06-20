@@ -62,7 +62,7 @@ export default function CreateReadingsForm() {
       loading: "Creating meter reading...",
       success: () => {
         meterResults.reset();
-        navigate("/dashboard/readings");
+        // navigate("/dashboard/readings");
         return "Successfully created reading";
       },
       error: "Failed to create reading",

@@ -15,8 +15,8 @@ import { Badge } from "./ui/badge";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface SelectReadingInputProps {
-  data?: Reading[];
-  value: number;
+  data: Reading[];
+  value?: number;
   onSelect: (id: number) => void;
   className?: string;
   disabled?: boolean;
@@ -24,7 +24,7 @@ interface SelectReadingInputProps {
 
 export default function SelectReadingInput({
   data,
-  value,
+  value = 0,
   onSelect,
   className,
   disabled,

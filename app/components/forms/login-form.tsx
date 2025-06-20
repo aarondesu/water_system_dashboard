@@ -22,6 +22,7 @@ import { useAuth } from "../authentication-provider";
 import logo from "~/assets/logoipsum-282.svg";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import type { ApiError } from "~/types";
+import { useGetCookiesQuery } from "~/redux/apis/utilityApi";
 
 const formSchema = z.object({
   username: z.string({ required_error: "Username is required" }),
@@ -33,6 +34,7 @@ export default function LoginForm({
   ...props
 }: React.ComponentProps<"div">) {
   const [login, results] = useLoginMutation();
+  const cookieQuery = useGetCookiesQuery();
   const { setToken, logout } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -75,16 +77,25 @@ export default function LoginForm({
                   <CircleAlert />
                   <AlertTitle>Login Failed</AlertTitle>
                   <AlertDescription>
-                    <ul className="list-inside list-disc text-sm">
-                      {(results.error as ApiError).data.errors.map(
-                        (error, index) => (
-                          <li key={index}>{error}</li>
-                        )
-                      )}
-                    </ul>
+                    {"data" in results.error ? (
+                      <ul className="list-inside list-disc text-sm">
+                        {(results.error as ApiError).data.errors.map(
+                          (error, index) => (
+                            <li key={index}>{error}</li>
+                          )
+                        )}
+                      </ul>
+                    ) : (
+                      <span>
+                        We’re having trouble connecting to the server. Please
+                        check your internet connection or try again later. If
+                        the issue persists, contact support.
+                      </span>
+                    )}
                   </AlertDescription>
                 </Alert>
               )}
+              {cookieQuery.isError}
               <FormField
                 control={form.control}
                 name="username"

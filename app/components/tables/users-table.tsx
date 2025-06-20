@@ -84,7 +84,9 @@ const columns: ColumnDef<User>[] = [
         </Button>
       );
     },
-    cell: ({ row }) => <div className="w-full">{row.original.username}</div>,
+    cell: ({ row }) => (
+      <div className="w-full font-semibold">{row.original.username}</div>
+    ),
   },
   {
     accessorKey: "created_at",

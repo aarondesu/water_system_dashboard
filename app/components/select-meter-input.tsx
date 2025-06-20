@@ -45,7 +45,11 @@ export default function SelectMeterInput({
         >
           {value
             ? meter
-              ? `Meter # ${meter.number}`
+              ? `Meter # ${meter.number} ${
+                  meter.subscriber
+                    ? `- ${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
+                    : ``
+                }`
               : "Select Meter"
             : "Select Meter"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
@@ -61,13 +65,21 @@ export default function SelectMeterInput({
                 data.map((meter) => (
                   <CommandItem
                     key={meter.id}
-                    value={String(meter.number)}
+                    value={`${meter.number} ${
+                      meter.subscriber
+                        ? `- ${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
+                        : ``
+                    }`}
                     onSelect={() => {
                       onSelect(meter.id || 0);
                       setOpen(false);
                     }}
                   >
-                    {`Meter # ${meter.number}`}
+                    {`Meter # ${meter.number} ${
+                      meter.subscriber
+                        ? `- ${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
+                        : ``
+                    }`}
                   </CommandItem>
                 ))}
             </CommandGroup>

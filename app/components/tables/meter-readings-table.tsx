@@ -21,6 +21,7 @@ import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Link } from "react-router";
 import ReadingActionDropdown from "../reading-action-dropdown";
 import { Badge } from "../ui/badge";
+import dayjs from "dayjs";
 
 interface MeterReadingsTableProps {
   data: Reading[];
@@ -41,10 +42,16 @@ const columns: ColumnDef<Reading>[] = [
     accessorKey: "created_at",
     header: "Recorded At",
     cell: ({ row }) => {
+      const current_date = dayjs();
+      const created_date = dayjs(row.original.created_at);
+
       return (
-        <span className="flex gap-8">
+        <span className="flex gap-2">
           {row.original.created_at}
-          {row.id === "0" && <Badge>Latest!</Badge>}
+          {row.id === "0" && <Badge>Latest</Badge>}
+          {current_date.diff(created_date) > 30 && (
+            <Badge variant="secondary">New</Badge>
+          )}
         </span>
       );
     },
@@ -52,7 +59,9 @@ const columns: ColumnDef<Reading>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => <ReadingActionDropdown id={row.original.id || 0} />,
+    cell: ({ row }) => (
+      <ReadingActionDropdown reading_id={row.original.id || 0} />
+    ),
   },
 ];
 

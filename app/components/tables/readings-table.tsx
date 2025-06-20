@@ -10,7 +10,7 @@ import { Checkbox } from "../ui/checkbox";
 import { useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { DataTable } from "../ui/data-table";
 import DataTableNavigation from "../data-table-navigation";
-import { CirclePlus, RefreshCcw } from "lucide-react";
+import { CirclePlus, Droplet, Droplets, RefreshCcw } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
 import { useRef, useState } from "react";
@@ -19,6 +19,13 @@ import { cn, formatNumber } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Input } from "../ui/input";
 import dayjs from "dayjs";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const columns: ColumnDef<
   Reading & { meter: Meter & { subscriber: Subscriber } }
@@ -52,7 +59,9 @@ const columns: ColumnDef<
   {
     accessorKey: "meter.number",
     header: () => <div className="">Meter #</div>,
-    cell: ({ row }) => <div className="">{row.original.meter.number}</div>,
+    cell: ({ row }) => (
+      <div className="font-semibold">{row.original.meter.number}</div>
+    ),
     enableHiding: false,
   },
   {
@@ -84,7 +93,9 @@ const columns: ColumnDef<
     id: "actions",
     enableHiding: false,
     enableSorting: false,
-    cell: ({ row }) => <ReadingActionDropdown id={row.original.id || 0} />,
+    cell: ({ row }) => (
+      <ReadingActionDropdown reading_id={row.original.id || 0} />
+    ),
   },
 ];
 
@@ -142,8 +153,8 @@ export default function ReadingsTable() {
               asChild
             >
               <Link to="/dashboard/readings/create">
-                <CirclePlus className="w-4 h-4" />
-                {!isMobile && <span>Create</span>}
+                <CirclePlus />
+                Create
               </Link>
             </Button>
             <form
@@ -164,7 +175,7 @@ export default function ReadingsTable() {
           </div>
         }
       />
-      <DataTableNavigation table={table} isLoading={isLoading || isFetching} />
+      <DataTableNavigation table={table} />
     </div>
   );
 }

@@ -18,11 +18,11 @@ import { useConfirmationDialog } from "./confirmation-dialog-provider";
 import { useState } from "react";
 
 interface ReadingActionDropdownProps {
-  id: number;
+  reading_id: number;
 }
 
 export default function ReadingActionDropdown({
-  id,
+  reading_id,
 }: ReadingActionDropdownProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [deleteReading, deleteResults] = useDeleteReadingMutation();
@@ -43,14 +43,16 @@ export default function ReadingActionDropdown({
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/invoices/create?reading_id=${id}`}>
+                <Link
+                  to={`/dashboard/invoices/create?reading_id=${reading_id}`}
+                >
                   <FilePlus />
                   <span>Create Invoice</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/readings/edit?id=${id}`}>
+                <Link to={`/dashboard/readings/edit?id=${reading_id}`}>
                   <Pencil />
                   <span>Edit</span>
                 </Link>
@@ -62,7 +64,7 @@ export default function ReadingActionDropdown({
                     description:
                       "Are you sure you want to delete this reading? Action is irreversible",
                     action: () => {
-                      toast.promise(deleteReading(id).unwrap(), {
+                      toast.promise(deleteReading(reading_id).unwrap(), {
                         loading: "Deleting reading...",
                         success: "Successfully deleted reading",
                         error: (error) => {

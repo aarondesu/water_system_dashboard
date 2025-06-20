@@ -73,7 +73,10 @@ const columns: ColumnDef<Meter>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <Link to={`/dashboard/meters/${row.original.id}`} className="flex">
+      <Link
+        to={`/dashboard/meters/${row.original.id}`}
+        className="flex font-semibold"
+      >
         {row.original.number}
       </Link>
     ),

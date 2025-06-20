@@ -60,12 +60,13 @@ const columns: ColumnDef<Subscriber>[] = [
     ),
   },
   {
-    accessorKey: "last_name",
+    id: "full_name",
+    accessorFn: (data) => `${data.last_name}, ${data.first_name}`,
     enableHiding: false,
     header: ({ column }) => (
       <Button
         variant="ghost"
-        className="flex items-center gap-2 font-bold"
+        className="flex items-center gap-2 font-"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Name
@@ -80,8 +81,8 @@ const columns: ColumnDef<Subscriber>[] = [
     ),
     cell: ({ row }) => (
       <Link
-        to={`/dashboard/subscribers/view?id=${row.original.id}`}
-        className="space-x-2 border-b border-dotted border-b-blue-700"
+        to={`/dashboard/subscribers/view/${row.original.id}`}
+        className="space-x-2 border-b border-dotted border-b-blue-700 font-semibold"
       >
         <span>{row.original.last_name},</span>
         <span>{row.original.first_name}</span>
@@ -117,7 +118,6 @@ export default function SubscribersTable() {
   );
 
   const [sorting, setSorting] = useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [globalFilter, setGlobalFilter] = useState<any>([]);
 
   const table = useReactTable({

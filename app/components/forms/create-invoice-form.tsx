@@ -20,22 +20,13 @@ import DateSelector from "../ui/date-selector";
 import { useCreateInvoiceMutation } from "~/redux/apis/invoiceApi";
 import { toast } from "sonner";
 import type { ApiError, Reading } from "~/types";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "../ui/table";
-import { Separator } from "../ui/separator";
 import { cn, formatNumber } from "~/lib/utils";
 import { Loader2 } from "lucide-react";
 
 const formSchema = z.object({
   subscriber_id: z.coerce.number(),
   meter_id: z.coerce.number(),
-  previous_reading_id: z.coerce.number(),
+  previous_reading_id: z.coerce.number().or(z.undefined()),
   current_reading_id: z.coerce.number(),
   rate_per_unit: z.coerce.number({ message: "Rate Per unit is required" }),
   due_date: z.date(),
@@ -63,6 +54,7 @@ export default function CreateInvoiceForm() {
   });
 
   const onSubmit = form.handleSubmit((data) => {
+    console.log(data);
     toast.promise(createInvoice(data).unwrap(), {
       loading: "Creating invoice...",
       success: () => {
@@ -92,11 +84,9 @@ export default function CreateInvoiceForm() {
     if (isSuccess && subscriber !== 0) {
       form.reset({
         subscriber_id: data.id,
-        meter_id: data.meter.id,
+        meter_id: data.meter?.id,
         previous_reading_id: 0,
         current_reading_id: 0,
-        due_date: new Date(),
-        rate_per_unit: undefined,
       });
     }
   }, [data, isSuccess, subscriber]);
@@ -137,7 +127,7 @@ export default function CreateInvoiceForm() {
                 <FormItem>
                   <FormLabel>Meter #</FormLabel>
                   <FormControl>
-                    <Input value={data?.meter.number || 0} disabled />
+                    <Input value={data?.meter?.number || 0} disabled />
                   </FormControl>
                 </FormItem>
               )}
@@ -152,12 +142,12 @@ export default function CreateInvoiceForm() {
                   <FormLabel>Previous Reading</FormLabel>
                   <FormControl>
                     <SelectReadingInput
-                      data={data?.meter.readings}
+                      data={data?.meter?.readings || []}
                       {...field}
                       onSelect={(id) => {
                         form.setValue("previous_reading_id", id);
                         setPreviousReading(
-                          data?.meter.readings?.find((r) => r.id === id)
+                          data?.meter?.readings?.find((r) => r.id === id)
                         );
                       }}
                       disabled={disableInput}
@@ -175,12 +165,12 @@ export default function CreateInvoiceForm() {
                   <FormLabel>Current Reading</FormLabel>
                   <FormControl>
                     <SelectReadingInput
-                      data={data?.meter.readings}
+                      data={data?.meter?.readings || []}
                       {...field}
                       onSelect={(id) => {
                         form.setValue("current_reading_id", id);
                         setCurrentReading(
-                          data?.meter.readings?.find((r) => r.id === id)
+                          data?.meter?.readings?.find((r) => r.id === id)
                         );
                       }}
                       disabled={disableInput}
@@ -192,7 +182,9 @@ export default function CreateInvoiceForm() {
             />
           </div>
           <div>
-            <CreateInvoiceReadingsTable readings={data?.meter.readings || []} />
+            <CreateInvoiceReadingsTable
+              readings={data?.meter?.readings || []}
+            />
           </div>
         </div>
         <div className="flex flex-col gap-4 bg-muted p-6 rounded-md">
