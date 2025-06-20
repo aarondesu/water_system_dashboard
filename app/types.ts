@@ -45,7 +45,7 @@ export type Invoice = {
   id?: number;
   subscriber_id: number;
   meter_id: number;
-  previous_reading_id: number;
+  previous_reading_id?: number;
   current_reading_id: number;
   consumption?: number;
   rate_per_unit: number;
@@ -73,4 +73,31 @@ export type PaginationArgs = {
 export type PaginationResults<T> = {
   pages: number;
   items: T[];
+};
+
+export type Dashboard = {
+  total_subscribers: number;
+  meters: {
+    total: number;
+    active: number;
+  };
+  readings: {
+    current_reading: {
+      month: string;
+      total_reading: number;
+    };
+    previous_reading: {
+      month: string;
+      total_reading: number;
+    };
+    list: { month: string; total_consumption: number }[];
+    latest: (Reading & { meter: Meter })[];
+  };
+  invoice: {
+    current_invoice: {
+      month: string;
+      total_amount_due: number;
+    };
+    list: { month: string; total_amount_due: number }[];
+  };
 };

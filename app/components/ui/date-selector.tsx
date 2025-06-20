@@ -4,6 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Calendar } from "./calendar";
 import dayjs from "dayjs";
 import { cn } from "~/lib/utils";
+import { useState } from "react";
 
 interface DateSelectorProps {
   value: Date | undefined;
@@ -18,8 +19,10 @@ export default function DateSelector({
   onSelect,
   className,
 }: DateSelectorProps) {
+  const [open, setOpen] = useState<boolean>(false);
+
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
           variant="outline"
@@ -47,7 +50,10 @@ export default function DateSelector({
           initialFocus
           mode="single"
           defaultMonth={value}
-          onSelect={onSelect}
+          onSelect={(date) => {
+            setOpen(false);
+            onSelect(date);
+          }}
         />
       </PopoverContent>
     </Popover>

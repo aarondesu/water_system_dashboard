@@ -25,7 +25,17 @@ export const utilityApi = createApi({
       }),
       transformErrorResponse: (response: ApiError) => response,
     }),
+    checkServerHealth: builder.query<void, void>({
+      query: () => ({
+        url: "/api/health",
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useGetCookiesQuery } = utilityApi;
+export const {
+  useGetCookiesQuery,
+  useCheckServerHealthQuery,
+  useLazyCheckServerHealthQuery,
+} = utilityApi;

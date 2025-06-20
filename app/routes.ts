@@ -26,9 +26,10 @@ export default [
 
       // Subscribers
       ...prefix("subscribers", [
-        index("routes/dashboard/subscribers/view.tsx"),
+        index("routes/dashboard/subscribers/index.tsx"),
         route("create", "routes/dashboard/subscribers/create.tsx"),
         route("edit/:id", "routes/dashboard/subscribers/edit.tsx"),
+        route("view/:id", "routes/dashboard/subscribers/view.tsx"),
       ]),
 
       // Meters

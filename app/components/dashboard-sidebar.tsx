@@ -1,18 +1,9 @@
 import {
-  Banknote,
-  ChevronUp,
-  Coins,
   DollarSign,
   Droplets,
+  FileText,
   Gauge,
   LayoutDashboard,
-  LogOut,
-  NotebookPen,
-  NotepadText,
-  Plus,
-  PlusCircle,
-  Receipt,
-  User2,
   Users,
   Users2,
 } from "lucide-react";
@@ -28,18 +19,13 @@ import {
   SidebarMenuAction,
   SidebarMenuButton,
   SidebarMenuItem,
+  useSidebar,
 } from "./ui/sidebar";
 import { Link } from "react-router";
-import { Button } from "./ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
 import { useAuth } from "./authentication-provider";
 import SidebarLogo from "./sidebar-logo";
 import ApplicationSidebarFooter from "./sidebar-footer";
+import QuickCreateDialog from "./quick-create-dialog";
 
 type Action = {
   url: string;
@@ -71,10 +57,6 @@ const links: Category[] = [
         label: "Users",
         url: "/dashboard/users",
         icon: Users2,
-        action: {
-          url: "/dashboard/users/create",
-          icon: PlusCircle,
-        },
       },
     ],
   },
@@ -85,28 +67,16 @@ const links: Category[] = [
         label: "Subscribers",
         url: "/dashboard/subscribers",
         icon: Users,
-        action: {
-          url: "/dashboard/subscribers/create",
-          icon: PlusCircle,
-        },
       },
       {
         label: "Meters",
         url: "/dashboard/meters",
         icon: Gauge,
-        action: {
-          url: "/dashboard/meters/create",
-          icon: PlusCircle,
-        },
       },
       {
         label: "Water Readings",
         url: "/dashboard/readings",
         icon: Droplets,
-        action: {
-          url: "/dashboard/readings/create",
-          icon: PlusCircle,
-        },
       },
     ],
   },
@@ -116,12 +86,12 @@ const links: Category[] = [
       {
         label: "Invoices",
         url: "/dashboard/invoices",
-        icon: Receipt,
+        icon: FileText,
       },
       {
         label: "Transactions",
         url: "/dashboard/transactions",
-        icon: Banknote,
+        icon: DollarSign,
       },
     ],
   },
@@ -129,6 +99,7 @@ const links: Category[] = [
 
 export default function DashboardSidebar() {
   const { logout } = useAuth();
+  const { open } = useSidebar();
 
   return (
     <Sidebar collapsible="icon" variant="inset">
@@ -136,6 +107,9 @@ export default function DashboardSidebar() {
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
+        <SidebarGroup>
+          <QuickCreateDialog />
+        </SidebarGroup>
         {links.map((category) => (
           <SidebarGroup key={category.label}>
             <SidebarGroupLabel>{category.label}</SidebarGroupLabel>

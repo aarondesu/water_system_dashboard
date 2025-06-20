@@ -1,4 +1,4 @@
-import { type ApiError, type Meter } from "~/types";
+import { type ApiError, type Meter, type Subscriber } from "~/types";
 import { baseApi } from "./baseApi";
 
 export const meterApi = baseApi.injectEndpoints({
@@ -14,13 +14,15 @@ export const meterApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["meters"],
     }),
-    getAllMeters: builder.query<Meter[], void>({
+    getAllMeters: builder.query<(Meter & { subscriber?: Subscriber })[], void>({
       query: () => ({
         url: "/meters",
         method: "GET",
       }),
-      transformResponse: (result: { success: boolean; data: Meter[] }) =>
-        result.data,
+      transformResponse: (result: {
+        success: boolean;
+        data: (Meter & { subscriber?: Subscriber })[];
+      }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["meters"],
     }),
@@ -56,7 +58,7 @@ export const meterApi = baseApi.injectEndpoints({
         method: "PUT",
       }),
       transformErrorResponse: (response: ApiError) => response,
-      invalidatesTags: ["meters"],
+      invalidatesTags: ["meters", "subscribers"],
     }),
     clearMeter: builder.mutation<void, number>({
       query: (id) => ({

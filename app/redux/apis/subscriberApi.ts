@@ -1,11 +1,11 @@
-import type { ApiError, Meter, Subscriber } from "~/types";
+import type { ApiError, Invoice, Meter, Subscriber } from "~/types";
 import { baseApi } from "./baseApi";
 import { buildUrlParams } from "~/lib/utils";
 
 export const subscriberApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllSubscribers: builder.query<
-      Subscriber[],
+      (Subscriber & { meter?: Meter })[],
       { order?: "asc" | "desc" | undefined }
     >({
       query: (params) => ({
@@ -14,8 +14,10 @@ export const subscriberApi = baseApi.injectEndpoints({
         ]),
         method: "GET",
       }),
-      transformResponse: (result: { success: boolean; data: Subscriber[] }) =>
-        result.data,
+      transformResponse: (result: {
+        success: boolean;
+        data: (Subscriber & { meter?: Meter })[];
+      }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["subscribers"],
     }),
@@ -28,14 +30,17 @@ export const subscriberApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["subscribers"],
     }),
-    getSubscriber: builder.query<Subscriber & { meter: Meter }, number>({
+    getSubscriber: builder.query<
+      Subscriber & { meter: Meter; invoices: Invoice[] },
+      number
+    >({
       query: (id) => ({
         url: `/subscribers/${id}`,
         method: "GET",
       }),
       transformResponse: (result: {
         success: boolean;
-        data: Subscriber & { meter: Meter };
+        data: Subscriber & { meter: Meter; invoices: Invoice[] };
       }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["subscribers"],

@@ -98,55 +98,60 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
       )}
-      <Table className="border rounded-lg shadow-md ">
-        <TableHeader className="bg-muted">
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead className="font-bold" key={header.id}>
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {!isLoading && table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && "selected"}
-                onClick={() => {
-                  if (enableSelectRow) {
-                    row.getToggleSelectedHandler();
-                  }
-                }}
-              >
-                {row.getVisibleCells().map((cell) => (
-                  <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
+      <div className="border shadow-sm rounded-md">
+        <Table className="">
+          <TableHeader className="bg-muted">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead className="font-bold" key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
                 ))}
               </TableRow>
-            ))
-          ) : (
-            <TableRow className="">
-              <TableCell
-                colSpan={table.getAllColumns().length}
-                className="font-bold text-center"
-              >
-                {isLoading ? "Loading data..." : "No records available"}
-              </TableCell>
-            </TableRow>
-          )}
-          {finalRow && finalRow}
-        </TableBody>
-      </Table>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {!isLoading && table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => {
+                    if (enableSelectRow) {
+                      row.getToggleSelectedHandler();
+                    }
+                  }}
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow className="">
+                <TableCell
+                  colSpan={table.getAllColumns().length}
+                  className="font-bold text-center"
+                >
+                  {isLoading ? "Loading data..." : "No records available"}
+                </TableCell>
+              </TableRow>
+            )}
+            {finalRow && finalRow}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 }
