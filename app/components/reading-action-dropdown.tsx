@@ -12,17 +12,18 @@ import {
 } from "./ui/dropdown-menu";
 import { useDeleteReadingMutation } from "~/redux/apis/readingApi";
 import { toast } from "sonner";
-import type { ApiError } from "~/types";
+import type { ApiError, Meter, Reading, Subscriber } from "~/types";
 import { Dialog } from "./ui/dialog";
 import { useConfirmationDialog } from "./confirmation-dialog-provider";
 import { useState } from "react";
+import type { Row } from "@tanstack/react-table";
 
 interface ReadingActionDropdownProps {
-  reading_id: number;
+  row: Row<Reading & { meter: Meter & { subscriber?: Subscriber } }>;
 }
 
 export default function ReadingActionDropdown({
-  reading_id,
+  row,
 }: ReadingActionDropdownProps) {
   const [open, setOpen] = useState<boolean>(false);
   const [deleteReading, deleteResults] = useDeleteReadingMutation();
@@ -44,7 +45,7 @@ export default function ReadingActionDropdown({
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link
-                  to={`/dashboard/invoices/create?reading_id=${reading_id}`}
+                  to={`/dashboard/invoices/create?subscriber_id=${row.original.meter.subscriber?.id}&reading_id=${row.original.id}`}
                 >
                   <FilePlus />
                   <span>Create Invoice</span>
@@ -52,7 +53,7 @@ export default function ReadingActionDropdown({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/readings/edit?id=${reading_id}`}>
+                <Link to={`/dashboard/readings/edit?id=${row.original.id}`}>
                   <Pencil />
                   <span>Edit</span>
                 </Link>
@@ -64,17 +65,20 @@ export default function ReadingActionDropdown({
                     description:
                       "Are you sure you want to delete this reading? Action is irreversible",
                     action: () => {
-                      toast.promise(deleteReading(reading_id).unwrap(), {
-                        loading: "Deleting reading...",
-                        success: "Successfully deleted reading",
-                        error: (error) => {
-                          if ("data" in error) {
-                            return (error as ApiError).data.errors[0];
-                          } else {
-                            return "Unhandled error";
-                          }
-                        },
-                      });
+                      toast.promise(
+                        deleteReading(row.original.id || 0).unwrap(),
+                        {
+                          loading: "Deleting reading...",
+                          success: "Successfully deleted reading",
+                          error: (error) => {
+                            if ("data" in error) {
+                              return (error as ApiError).data.errors[0];
+                            } else {
+                              return "Unhandled error";
+                            }
+                          },
+                        }
+                      );
                     },
                   });
                 }}

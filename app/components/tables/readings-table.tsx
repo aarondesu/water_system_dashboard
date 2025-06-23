@@ -10,25 +10,29 @@ import { Checkbox } from "../ui/checkbox";
 import { useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { DataTable } from "../ui/data-table";
 import DataTableNavigation from "../data-table-navigation";
-import { CirclePlus, Droplet, Droplets, RefreshCcw } from "lucide-react";
+import {
+  CirclePlus,
+  Droplet,
+  Droplets,
+  Notebook,
+  RefreshCcw,
+} from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import ReadingActionDropdown from "../reading-action-dropdown";
 import { cn, formatNumber } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Input } from "../ui/input";
 import dayjs from "dayjs";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../ui/hover-card";
 
 const columns: ColumnDef<
-  Reading & { meter: Meter & { subscriber: Subscriber } }
+  Reading & { meter: Meter & { subscriber?: Subscriber } }
 >[] = [
   {
     id: "select",
@@ -60,7 +64,23 @@ const columns: ColumnDef<
     accessorKey: "meter.number",
     header: () => <div className="">Meter #</div>,
     cell: ({ row }) => (
-      <div className="font-semibold">{row.original.meter.number}</div>
+      <HoverCard>
+        <HoverCardTrigger>
+          <Link
+            to={`/dashboard/readings/view?id=${row.original.id}`}
+            className="font-semibold border-b border-dotted"
+          >
+            {row.original.meter.number}
+          </Link>
+        </HoverCardTrigger>
+        <HoverCardContent className="text-sm flex flex-col gap-2">
+          <span className="flex items-center font-semibold justify-between">
+            Note
+            <Notebook className="w-3 h-3" />
+          </span>
+          <span>{row.original.note ?? "N/A"}</span>
+        </HoverCardContent>
+      </HoverCard>
     ),
     enableHiding: false,
   },
@@ -70,7 +90,9 @@ const columns: ColumnDef<
     cell: ({ row }) => {
       return (
         <span className="flex flex-row gap-2">
-          {`${row.original.start_date} ~ ${row.original.end_date}`}
+          {`${dayjs(row.original.start_date).format("MMMM DD YYYY")} ~ ${dayjs(
+            row.original.end_date
+          ).format("MMMM DD YYYY")}`}
         </span>
       );
     },
@@ -88,14 +110,13 @@ const columns: ColumnDef<
   {
     accessorKey: "created_at",
     header: "Recorded At",
+    cell: ({ row }) => dayjs(row.original.created_at).format("MMMM DD YYYY"),
   },
   {
     id: "actions",
     enableHiding: false,
     enableSorting: false,
-    cell: ({ row }) => (
-      <ReadingActionDropdown reading_id={row.original.id || 0} />
-    ),
+    cell: ({ row }) => <ReadingActionDropdown row={row} />,
   },
 ];
 

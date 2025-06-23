@@ -106,7 +106,7 @@ const columns: ColumnDef<Subscriber>[] = [
     enableHiding: false,
     enableColumnFilter: false,
     enableMultiSort: false,
-    cell: ({ row }) => <SubscriberActionDropdown id={row.original.id || 0} />,
+    cell: ({ row }) => <SubscriberActionDropdown row={row} />,
   },
 ];
 

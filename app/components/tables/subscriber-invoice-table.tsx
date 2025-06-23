@@ -9,11 +9,17 @@ import { DataTable } from "../ui/data-table";
 import DataTableNavigation from "../data-table-navigation";
 import { formatNumber } from "~/lib/utils";
 import { Badge } from "../ui/badge";
+import dayjs from "dayjs";
 
 const columns: ColumnDef<Invoice>[] = [
   {
     id: "blank",
     enableHiding: false,
+  },
+  {
+    accessorKey: "created_at",
+    header: "Date Issued",
+    cell: ({ row }) => dayjs(row.original.created_at).format("MMMM DD YYYY"),
   },
   {
     accessorKey: "consumption",
@@ -35,6 +41,7 @@ const columns: ColumnDef<Invoice>[] = [
     ),
     enableHiding: false,
   },
+
   {
     accessorKey: "due_date",
     header: "Due Date",
@@ -71,7 +78,7 @@ export default function SubscriberInvoiceTable({
 
   return (
     <div className="space-y-3">
-      <DataTable table={table} isLoading={isLoading} />
+      <DataTable table={table} isLoading={isLoading} hideColumns={false} />
       <DataTableNavigation table={table} />
     </div>
   );

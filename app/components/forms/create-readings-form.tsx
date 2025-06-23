@@ -22,6 +22,8 @@ import { useCreateReadingMutation } from "~/redux/apis/readingApi";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import { AlertCircleIcon, Terminal } from "lucide-react";
 
 const formSchema = z.object({
   meter_id: z.number().min(1, { message: "Select meter for reading" }),
@@ -81,6 +83,16 @@ export default function CreateReadingsForm() {
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="space-y-4">
           <h5 className="font-bold">Reading Details</h5>
+          {meterResults.data && meterResults.data.status !== "active" && (
+            <Alert variant="destructive">
+              <AlertCircleIcon />
+              <AlertTitle>Inactive Meter Detected</AlertTitle>
+              <AlertDescription>
+                The meter you've selected is currently inactive. Please activate
+                the meter before proceeding with this process.
+              </AlertDescription>
+            </Alert>
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-2">
             <FormField
               control={form.control}

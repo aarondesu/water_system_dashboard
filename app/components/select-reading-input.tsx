@@ -13,6 +13,7 @@ import {
 } from "./ui/command";
 import { Badge } from "./ui/badge";
 import { ChevronDown, ChevronUp } from "lucide-react";
+import dayjs from "dayjs";
 
 interface SelectReadingInputProps {
   data: Reading[];
@@ -74,7 +75,10 @@ export default function SelectReadingInput({
                       setOpen(false);
                     }}
                   >
-                    {`${reading.created_at} - ${reading.reading}`}
+                    {`${dayjs(reading.created_at).format("MMMM DD YYYY")} - ${
+                      reading.reading
+                    }`}{" "}
+                    m&sup3;
                     {index === 0 && <Badge>Latest</Badge>}
                   </CommandItem>
                 ))}

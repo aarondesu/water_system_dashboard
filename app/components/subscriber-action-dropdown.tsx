@@ -1,4 +1,4 @@
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { FilePlus, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
 import {
   DropdownMenu,
@@ -13,45 +13,55 @@ import { Link } from "react-router";
 import { useDeleteSubscriberMutation } from "~/redux/apis/subscriberApi";
 import { toast } from "sonner";
 import { useConfirmationDialog } from "./confirmation-dialog-provider";
-import type { ApiError } from "~/types";
+import type { ApiError, Subscriber } from "~/types";
+import type { Row } from "@tanstack/react-table";
 
 interface SubscriberActionDropdownProps {
-  id: number;
+  row: Row<Subscriber>;
 }
 
 export default function SubscriberActionDropdown({
-  id,
+  row,
 }: SubscriberActionDropdownProps) {
   const [deleteSubscriber, deleteResults] = useDeleteSubscriberMutation();
   const { createDialog } = useConfirmationDialog();
 
   return (
-    <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open Menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuGroup>
-            <DropdownMenuItem asChild>
-              <Link to={`/dashboard/subscribers/edit/${id}`}>
-                <Pencil />
-                <span>Edit</span>
-              </Link>
-            </DropdownMenuItem>
-            <DropdownMenuItem
-              onClick={() =>
-                createDialog({
-                  title: "Delete Subscriber",
-                  description:
-                    "Are you sure you want to delete this subscriber? Action is irreversible. Deleting subscriber will unsubscribe them from the current meter they are assigned to",
-                  action: () => {
-                    toast.promise(deleteSubscriber(id).unwrap(), {
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="ghost" className="h-8 w-8 p-0">
+          <span className="sr-only">Open Menu</span>
+          <MoreHorizontal className="h-4 w-4" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
+        <DropdownMenuItem asChild>
+          <Link
+            to={`/dashboard/invoices/create?subscriber_id=${row.original.id}`}
+          >
+            <FilePlus />
+            <span>Create Invoice</span>
+          </Link>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem asChild>
+            <Link to={`/dashboard/subscribers/edit/${row.original.id || 0}`}>
+              <Pencil />
+              <span>Edit</span>
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() =>
+              createDialog({
+                title: "Delete Subscriber",
+                description:
+                  "Are you sure you want to delete this subscriber? Action is irreversible. Deleting subscriber will unsubscribe them from the current meter they are assigned to",
+                action: () => {
+                  toast.promise(
+                    deleteSubscriber(row.original.id || 0).unwrap(),
+                    {
                       loading: "Deleting subscriber...",
                       success: "Successfully deleted subscriber",
                       error: (error) => {
@@ -61,17 +71,17 @@ export default function SubscriberActionDropdown({
                           return "Unhandled error";
                         }
                       },
-                    });
-                  },
-                })
-              }
-            >
-              <Trash2 />
-              <span>Delete</span>
-            </DropdownMenuItem>
-          </DropdownMenuGroup>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+                    }
+                  );
+                },
+              })
+            }
+          >
+            <Trash2 />
+            <span>Delete</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
