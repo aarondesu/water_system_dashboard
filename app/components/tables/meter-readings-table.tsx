@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-table";
 import { Badge } from "../ui/badge";
 import dayjs from "dayjs";
+import ReadingActionDropdown from "../reading-action-dropdown";
 
 interface MeterReadingsTableProps {
   data: Reading[];

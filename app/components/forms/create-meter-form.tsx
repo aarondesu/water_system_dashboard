@@ -72,7 +72,6 @@ export default function CreateMeterForm() {
                 <SelectSubscriberInput
                   value={field.value || 0}
                   onSelect={(id) => {
-                    console.log(id);
                     form.setValue("subscriber_id", id);
                   }}
                   skipMeter={true}

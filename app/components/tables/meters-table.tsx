@@ -80,23 +80,12 @@ const columns: ColumnDef<Meter>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <HoverCard>
-        <HoverCardTrigger>
-          <Link
-            to={`/dashboard/meters/${row.original.id}`}
-            className="flex font-semibold"
-          >
-            {row.original.number}
-          </Link>
-        </HoverCardTrigger>
-        <HoverCardContent className="text-sm flex flex-col gap-2">
-          <span className="flex items-center font-semibold justify-between">
-            Note
-            <Notebook className="w-3 h-3" />
-          </span>
-          <span>{row.original.note ?? "N/A"}</span>
-        </HoverCardContent>
-      </HoverCard>
+      <Link
+        to={`/dashboard/meters/${row.original.id}`}
+        className="flex font-semibold"
+      >
+        {row.original.number}
+      </Link>
     ),
     enableHiding: false,
   },

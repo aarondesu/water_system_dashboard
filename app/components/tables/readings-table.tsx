@@ -64,23 +64,12 @@ const columns: ColumnDef<
     accessorKey: "meter.number",
     header: () => <div className="">Meter #</div>,
     cell: ({ row }) => (
-      <HoverCard>
-        <HoverCardTrigger>
-          <Link
-            to={`/dashboard/readings/view?id=${row.original.id}`}
-            className="font-semibold border-b border-dotted"
-          >
-            {row.original.meter.number}
-          </Link>
-        </HoverCardTrigger>
-        <HoverCardContent className="text-sm flex flex-col gap-2">
-          <span className="flex items-center font-semibold justify-between">
-            Note
-            <Notebook className="w-3 h-3" />
-          </span>
-          <span>{row.original.note ?? "N/A"}</span>
-        </HoverCardContent>
-      </HoverCard>
+      <Link
+        to={`/dashboard/readings/view?id=${row.original.id}`}
+        className="font-semibold border-b border-dotted border-b-blue-700"
+      >
+        {row.original.meter.number}
+      </Link>
     ),
     enableHiding: false,
   },
@@ -181,7 +170,6 @@ export default function ReadingsTable() {
             <form
               onSubmit={(form) => {
                 form.preventDefault();
-                console.log(form);
               }}
               className="flex flex-row gap-1"
             >

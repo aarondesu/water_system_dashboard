@@ -47,8 +47,6 @@ export default function EditMeterForm() {
   });
 
   const onSubmit = form.handleSubmit((meterData) => {
-    console.log(meterData);
-
     toast.promise(updateMeter({ ...meterData, id: data?.id }).unwrap(), {
       loading: "Creating meter...",
       success: () => {
@@ -86,7 +84,6 @@ export default function EditMeterForm() {
                 <SelectSubscriberInput
                   value={field.value || 0}
                   onSelect={(id) => {
-                    console.log(id);
                     form.setValue("subscriber_id", id);
                   }}
                   disabled={result.isLoading}

@@ -30,8 +30,6 @@ export default function WaterConsumptionChart({
     },
   } satisfies ChartConfig;
 
-  console.log(data);
-
   return (
     <Card>
       <CardHeader>
