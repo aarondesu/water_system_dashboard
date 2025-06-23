@@ -5,6 +5,7 @@ import {
   type SortingState,
   useReactTable,
   type ColumnDef,
+  type PaginationState,
 } from "@tanstack/react-table";
 import { useGetAllMetersQuery } from "~/redux/apis/meterApi";
 import type { Meter } from "~/types";
@@ -18,6 +19,7 @@ import {
   ChevronDown,
   ChevronsUpDown,
   ChevronUp,
+  Notebook,
   PlusCircle,
   RefreshCcw,
 } from "lucide-react";
@@ -26,6 +28,11 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { Link } from "react-router";
 import { Badge } from "../ui/badge";
 import { useState } from "react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "../ui/hover-card";
 
 const columns: ColumnDef<Meter>[] = [
   {
@@ -73,12 +80,23 @@ const columns: ColumnDef<Meter>[] = [
       </Button>
     ),
     cell: ({ row }) => (
-      <Link
-        to={`/dashboard/meters/${row.original.id}`}
-        className="flex font-semibold"
-      >
-        {row.original.number}
-      </Link>
+      <HoverCard>
+        <HoverCardTrigger>
+          <Link
+            to={`/dashboard/meters/${row.original.id}`}
+            className="flex font-semibold"
+          >
+            {row.original.number}
+          </Link>
+        </HoverCardTrigger>
+        <HoverCardContent className="text-sm flex flex-col gap-2">
+          <span className="flex items-center font-semibold justify-between">
+            Note
+            <Notebook className="w-3 h-3" />
+          </span>
+          <span>{row.original.note ?? "N/A"}</span>
+        </HoverCardContent>
+      </HoverCard>
     ),
     enableHiding: false,
   },
@@ -136,16 +154,23 @@ export default function MetersTable() {
   const isMobile = useIsMobile();
 
   const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState<PaginationState>({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
   const table = useReactTable({
     data: data || [],
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    onPaginationChange: setPagination,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
     state: {
       sorting: sorting,
+      pagination: pagination,
     },
   });
 

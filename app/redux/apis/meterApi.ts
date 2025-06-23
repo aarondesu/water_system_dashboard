@@ -76,6 +76,16 @@ export const meterApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["meters", "subscribers"],
     }),
+    setStatus: builder.mutation<
+      void,
+      { id: number; status: "active" | "inactive" }
+    >({
+      query: ({ id, status }) => ({
+        url: `/meters/${id}/status/${status}`,
+        method: "PUT",
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+    }),
   }),
 });
 
@@ -88,4 +98,5 @@ export const {
   useGetMeterQuery,
   useLazyGetMeterQuery,
   useUpdateMeterMutation,
+  useSetStatusMutation,
 } = meterApi;

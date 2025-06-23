@@ -24,7 +24,10 @@ import {
 } from "./ui/dropdown-menu";
 import { Link } from "react-router";
 import { useState } from "react";
-import { useDeleteMeterMutation } from "~/redux/apis/meterApi";
+import {
+  useDeleteMeterMutation,
+  useSetStatusMutation,
+} from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import { useConfirmationDialog } from "./confirmation-dialog-provider";
 import type { Row } from "@tanstack/react-table";
@@ -42,6 +45,7 @@ export default function MeterActionDropdown({
   const [open, setOpen] = useState<boolean>(false);
   const [deleteMeter, result] = useDeleteMeterMutation();
   const { createDialog } = useConfirmationDialog();
+  const [setMeterStatus, statusResults] = useSetStatusMutation();
   const [status, setStatus] = useState<"active" | "inactive">(
     row.original.status
   );
@@ -50,7 +54,11 @@ export default function MeterActionDropdown({
     <>
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
+          <Button
+            variant="ghost"
+            className="h-8 w-8 p-0"
+            disabled={statusResults.isLoading}
+          >
             <span className="sr-only">Open Menu</span>
             <MoreHorizontal className="h-4 w-4" />
           </Button>
@@ -76,9 +84,13 @@ export default function MeterActionDropdown({
                 <DropdownMenuSubContent>
                   <DropdownMenuRadioGroup
                     value={status}
-                    onValueChange={(value) =>
-                      setStatus(value === "active" ? "active" : "inactive")
-                    }
+                    onValueChange={(value) => {
+                      setMeterStatus({
+                        id: row.original.id || 0,
+                        status: value === "active" ? "active" : "inactive",
+                      });
+                      setStatus(value === "active" ? "active" : "inactive");
+                    }}
                   >
                     <DropdownMenuRadioItem value="active">
                       Active

@@ -7,19 +7,6 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
-import { Button } from "../ui/button";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { Link } from "react-router";
-import ReadingActionDropdown from "../reading-action-dropdown";
 import { Badge } from "../ui/badge";
 import dayjs from "dayjs";
 
@@ -56,12 +43,6 @@ const columns: ColumnDef<Reading>[] = [
       );
     },
     enableHiding: false,
-  },
-  {
-    id: "actions",
-    cell: ({ row }) => (
-      <ReadingActionDropdown reading_id={row.original.id || 0} />
-    ),
   },
 ];
 
