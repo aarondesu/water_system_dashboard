@@ -17,6 +17,13 @@ const columns: ColumnDef<Invoice>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "invoice_number",
+    header: "Invoice Number",
+    cell: ({ row }) => (
+      <span className="font-semibold">{row.original.invoice_number}</span>
+    ),
+  },
+  {
     accessorKey: "created_at",
     header: "Date Issued",
     cell: ({ row }) => dayjs(row.original.created_at).format("MMMM DD YYYY"),

@@ -20,6 +20,7 @@ export default function DateSelector({
   className,
 }: DateSelectorProps) {
   const [open, setOpen] = useState<boolean>(false);
+  const [target, setTarget] = useState<Date | undefined>();
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

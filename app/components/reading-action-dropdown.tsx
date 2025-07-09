@@ -45,7 +45,7 @@ export default function ReadingActionDropdown({
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link
-                  to={`/dashboard/invoices/create?subscriber_id=${row.original.meter.subscriber?.id}&reading_id=${row.original.id}`}
+                  to={`/dashboard/invoice/create?subscriber_id=${row.original.meter.subscriber?.id}&reading_id=${row.original.id}`}
                 >
                   <FilePlus />
                   <span>Create Invoice</span>
@@ -53,7 +53,7 @@ export default function ReadingActionDropdown({
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link to={`/dashboard/readings/edit?id=${row.original.id}`}>
+                <Link to={`/dashboard/reading/edit?id=${row.original.id}`}>
                   <Pencil />
                   <span>Edit</span>
                 </Link>

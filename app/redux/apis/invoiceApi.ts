@@ -4,6 +4,7 @@ import type {
   PaginationResults,
   ApiError,
   Subscriber,
+  Meter,
 } from "~/types";
 import { baseApi } from "./baseApi";
 import { buildUrlParams } from "~/lib/utils";
@@ -29,6 +30,21 @@ export const invoiceApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["invoices"],
     }),
+    getInvoice: builder.query<
+      Invoice & { subscriber: Subscriber; meter: Meter },
+      number
+    >({
+      query: (id) => ({
+        url: `/invoices/${id}`,
+        method: "GET",
+      }),
+      transformResponse: (result: {
+        success: boolean;
+        data: Invoice & { subscriber: Subscriber; meter: Meter };
+      }) => result.data,
+      transformErrorResponse: (response: ApiError) => response,
+      providesTags: ["invoices"],
+    }),
     createInvoice: builder.mutation<void, Invoice>({
       query: (data) => ({
         url: "/invoices",
@@ -41,4 +57,8 @@ export const invoiceApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetAllInvoiceQuery, useCreateInvoiceMutation } = invoiceApi;
+export const {
+  useGetAllInvoiceQuery,
+  useCreateInvoiceMutation,
+  useGetInvoiceQuery,
+} = invoiceApi;

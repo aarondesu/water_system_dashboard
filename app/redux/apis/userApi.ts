@@ -22,8 +22,19 @@ export const userApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["users"],
     }),
+    deleteUser: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/users/${id}`,
+        method: "DELETE",
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+    }),
   }),
   overrideExisting: false,
 });
 
-export const { useGetAllusersQuery, useCreateUserMutation } = userApi;
+export const {
+  useGetAllusersQuery,
+  useCreateUserMutation,
+  useDeleteUserMutation,
+} = userApi;

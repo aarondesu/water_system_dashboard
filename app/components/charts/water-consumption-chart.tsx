@@ -25,7 +25,7 @@ export default function WaterConsumptionChart({
 }: WaterConsumptionChartProps) {
   const chartConfig = {
     total_consumption: {
-      label: "Reading",
+      label: "Consumption",
       color: "#2563eb",
     },
   } satisfies ChartConfig;
@@ -45,6 +45,8 @@ export default function WaterConsumptionChart({
               tickLine={false}
               tickMargin={10}
               axisLine={false}
+              tickFormatter={(value) => value.slice(0, 3)}
+              angle={-45}
             />
             <ChartTooltip content={<ChartTooltipContent />} />
             <Bar dataKey="total_consumption" fill="var(--chart-1)" radius={4} />

@@ -9,7 +9,11 @@ import {
   type ColumnFiltersState,
   getFilteredRowModel,
 } from "@tanstack/react-table";
-import { useGetAllSubscribersQuery } from "~/redux/apis/subscriberApi";
+import {
+  useBulkDeleteSubscirberMutation,
+  useDeleteSubscriberMutation,
+  useGetAllSubscribersQuery,
+} from "~/redux/apis/subscriberApi";
 import type { Subscriber } from "~/types";
 import { Checkbox } from "../ui/checkbox";
 import { DataTable } from "../ui/data-table";
@@ -27,10 +31,12 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { useIsMobile } from "~/hooks/use-mobile";
-import { cn } from "~/lib/utils";
+import { cn, resolvePromises } from "~/lib/utils";
 import { Link } from "react-router";
 import SubscriberActionDropdown from "../subscriber-action-dropdown";
 import { Input } from "../ui/input";
+import { toast } from "sonner";
+import { useConfirmationDialog } from "../confirmation-dialog-provider";
 
 const columns: ColumnDef<Subscriber>[] = [
   {
@@ -44,7 +50,9 @@ const columns: ColumnDef<Subscriber>[] = [
             table.getIsAllPageRowsSelected() ||
             (table.getIsSomeRowsSelected() && "indeterminate")
           }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value: boolean) =>
+            table.toggleAllPageRowsSelected(!!value)
+          }
           aria-label="Select All"
         />
       </div>
@@ -53,7 +61,7 @@ const columns: ColumnDef<Subscriber>[] = [
       <div className="flex justify-end">
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
           aria-label="Select Row"
         />
       </div>
@@ -81,7 +89,7 @@ const columns: ColumnDef<Subscriber>[] = [
     ),
     cell: ({ row }) => (
       <Link
-        to={`/dashboard/subscribers/view/${row.original.id}`}
+        to={`/dashboard/subscriber/view/${row.original.id}`}
         className="space-x-2 border-b border-dotted border-b-blue-700 font-semibold"
       >
         <span>{row.original.last_name},</span>
@@ -112,6 +120,13 @@ const columns: ColumnDef<Subscriber>[] = [
 
 export default function SubscribersTable() {
   const isMobile = useIsMobile();
+  const [isDeleting, setDeleting] = useState<boolean>(false);
+  const [deleteSubscriber, deleteSubscriberResults] =
+    useDeleteSubscriberMutation();
+  const { createDialog } = useConfirmationDialog();
+
+  const [bulkDeleteSubscriber, bulkDeleteSubscriberResults] =
+    useBulkDeleteSubscirberMutation();
 
   const { data, isLoading, isFetching, refetch } = useGetAllSubscribersQuery(
     {}
@@ -129,11 +144,36 @@ export default function SubscribersTable() {
     onSortingChange: setSorting,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
+    autoResetPageIndex: false,
     state: {
       sorting: sorting,
       globalFilter: globalFilter,
     },
   });
+
+  const onDeleteButtonPressed = () => {
+    createDialog({
+      title: "Delete Selected Subscribers",
+      description:
+        "Are you sure you want to delete the selected subscirbers? Action is irreversible",
+      action: () => {
+        const subscribersToDelete = table.getFilteredSelectedRowModel().rows;
+        setDeleting(true);
+
+        const ids = subscribersToDelete.map((s) => s.original.id || 0);
+        console.log(ids);
+
+        toast.promise(bulkDeleteSubscriber(ids).unwrap(), {
+          loading: "Deleting selected users...",
+          success: "Successfully deleted user",
+          finally: () => {
+            setDeleting(false);
+            refetch();
+          },
+        });
+      },
+    });
+  };
 
   return (
     <div className="flex flex-col w-full space-y-3">
@@ -160,7 +200,7 @@ export default function SubscribersTable() {
               variant="outline"
               asChild
             >
-              <Link to="/dashboard/subscribers/create">
+              <Link to="/dashboard/subscriber/create">
                 <Plus />
                 {!isMobile && <span>Create</span>}
               </Link>
@@ -169,8 +209,12 @@ export default function SubscribersTable() {
               size={isMobile ? "icon" : "default"}
               variant="outline"
               disabled={
-                isLoading || isFetching || !table.getIsSomeRowsSelected()
+                isLoading ||
+                isFetching ||
+                !table.getIsSomeRowsSelected() ||
+                isDeleting
               }
+              onClick={onDeleteButtonPressed}
             >
               <Trash2 />
               {!isMobile && <span>Delete</span>}
@@ -193,7 +237,13 @@ export default function SubscribersTable() {
           </div>
         }
       />
-      <DataTableNavigation table={table} />
+      <DataTableNavigation
+        table={table}
+        isLoading={
+          deleteSubscriberResults.isLoading ||
+          bulkDeleteSubscriberResults.isLoading
+        }
+      />
     </div>
   );
 }

@@ -21,7 +21,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "./ui/sidebar";
-import { Link } from "react-router";
+import { Link, useLocation } from "react-router";
 import { useAuth } from "./authentication-provider";
 import SidebarLogo from "./sidebar-logo";
 import ApplicationSidebarFooter from "./sidebar-footer";
@@ -55,7 +55,7 @@ const links: Category[] = [
       },
       {
         label: "Users",
-        url: "/dashboard/users",
+        url: "/dashboard/user",
         icon: Users2,
       },
     ],
@@ -65,17 +65,17 @@ const links: Category[] = [
     children: [
       {
         label: "Subscribers",
-        url: "/dashboard/subscribers",
+        url: "/dashboard/subscriber",
         icon: Users,
       },
       {
         label: "Meters",
-        url: "/dashboard/meters",
+        url: "/dashboard/meter",
         icon: Gauge,
       },
       {
         label: "Water Readings",
-        url: "/dashboard/readings",
+        url: "/dashboard/reading",
         icon: Droplets,
       },
     ],
@@ -85,12 +85,12 @@ const links: Category[] = [
     children: [
       {
         label: "Invoices",
-        url: "/dashboard/invoices",
+        url: "/dashboard/invoice",
         icon: FileText,
       },
       {
         label: "Transactions",
-        url: "/dashboard/transactions",
+        url: "/dashboard/transaction",
         icon: DollarSign,
       },
     ],
@@ -100,9 +100,19 @@ const links: Category[] = [
 export default function DashboardSidebar() {
   const { logout } = useAuth();
   const { open } = useSidebar();
+  const location = useLocation();
+
+  const checkUrl = (url: string) => {
+    // Check if url is dashboard, if it is check if the location is dashboard only to avoid uncessarry highlighting
+    if (url === "/dashboard") {
+      return location.pathname === "/dashboard";
+    } else {
+      return location.pathname.startsWith(url);
+    }
+  };
 
   return (
-    <Sidebar collapsible="icon" variant="inset">
+    <Sidebar collapsible="icon" variant="sidebar">
       <SidebarHeader>
         <SidebarLogo />
       </SidebarHeader>
@@ -115,23 +125,25 @@ export default function DashboardSidebar() {
             <SidebarGroupLabel>{category.label}</SidebarGroupLabel>
             <SidebarGroupContent>
               <SidebarMenu>
-                {category.children.map((link) => (
-                  <SidebarMenuItem key={link.label}>
-                    <SidebarMenuButton asChild>
-                      <Link to={link.url}>
-                        <link.icon />
-                        <span>{link.label}</span>
-                      </Link>
-                    </SidebarMenuButton>
-                    {link.action && (
-                      <SidebarMenuAction asChild>
-                        <Link to={link.action.url}>
-                          <link.action.icon />
+                {category.children.map((link) => {
+                  return (
+                    <SidebarMenuItem key={link.label}>
+                      <SidebarMenuButton isActive={checkUrl(link.url)} asChild>
+                        <Link to={link.url}>
+                          <link.icon />
+                          <span>{link.label}</span>
                         </Link>
-                      </SidebarMenuAction>
-                    )}
-                  </SidebarMenuItem>
-                ))}
+                      </SidebarMenuButton>
+                      {link.action && (
+                        <SidebarMenuAction asChild>
+                          <Link to={link.action.url}>
+                            <link.action.icon />
+                          </Link>
+                        </SidebarMenuAction>
+                      )}
+                    </SidebarMenuItem>
+                  );
+                })}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>

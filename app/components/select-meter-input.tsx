@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGetAllMetersQuery } from "~/redux/apis/meterApi";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
@@ -12,24 +12,35 @@ import {
   CommandList,
 } from "./ui/command";
 import { ChevronsUpDown, FastForward } from "lucide-react";
+import type { Meter, Subscriber } from "~/types";
 
 interface SelectMeterInputProps {
-  value: number;
-  onSelect: (id: number) => void;
   disabled?: boolean;
+  data: (Meter & {
+    subscriber?: Subscriber;
+  } & Record<string, any>)[];
+  onChange?: (value: number) => void;
+  value?: number;
   className?: string;
 }
 
 export default function SelectMeterInput({
-  value,
   disabled = false,
+  data,
+  value: defaultValue = 0,
+  onChange = () => null,
   className,
-  onSelect,
 }: SelectMeterInputProps) {
-  const { data, isLoading } = useGetAllMetersQuery();
-
   const [open, setOpen] = useState<boolean>(false);
-  const meter = data?.find((u) => u.id === value);
+  const [value, setValue] = useState<number>(defaultValue);
+
+  const meter = data.find((meter) => meter.id === value);
+
+  useEffect(() => {
+    if (defaultValue && value !== defaultValue) {
+      setValue((value) => defaultValue);
+    }
+  }, [defaultValue]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -37,52 +48,51 @@ export default function SelectMeterInput({
         <Button
           variant="outline"
           role="combobox"
-          className={cn(
-            "justify-between w-full",
-            !value && "text-muted-foreground"
-          )}
-          disabled={isLoading || disabled}
+          aria-expanded={open}
+          className={cn("w-[300px] justify-between", className)}
+          disabled={disabled}
         >
           {value
             ? meter
-              ? `Meter # ${meter.number} ${
+              ? `${meter?.number} - ${
                   meter.subscriber
-                    ? `- ${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
-                    : ``
+                    ? `${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
+                    : `Unassigned`
                 }`
-              : "Select Meter"
-            : "Select Meter"}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              : "Select meter..."
+            : "Select Meter..."}
+          <ChevronsUpDown />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+      <PopoverContent
+        className="w-[var(--radix-popover-trigger-width)] p-0"
+        align="start"
+      >
         <Command>
-          <CommandInput placeholder="Search meter" />
+          <CommandInput placeholder="Search meter..." />
+          <CommandEmpty>No meter found</CommandEmpty>
           <CommandList>
-            <CommandEmpty>No meter found</CommandEmpty>
-            <CommandGroup>
-              {data &&
-                data.map((meter) => (
-                  <CommandItem
-                    key={meter.id}
-                    value={`${meter.number} ${
-                      meter.subscriber
-                        ? `- ${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
-                        : ``
-                    }`}
-                    onSelect={() => {
-                      onSelect(meter.id || 0);
-                      setOpen(false);
-                    }}
-                  >
-                    {`Meter # ${meter.number} ${
-                      meter.subscriber
-                        ? `- ${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
-                        : ``
-                    }`}
-                  </CommandItem>
-                ))}
-            </CommandGroup>
+            {data.map((meter, index) => (
+              <CommandItem
+                key={index}
+                value={`${meter.number} ${
+                  meter.subscriber
+                    ? `- ${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
+                    : `Unassigned`
+                }`}
+                onSelect={(currentValue) => {
+                  setValue(meter.id || 0);
+                  onChange(meter.id || 0);
+                  setOpen(false);
+                }}
+              >
+                {`${meter.number} - ${
+                  meter.subscriber
+                    ? `${meter.subscriber.last_name}, ${meter.subscriber.first_name}`
+                    : `Unassigned`
+                }`}
+              </CommandItem>
+            ))}
           </CommandList>
         </Command>
       </PopoverContent>

@@ -14,7 +14,7 @@ export const readingApi = baseApi.injectEndpoints({
   endpoints: (builder) => ({
     getAllReadings: builder.query<
       PaginationResults<
-        Reading & { meter: Meter & { subscriber: Subscriber } }
+        Reading & { meter: Meter & { subscriber?: Subscriber } }
       >,
       PaginationArgs & { meter?: string; reading?: string }
     >({
@@ -53,6 +53,47 @@ export const readingApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["readings", "meters"],
     }),
+    getLatestReadingsPerMeter: builder.query<
+      (Meter & { subscriber?: Subscriber; readings: Reading[] })[],
+      void
+    >({
+      query: () => ({
+        url: "/readings/latest",
+        method: "GET",
+      }),
+      transformResponse: (result: {
+        success: boolean;
+        data: (Meter & { subscriber?: Subscriber; readings: Reading[] })[];
+      }) => result.data,
+      transformErrorResponse: (response: ApiError) => response,
+      providesTags: ["readings", "meters"],
+    }),
+    getLatestReadingPerMeter: builder.query<
+      (Meter & { subscriber?: Subscriber; readings: Reading[] })[],
+      void
+    >({
+      query: () => ({
+        url: "/readings/latest/meter",
+        method: "GET",
+      }),
+      transformResponse: (result: {
+        success: boolean;
+        data: (Meter & { subscriber?: Subscriber; readings: Reading[] })[];
+      }) => result.data,
+      transformErrorResponse: (response: ApiError) => response,
+      providesTags: ["readings", "meters"],
+    }),
+    createBulkReadings: builder.mutation<void, Reading[]>({
+      query: (readings) => ({
+        url: "/readings/bulk",
+        method: "POST",
+        body: {
+          readings,
+        },
+        transformErrorResponse: (response: ApiError) => response,
+        invalidatesTags: ["readings", "meters"],
+      }),
+    }),
   }),
 });
 
@@ -60,4 +101,7 @@ export const {
   useGetAllReadingsQuery,
   useCreateReadingMutation,
   useDeleteReadingMutation,
+  useGetLatestReadingsPerMeterQuery,
+  useGetLatestReadingPerMeterQuery,
+  useCreateBulkReadingsMutation,
 } = readingApi;

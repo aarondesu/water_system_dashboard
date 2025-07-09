@@ -16,7 +16,7 @@ export default function Layout() {
               <DashboardSidebar />
               <div className="flex flex-col grow gap-4 bg-white">
                 <PageNavigation />
-                <main className="py-2 px-6">
+                <main className="py-2 px-6 h-full container">
                   <Outlet />
                 </main>
               </div>

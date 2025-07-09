@@ -68,6 +68,17 @@ export const subscriberApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["subscribers", "meters"],
     }),
+    bulkDeleteSubscirber: builder.mutation<void, number[]>({
+      query: (ids) => ({
+        url: `/subscribers/`,
+        method: "DELETE",
+        body: {
+          ids: ids,
+        },
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["subscribers", "meters"],
+    }),
   }),
   overrideExisting: false,
 });
@@ -78,4 +89,5 @@ export const {
   useGetSubscriberQuery,
   useUpdateSubscriberMutation,
   useDeleteSubscriberMutation,
+  useBulkDeleteSubscirberMutation,
 } = subscriberApi;

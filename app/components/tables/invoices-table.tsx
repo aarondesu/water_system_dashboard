@@ -10,48 +10,46 @@ import { useGetAllInvoiceQuery } from "~/redux/apis/invoiceApi";
 import { DataTable } from "../ui/data-table";
 import type { Invoice, Subscriber } from "~/types";
 import DataTableNavigation from "../data-table-navigation";
-import { Checkbox } from "../ui/checkbox";
 import { cn, formatNumber } from "~/lib/utils";
 import { Badge } from "../ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 import { MoreHorizontal, Pencil, PlusCircle, RefreshCcw } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router";
 import { useIsMobile } from "~/hooks/use-mobile";
+import GenerateInvoiceDialog from "../generate-invoice-dialog";
 
 const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
   {
     id: "select",
     enableGlobalFilter: false,
     enableHiding: false,
-    enableSorting: false,
-    header: ({ table }) => (
-      <div className="flex justify-end">
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomeRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select All"
-        />
-      </div>
-    ),
+    // enableSorting: false,
+    // header: ({ table }) => (
+    //   <div className="flex justify-end">
+    //     <Checkbox
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomeRowsSelected() && "indeterminate")
+    //       }
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       aria-label="Select All"
+    //     />
+    //   </div>
+    // ),
+    // cell: ({ row }) => (
+    //   <div className="flex justify-end">
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //     />
+    //   </div>
+    // ),
+  },
+  {
+    accessorKey: "invoice_number",
+    header: "Invoice Number",
     cell: ({ row }) => (
-      <div className="flex justify-end">
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-        />
-      </div>
+      <span className="font-semibold">{row.original.invoice_number}</span>
     ),
   },
   {
@@ -103,30 +101,30 @@ const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
     accessorKey: "due_date",
     header: "Due Date",
   },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => (
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open Menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-48">
-          <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
-          <DropdownMenuSeparator />
-          <DropdownMenuItem asChild>
-            <Link to={`/dashboard/meters/edit?id=${1}`}>
-              <Pencil />
-              <span>Edit</span>
-            </Link>
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    ),
-  },
+  // {
+  //   id: "actions",
+  //   enableHiding: false,
+  //   cell: ({ row }) => (
+  //     <DropdownMenu>
+  //       <DropdownMenuTrigger asChild>
+  //         <Button variant="ghost" className="h-8 w-8 p-0">
+  //           <span className="sr-only">Open Menu</span>
+  //           <MoreHorizontal className="h-4 w-4" />
+  //         </Button>
+  //       </DropdownMenuTrigger>
+  //       <DropdownMenuContent align="end" className="w-48">
+  //         <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
+  //         <DropdownMenuSeparator />
+  //         <DropdownMenuItem asChild>
+  //           <Link to={`/dashboard/meters/edit?id=${1}`}>
+  //             <Pencil />
+  //             <span>Edit</span>
+  //           </Link>
+  //         </DropdownMenuItem>
+  //       </DropdownMenuContent>
+  //     </DropdownMenu>
+  //   ),
+  // },
 ];
 
 export default function InvoicesTable() {
@@ -173,15 +171,16 @@ export default function InvoicesTable() {
               variant="outline"
               asChild
             >
-              <Link to="/dashboard/invoices/create">
+              <Link to="/dashboard/invoice/create">
                 <PlusCircle className="w-4 h-4" />
-                <span>Create</span>
+                {!isMobile && "Create"}
               </Link>
             </Button>
+            <GenerateInvoiceDialog />
           </div>
         }
       />
-      <DataTableNavigation table={table} isLoading={isLoading || isFetching} />
+      <DataTableNavigation table={table} />
     </div>
   );
 }

@@ -67,7 +67,7 @@ export default function MeterActionDropdown({
           <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuItem asChild>
-            <Link to={`/dashboard/readings/create?meter=${id}`}>
+            <Link to={`/dashboard/reading/create?meter=${id}`}>
               <Droplets />
               <span>Create Reading</span>
             </Link>
@@ -103,7 +103,7 @@ export default function MeterActionDropdown({
               </DropdownMenuPortal>
             </DropdownMenuSub>
             <DropdownMenuItem asChild>
-              <Link to={`/dashboard/meters/edit/${id}`}>
+              <Link to={`/dashboard/meter/edit/${id}`}>
                 <Pencil />
                 <span>Edit</span>
               </Link>

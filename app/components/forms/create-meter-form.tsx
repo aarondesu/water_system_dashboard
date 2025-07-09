@@ -89,7 +89,12 @@ export default function CreateMeterForm() {
             <FormItem>
               <FormLabel>Meter Number*</FormLabel>
               <FormControl>
-                <Input {...field} type="number" disabled={result.isLoading} />
+                <Input
+                  {...field}
+                  type="number"
+                  className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  disabled={result.isLoading}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

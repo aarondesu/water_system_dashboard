@@ -38,7 +38,7 @@ export default function SubscriberActionDropdown({
         <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
         <DropdownMenuItem asChild>
           <Link
-            to={`/dashboard/invoices/create?subscriber_id=${row.original.id}`}
+            to={`/dashboard/invoice/create?subscriber_id=${row.original.id}`}
           >
             <FilePlus />
             <span>Create Invoice</span>
@@ -47,7 +47,7 @@ export default function SubscriberActionDropdown({
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
           <DropdownMenuItem asChild>
-            <Link to={`/dashboard/subscribers/edit/${row.original.id || 0}`}>
+            <Link to={`/dashboard/subscriber/edit/${row.original.id || 0}`}>
               <Pencil />
               <span>Edit</span>
             </Link>

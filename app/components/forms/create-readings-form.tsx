@@ -12,12 +12,15 @@ import {
 import { Input } from "../ui/input";
 import { useEffect, useState } from "react";
 import SelectMeterInput from "../select-meter-input";
-import { useLazyGetMeterQuery } from "~/redux/apis/meterApi";
+import {
+  useGetAllMetersQuery,
+  useLazyGetMeterQuery,
+} from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import MeterReadingsTable from "../tables/meter-readings-table";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import DatePicker from "../ui/date-picker";
+import DateRangePicker from "../ui/date-picker";
 import { useCreateReadingMutation } from "~/redux/apis/readingApi";
 import { Link, useNavigate, useSearchParams } from "react-router";
 import { cn } from "~/lib/utils";
@@ -41,7 +44,8 @@ const formSchema = z.object({
 
 export default function CreateReadingsForm() {
   const [selected, setSelected] = useState<boolean>(false);
-  const [getMeter, meterResults] = useLazyGetMeterQuery();
+  const getAllMeterResults = useGetAllMetersQuery();
+  const [getMeter, getMeterResults] = useLazyGetMeterQuery();
   const [createReading, readingResults] = useCreateReadingMutation();
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -63,7 +67,14 @@ export default function CreateReadingsForm() {
     toast.promise(createReading(data).unwrap(), {
       loading: "Creating meter reading...",
       success: () => {
-        meterResults.reset();
+        getMeterResults.reset();
+        form.reset({
+          reading: 0,
+          note: "",
+          meter_id: 0,
+          start_date: data.start_date,
+          end_date: data.end_date,
+        });
         // navigate("/dashboard/readings");
         return "Successfully created reading";
       },
@@ -83,7 +94,7 @@ export default function CreateReadingsForm() {
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="space-y-4">
           <h5 className="font-bold">Reading Details</h5>
-          {meterResults.data && meterResults.data.status !== "active" && (
+          {getMeterResults.data && getMeterResults.data.status !== "active" && (
             <Alert variant="destructive">
               <AlertCircleIcon />
               <AlertTitle>Inactive Meter Detected</AlertTitle>
@@ -103,10 +114,11 @@ export default function CreateReadingsForm() {
                   <FormControl>
                     <SelectMeterInput
                       {...field}
+                      data={getAllMeterResults.data || []}
                       disabled={
-                        meterResults.isLoading || readingResults.isLoading
+                        getMeterResults.isLoading || readingResults.isLoading
                       }
-                      onSelect={(id) => {
+                      onChange={(id) => {
                         if (id !== 0 || id !== undefined) {
                           toast.promise(getMeter(id).unwrap(), {
                             loading: "Retrieving meter information...",
@@ -134,10 +146,11 @@ export default function CreateReadingsForm() {
                     <Input
                       {...field}
                       placeholder="Enter Current Reading..."
+                      className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                       disabled={
                         !selected ||
-                        meterResults.isLoading ||
-                        meterResults.isFetching ||
+                        getMeterResults.isLoading ||
+                        getMeterResults.isFetching ||
                         readingResults.isLoading
                       }
                       type="number"
@@ -155,10 +168,8 @@ export default function CreateReadingsForm() {
               <FormItem>
                 <FormLabel>Reading date</FormLabel>
                 <FormControl>
-                  <DatePicker
-                    onSelect={(range) => {
-                      console.log(range);
-
+                  <DateRangePicker
+                    onChange={(range) => {
                       // Check if from and to are not undefined
                       if (range?.from && range?.to) {
                         form.setValue("start_date", range.from);
@@ -168,8 +179,8 @@ export default function CreateReadingsForm() {
                     className="w-full"
                     disabled={
                       !selected ||
-                      meterResults.isLoading ||
-                      meterResults.isFetching ||
+                      getMeterResults.isLoading ||
+                      getMeterResults.isFetching ||
                       readingResults.isLoading
                     }
                   />
@@ -189,8 +200,8 @@ export default function CreateReadingsForm() {
                     {...field}
                     disabled={
                       !selected ||
-                      meterResults.isLoading ||
-                      meterResults.isFetching ||
+                      getMeterResults.isLoading ||
+                      getMeterResults.isFetching ||
                       readingResults.isLoading
                     }
                     placeholder="Optional: Add any additional comments"
@@ -204,8 +215,8 @@ export default function CreateReadingsForm() {
         <div className="space-y-4">
           <h5 className="font-bold">Previous Readings</h5>
           <MeterReadingsTable
-            data={meterResults.data?.readings || []}
-            isLoading={meterResults.isLoading || meterResults.isFetching}
+            data={getMeterResults.data?.readings || []}
+            isLoading={getMeterResults.isLoading || getMeterResults.isFetching}
           />
         </div>
         <div className="flex flex-col-reverse md:flex-row gap-2">
@@ -220,8 +231,8 @@ export default function CreateReadingsForm() {
             type="submit"
             disabled={
               !selected ||
-              meterResults.isLoading ||
-              meterResults.isFetching ||
+              getMeterResults.isLoading ||
+              getMeterResults.isFetching ||
               readingResults.isLoading
             }
             className={cn(isMobile ? "w-full" : "w-auto")}

@@ -43,6 +43,7 @@ export type Meter = {
 
 export type Invoice = {
   id?: number;
+  invoice_number: string;
   subscriber_id: number;
   meter_id: number;
   previous_reading_id?: number;
@@ -54,6 +55,7 @@ export type Invoice = {
   due_date: Date;
   created_at?: string;
   updated_at?: string;
+  arrears: number;
 };
 
 export type ApiError = {
@@ -75,26 +77,30 @@ export type PaginationResults<T> = {
   items: T[];
 };
 
-export type Dashboard = {
+export type DashboardResults = {
   total_subscribers: number;
   meters: {
     total: number;
     active: number;
   };
   readings: {
-    current_reading: {
+    current_total_reading: {
       month: string;
-      total_reading: number;
+      total_consumption: number;
     };
-    previous_reading: {
+    previous_total_reading: {
       month: string;
-      total_reading: number;
+      total_consumption: number;
     };
-    list: { month: string; total_consumption: number }[];
+    monthly_consumption: { month: string; total_consumption: number }[];
     latest: (Reading & { meter: Meter })[];
   };
   invoice: {
-    current_invoice: {
+    current_balance: {
+      month: string;
+      total_amount_due: number;
+    };
+    previous_balance: {
       month: string;
       total_amount_due: number;
     };

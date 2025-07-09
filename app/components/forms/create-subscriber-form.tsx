@@ -47,7 +47,7 @@ export default function CreateSubscriberForm() {
       loading: "Creating subscriber...",
       success: () => {
         form.reset();
-        navigate("/dashboard/subscribers");
+        navigate("/dashboard/subscriber");
         return "Successfully created subscriber!";
       },
       error: (error) => {
@@ -127,6 +127,7 @@ export default function CreateSubscriberForm() {
                   <Input
                     {...field}
                     type="number"
+                    className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     disabled={results.isLoading}
                   />
                 </FormControl>

@@ -19,7 +19,7 @@ import CreateInvoiceReadingsTable from "../tables/create-invoice-readings-table"
 import DateSelector from "../ui/date-selector";
 import { useCreateInvoiceMutation } from "~/redux/apis/invoiceApi";
 import { toast } from "sonner";
-import type { ApiError, Reading } from "~/types";
+import type { ApiError, Invoice, Reading } from "~/types";
 import { cn, formatNumber } from "~/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "react-router";
@@ -28,9 +28,9 @@ import SubscriberInvoiceTable from "../tables/subscriber-invoice-table";
 const formSchema = z.object({
   subscriber_id: z.coerce.number(),
   meter_id: z.coerce.number(),
-  previous_reading_id: z.coerce.number().or(z.undefined()),
-  current_reading_id: z.coerce.number(),
-  rate_per_unit: z.coerce.number({ message: "Rate Per unit is required" }),
+  previous_reading_id: z.number().or(z.undefined()),
+  current_reading_id: z.number().min(1, "Current Reading is required"),
+  rate_per_unit: z.coerce.number().min(1, "Rate Per unit is required"),
   due_date: z.date(),
 });
 
@@ -58,12 +58,12 @@ export default function CreateInvoiceForm() {
     defaultValues: {
       subscriber_id: 0,
       current_reading_id: Number(params.get("reading_id")) || 0,
+      rate_per_unit: 0,
     },
   });
 
   const onSubmit = form.handleSubmit((data) => {
-    console.log(data);
-    toast.promise(createInvoice(data).unwrap(), {
+    toast.promise(createInvoice(data as Invoice).unwrap(), {
       loading: "Creating invoice...",
       success: () => {
         // Reset form if successfull
@@ -72,9 +72,13 @@ export default function CreateInvoiceForm() {
           meter_id: 0,
           previous_reading_id: 0,
           current_reading_id: 0,
+          rate_per_unit: data.rate_per_unit,
+          due_date: data.due_date,
         });
+
         setCurrentReading(undefined);
         setPreviousReading(undefined);
+
         setSubscriber(0);
         refetch();
 
@@ -95,6 +99,8 @@ export default function CreateInvoiceForm() {
         meter_id: data.meter?.id,
         previous_reading_id: 0,
         current_reading_id: Number(params.get("reading_id") || 0),
+        rate_per_unit: form.getValues("rate_per_unit"),
+        due_date: form.getValues("due_date"),
       });
 
       // Set the current reading to the preselected reading based on the search param
@@ -105,6 +111,11 @@ export default function CreateInvoiceForm() {
       );
     }
   }, [data, isSuccess, subscriber]);
+
+  const amount_due =
+    (Number(currentReading?.reading || 0) -
+      Number(previousReading?.reading || 0)) *
+    Number(form.watch("rate_per_unit") || 0);
 
   return (
     <Form {...form}>
@@ -140,7 +151,11 @@ export default function CreateInvoiceForm() {
                   <FormItem>
                     <FormLabel>Meter #</FormLabel>
                     <FormControl>
-                      <Input value={data?.meter?.number || 0} disabled />
+                      <Input
+                        value={data?.meter?.number || 0}
+                        className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        disabled
+                      />
                     </FormControl>
                   </FormItem>
                 )}
@@ -250,9 +265,11 @@ export default function CreateInvoiceForm() {
                           {...field}
                           className={cn(
                             "border-transparent shadow-none text-right w-16 h-8 px-2 hover:bg-input/20",
-                            !field.value && field.value < 1 && "bg-input"
+                            !field.value && field.value < 1 && "bg-input",
+                            "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                           )}
                           inputMode="numeric"
+                          type="number"
                           disabled={disableInput}
                         />
                         <span className="text-sm">&#8369;/m&sup3;</span>
@@ -274,9 +291,7 @@ export default function CreateInvoiceForm() {
                       <div className="flex items-center justify-end">
                         <DateSelector
                           {...field}
-                          onSelect={(date) =>
-                            form.setValue("due_date", date || new Date())
-                          }
+                          onSelect={(date) => field.onChange(date)}
                           disabled={disableInput}
                         />
                       </div>
@@ -286,13 +301,31 @@ export default function CreateInvoiceForm() {
                 )}
               />
               <div className="grid grid-cols-2 border-t pt-4">
-                <span className="font-bold text-muted-foreground">Total</span>
+                <span className="font-bold text-muted-foreground">
+                  Amount Due
+                </span>
+                <span className="text-right">
+                  &#8369; {formatNumber(amount_due)}
+                </span>
+              </div>
+              <div className="grid grid-cols-2">
+                <span className="font-bold text-muted-foreground">Arrears</span>
                 <span className="text-right">
                   &#8369;{" "}
                   {formatNumber(
-                    Number(form.watch("rate_per_unit") || 0) *
-                      ((currentReading?.reading || 0) -
-                        (previousReading?.reading || 0))
+                    data?.invoices[0] ? data?.invoices[0].arrears : 0
+                  )}
+                </span>
+              </div>
+              <div className="grid grid-cols-2">
+                <span className="font-bold text-muted-foreground">
+                  Total Amount Due
+                </span>
+                <span className="text-right">
+                  &#8369;{" "}
+                  {formatNumber(
+                    Number(data?.invoices[0] ? data?.invoices[0].arrears : 0) +
+                      Number(amount_due)
                   )}
                 </span>
               </div>

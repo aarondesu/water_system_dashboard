@@ -54,6 +54,7 @@ export default function DataTableNavigation<TData>({
           <Button
             variant="outline"
             size="icon"
+            type="button"
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage() || isLoading}
           >
@@ -62,6 +63,7 @@ export default function DataTableNavigation<TData>({
           <Button
             variant="outline"
             size="icon"
+            type="button"
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage() || isLoading}
           >
@@ -78,6 +80,7 @@ export default function DataTableNavigation<TData>({
           <Button
             variant="outline"
             size="icon"
+            type="button"
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage() || isLoading}
           >
@@ -86,6 +89,7 @@ export default function DataTableNavigation<TData>({
           <Button
             variant="outline"
             size="icon"
+            type="button"
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage() || isLoading}
           >

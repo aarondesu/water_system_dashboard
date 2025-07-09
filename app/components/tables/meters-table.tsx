@@ -40,25 +40,25 @@ const columns: ColumnDef<Meter>[] = [
     enableHiding: false,
     enableSorting: false,
     enableGlobalFilter: false,
-    header: ({ table }) => (
-      <div className="flex justify-end">
-        <Checkbox
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomeRowsSelected() && "indeterminate")
-          }
-        />
-      </div>
-    ),
-    cell: ({ row }) => (
-      <div className="flex justify-end">
-        <Checkbox
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          checked={row.getIsSelected()}
-        />
-      </div>
-    ),
+    // header: ({ table }) => (
+    //   <div className="flex justify-end">
+    //     <Checkbox
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomeRowsSelected() && "indeterminate")
+    //       }
+    //     />
+    //   </div>
+    // ),
+    // cell: ({ row }) => (
+    //   <div className="flex justify-end">
+    //     <Checkbox
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //       checked={row.getIsSelected()}
+    //     />
+    //   </div>
+    // ),
   },
   {
     accessorKey: "number",
@@ -156,6 +156,7 @@ export default function MetersTable() {
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    autoResetPageIndex: false,
     manualSorting: true,
     state: {
       sorting: sorting,
@@ -188,7 +189,7 @@ export default function MetersTable() {
               size={isMobile ? "icon" : "default"}
               asChild
             >
-              <Link to="/dashboard/meters/create">
+              <Link to="/dashboard/meter/create">
                 <PlusCircle className="w-4 h-4" />
                 {!isMobile && <span>Create</span>}
               </Link>

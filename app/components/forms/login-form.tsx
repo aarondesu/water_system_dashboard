@@ -47,7 +47,6 @@ export default function LoginForm({
 
   const onSubmit = form.handleSubmit((data) => {
     toast.promise(login(data).unwrap(), {
-      loading: "Logging in...",
       success: (token) => {
         setToken(token);
         return "Successfully logged in!";

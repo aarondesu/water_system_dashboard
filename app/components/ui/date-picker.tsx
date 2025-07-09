@@ -4,7 +4,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { Button } from "./button";
 import { useState } from "react";
 import { CalendarIcon, ChevronsUpDown } from "lucide-react";
-import { addDays, format } from "date-fns";
+import { format } from "date-fns";
 import { Calendar } from "./calendar";
 import { useIsMobile } from "~/hooks/use-mobile";
 import {
@@ -17,23 +17,20 @@ import {
   DialogTrigger,
 } from "./dialog";
 
-interface DatePickerButtonProps {
-  date: DateRange | undefined;
-  disabled?: boolean;
-}
-
 export interface DatePickerProps {
-  onSelect: (range: DateRange | undefined) => void;
+  value?: DateRange;
+  onChange?: (range: DateRange | undefined) => void;
   className?: string;
   disabled?: boolean;
 }
 
-export default function DatePicker({
-  onSelect,
+export default function DateRangePicker({
+  value,
+  onChange = (range: DateRange | undefined) => null,
   className,
   disabled = false,
 }: DatePickerProps) {
-  const [date, setDate] = useState<DateRange | undefined>();
+  const [date, setDate] = useState<DateRange | undefined>(value);
   const isMobile = useIsMobile();
 
   if (isMobile) {
@@ -51,21 +48,19 @@ export default function DatePicker({
               )}
               disabled={disabled}
             >
-              <span className="justify-start">
-                <CalendarIcon />
-                {date?.from ? (
-                  date?.to ? (
-                    <>
-                      {format(date.from, "LLL dd, y")} -{" "}
-                      {format(date.to, "LLL dd, y")}
-                    </>
-                  ) : (
-                    format(date.from, "LLL dd, y")
-                  )
+              <CalendarIcon />
+              {date?.from ? (
+                date?.to ? (
+                  <>
+                    {format(date.from, "LLL dd, y")} -{" "}
+                    {format(date.to, "LLL dd, y")}
+                  </>
                 ) : (
-                  <span>Pick a date</span>
-                )}
-              </span>
+                  format(date.from, "LLL dd, y")
+                )
+              ) : (
+                <span>Pick a date</span>
+              )}
               <ChevronsUpDown />
             </Button>
           </DialogTrigger>
@@ -81,7 +76,7 @@ export default function DatePicker({
                 selected={date}
                 onSelect={(date) => {
                   setDate(date);
-                  onSelect(date);
+                  onChange(date);
                 }}
                 numberOfMonths={2}
               />
@@ -136,7 +131,9 @@ export default function DatePicker({
               selected={date}
               onSelect={(date) => {
                 setDate(date);
-                onSelect(date);
+                if (date?.from && date.to) {
+                  onChange(date);
+                }
               }}
               numberOfMonths={2}
             />

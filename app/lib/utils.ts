@@ -28,3 +28,10 @@ export function buildUrlParams(
 export function formatNumber(num: number) {
   return formatter.format(num);
 }
+
+export function resolvePromises(promises: (() => Promise<any>)[]) {
+  return promises.reduce(
+    (prev, next) => prev.then(() => next()),
+    Promise.resolve()
+  );
+}
