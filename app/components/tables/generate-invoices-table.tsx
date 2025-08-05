@@ -97,8 +97,7 @@ export function GenerateInvoicesTable({
 
   return (
     <div className="space-y-3">
-      <DataTable table={table} isLoading={false} hideColumns={false} />
-      <DataTableNavigation table={table} />
+      <DataTable table={table} disabled={false} hideColumns={false} />
     </div>
   );
 }

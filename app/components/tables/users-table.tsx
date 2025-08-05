@@ -35,7 +35,6 @@ import {
 } from "~/redux/apis/userApi";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { DataTable } from "../ui/data-table";
-import DataTableNavigation from "../data-table-navigation";
 import { Link } from "react-router";
 import { isValidElement, useMemo, useState } from "react";
 import { toast } from "sonner";
@@ -108,7 +107,9 @@ export default function UsersTable() {
         ),
       },
       {
+        id: "Created At",
         accessorKey: "created_at",
+        enableHiding: false,
         header: ({ column }) => {
           return (
             <Button
@@ -248,9 +249,9 @@ export default function UsersTable() {
           </div>
         }
         table={table}
-        isLoading={isLoading}
+        disabled={isLoading}
+        hideColumns={false}
       />
-      <DataTableNavigation table={table} />
     </div>
   );
 }

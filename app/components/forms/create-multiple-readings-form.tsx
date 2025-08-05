@@ -28,7 +28,6 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form, FormControl, FormField, FormItem } from "../ui/form";
-import DataTableNavigation from "../data-table-navigation";
 import { useConfirmationDialog } from "../confirmation-dialog-provider";
 import DateRangePicker from "../ui/date-picker";
 import { Label } from "../ui/label";
@@ -76,14 +75,17 @@ export default function CreateMultipleReadingsForm() {
     () => ({
       start_date: new Date(),
       end_date: new Date(),
-      readings: tableData.reduce((acc, row) => {
-        acc[row?.id || 0] = {
-          meter_id: 0,
-          reading: 0,
-        };
+      readings: tableData.reduce(
+        (acc, row) => {
+          acc[row?.id || 0] = {
+            meter_id: 0,
+            reading: 0,
+          };
 
-        return acc;
-      }, {} as FormSchema["readings"]),
+          return acc;
+        },
+        {} as FormSchema["readings"]
+      ),
     }),
     [tableData]
   );
@@ -227,6 +229,23 @@ export default function CreateMultipleReadingsForm() {
         },
       },
       {
+        id: "consumption",
+        header: "Consumption",
+        cell: ({ row }) => {
+          const previousReading = row.original.readings[0]
+            ? row.original.readings[0].reading
+            : 0;
+          const currentReading = form.watch(
+            `readings.${row.original.id}.reading`
+          );
+          const consumption = currentReading - previousReading;
+
+          return (
+            <span className="">{formatNumber(consumption || 0)} m&sup3;</span>
+          );
+        },
+      },
+      {
         id: "actions",
         enableHiding: false,
         cell: ({ row }) => (
@@ -260,7 +279,7 @@ export default function CreateMultipleReadingsForm() {
           meter_id: reading.meter_id,
           start_date: data.start_date,
           end_date: data.end_date,
-        } as Reading)
+        }) as Reading
     );
 
     // Submit query
@@ -341,21 +360,29 @@ export default function CreateMultipleReadingsForm() {
           </Button>
         </div>
         <div className="space-y-4">
-          <DataTable table={table} isLoading={false} hideColumns={false} />
-          <DataTableNavigation table={table} />
+          <DataTable table={table} disabled={false} hideColumns={false} />
         </div>
         <div className="flex place-content-end">
           <Button
-            type="submit"
+            type="button"
+            onClick={() => {
+              createDialog({
+                title: "Submit Readings",
+                description:
+                  "Are you sure you want the submit the current readings?",
+                action: () => {
+                  onSubmit();
+                },
+              });
+            }}
             disabled={
               tableData.length === 0 || createBulkReadingsResults.isLoading
             }
           >
-            {createBulkReadingsResults.isLoading ? (
+            {createBulkReadingsResults.isLoading && (
               <Loader2 className="animate-spin" />
-            ) : (
-              "Submit"
             )}
+            Submit
           </Button>
         </div>
       </form>

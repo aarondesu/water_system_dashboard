@@ -54,6 +54,17 @@ export const invoiceApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["invoices"],
     }),
+    createMultiipleInvoices: builder.mutation<void, Invoice[]>({
+      query: (data) => ({
+        url: "/invoices?type=bulk",
+        method: "POST",
+        body: {
+          invoices: data,
+        },
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["invoices"],
+    }),
   }),
 });
 
@@ -61,4 +72,5 @@ export const {
   useGetAllInvoiceQuery,
   useCreateInvoiceMutation,
   useGetInvoiceQuery,
+  useCreateMultiipleInvoicesMutation,
 } = invoiceApi;

@@ -6,7 +6,6 @@ import {
 } from "@tanstack/react-table";
 import type { Invoice } from "~/types";
 import { DataTable } from "../ui/data-table";
-import DataTableNavigation from "../data-table-navigation";
 import { formatNumber } from "~/lib/utils";
 import { Badge } from "../ui/badge";
 import dayjs from "dayjs";
@@ -85,8 +84,7 @@ export default function SubscriberInvoiceTable({
 
   return (
     <div className="space-y-3">
-      <DataTable table={table} isLoading={isLoading} hideColumns={false} />
-      <DataTableNavigation table={table} />
+      <DataTable table={table} disabled={isLoading} hideColumns={false} />
     </div>
   );
 }

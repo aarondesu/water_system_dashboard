@@ -1,3 +1,7 @@
+export type ColumnMeta = {
+  className?: string;
+};
+
 export type LoginDetails = {
   username: string;
   password: string;

@@ -117,9 +117,9 @@ export default function DashboardSidebar() {
         <SidebarLogo />
       </SidebarHeader>
       <SidebarContent>
-        <SidebarGroup>
+        {/* <SidebarGroup>
           <QuickCreateDialog />
-        </SidebarGroup>
+        </SidebarGroup> */}
         {links.map((category) => (
           <SidebarGroup key={category.label}>
             <SidebarGroupLabel>{category.label}</SidebarGroupLabel>

@@ -76,7 +76,10 @@ export default function LoginForm({
                   <CircleAlert />
                   <AlertTitle>Login Failed</AlertTitle>
                   <AlertDescription>
-                    {"data" in results.error ? (
+                    {"data" in results.error &&
+                    typeof results.error.data === "object" &&
+                    results.error.data !== null &&
+                    "success" in results.error.data ? (
                       <ul className="list-inside list-disc text-sm">
                         {(results.error as ApiError).data.errors.map(
                           (error, index) => (

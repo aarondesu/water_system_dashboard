@@ -25,26 +25,130 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { Button } from "./button";
-import { Settings2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  ChevronsLeft,
+  ChevronsRight,
+  Settings2,
+} from "lucide-react";
 import { useIsMobile } from "~/hooks/use-mobile";
-import { ScrollArea, ScrollBar } from "./scroll-area";
+import { cn } from "~/lib/utils";
+import type { ColumnMeta } from "~/types";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./select";
 
 interface DataTableProps<TData, TValue> {
-  isLoading: boolean;
+  disabled: boolean;
   actions?: React.ReactNode;
   finalRow?: React.ReactNode;
   hideColumns?: boolean;
   table: ReactTable<TData>;
   enableSelectRow?: boolean;
+  hideNavigation?: boolean;
+}
+
+interface DataTableNavigationProps<TData> {
+  table: ReactTable<TData>;
+  disabled?: boolean;
+}
+
+export function DataTableNavigation<TData>({
+  table,
+  disabled = false,
+}: DataTableNavigationProps<TData>) {
+  const [page, currentPage] = useState<number>(
+    table.getState().pagination.pageIndex
+  );
+
+  return (
+    <div className="flex flex-col-reverse md:flex-row gap-4">
+      <div className="flex grow place-content-center md:place-content-start">
+        <span className="text-sm items-center">
+          <Select
+            value={`${table.getState().pagination.pageSize}`}
+            onValueChange={(value) => {
+              table.setPageSize(Number(value));
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder={table.getState().pagination.pageSize} />
+            </SelectTrigger>
+            <SelectContent side="top">
+              {[10, 50, 100, 500, 1000].map((pageSize) => (
+                <SelectItem key={pageSize} value={`${pageSize}`}>
+                  {pageSize} rows
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </span>
+      </div>
+      <div className="flex gap-4 place-content-center">
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            type="button"
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage() || disabled}
+          >
+            <ChevronsLeft />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            type="button"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage() || disabled}
+          >
+            <ChevronLeft />
+          </Button>
+        </div>
+        <div className="flex flex-row items-center text-sm gap-2">
+          <span>Pages</span>
+          <span>{table.getState().pagination.pageIndex + 1}</span>
+          <span>of</span>
+          <span className="space-x-2">{table.getPageCount()}</span>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="icon"
+            type="button"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage() || disabled}
+          >
+            <ChevronRight />
+          </Button>
+          <Button
+            variant="outline"
+            size="icon"
+            type="button"
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage() || disabled}
+          >
+            <ChevronsRight />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function DataTable<TData, TValue>({
-  isLoading,
+  disabled = false,
   actions,
   finalRow,
   hideColumns = true,
   table,
   enableSelectRow = false,
+  hideNavigation = false,
 }: DataTableProps<TData, TValue>) {
   const [open, setOpen] = useState<boolean>(false);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -98,13 +202,19 @@ export function DataTable<TData, TValue>({
           </div>
         </div>
       )}
-      <div className="border shadow-sm rounded-md">
+      <div className="rounded-md border shadow-md">
         <Table className="">
-          <TableHeader className="bg-muted">
+          <TableHeader className="bg-muted p-0">
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow className="py-0" key={headerGroup.id}>
                 {headerGroup.headers.map((header) => (
-                  <TableHead className="font-bold" key={header.id}>
+                  <TableHead
+                    className={cn(
+                      "font-bold py-0",
+                      (header.column.columnDef.meta as ColumnMeta)?.className
+                    )}
+                    key={header.id}
+                  >
                     {header.isPlaceholder
                       ? null
                       : flexRender(
@@ -117,7 +227,7 @@ export function DataTable<TData, TValue>({
             ))}
           </TableHeader>
           <TableBody>
-            {!isLoading && table.getRowModel().rows?.length ? (
+            {!disabled && table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
@@ -144,13 +254,19 @@ export function DataTable<TData, TValue>({
                   colSpan={table.getAllColumns().length}
                   className="font-bold text-center"
                 >
-                  {isLoading ? "Loading data..." : "No records available"}
+                  {disabled ? "Loading data..." : "No records available"}
                 </TableCell>
               </TableRow>
             )}
             {finalRow && finalRow}
           </TableBody>
         </Table>
+
+        {!hideNavigation && (
+          <div className="p-2 bg-background relative overflow-auto">
+            <DataTableNavigation table={table} />
+          </div>
+        )}
       </div>
     </div>
   );

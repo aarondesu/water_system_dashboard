@@ -60,8 +60,7 @@ export default function MeterReadingsTable({
 
   return (
     <div className="space-y-3">
-      <DataTable table={table} isLoading={isLoading} hideColumns={false} />
-      <DataTableNavigation table={table} />
+      <DataTable table={table} disabled={isLoading} hideColumns={false} />
     </div>
   );
 }

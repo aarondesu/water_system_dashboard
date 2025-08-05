@@ -17,7 +17,6 @@ import {
 import type { Subscriber } from "~/types";
 import { Checkbox } from "../ui/checkbox";
 import { DataTable } from "../ui/data-table";
-import DataTableNavigation from "../data-table-navigation";
 import { Button } from "../ui/button";
 import {
   ChevronDown,
@@ -178,7 +177,7 @@ export default function SubscribersTable() {
   return (
     <div className="flex flex-col w-full space-y-3">
       <DataTable
-        isLoading={isLoading}
+        disabled={isLoading}
         table={table}
         actions={
           <div className="flex w-full gap-1">
@@ -235,13 +234,6 @@ export default function SubscribersTable() {
               </form>
             </div>
           </div>
-        }
-      />
-      <DataTableNavigation
-        table={table}
-        isLoading={
-          deleteSubscriberResults.isLoading ||
-          bulkDeleteSubscriberResults.isLoading
         }
       />
     </div>

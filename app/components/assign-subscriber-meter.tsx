@@ -29,34 +29,6 @@ export default function AssignSubscriberMeter({
 
   return (
     <div className="flex clear-both mr-8 gap-1">
-      <Button
-        size="icon"
-        variant="outline"
-        disabled={
-          clearResult.isLoading || assignResult.isLoading || value === 0
-        }
-        onClick={() => {
-          createDialog({
-            title: "Clear subscriber",
-            description:
-              "Are you sure you want to clear the current subscriber from the meter?",
-            action: () => {
-              toast.promise(clearMeter(id).unwrap(), {
-                loading: "Clearing subscriber from meter...",
-                success: "Successfully cleared subscriber from meter",
-                error: (error) => {
-                  if ("data" in error) {
-                    return (error as ApiError).data.errors[0];
-                  }
-                  return "Unkown error occured";
-                },
-              });
-            },
-          });
-        }}
-      >
-        <Ban className="w-4 h-4" />
-      </Button>
       <SelectSubscriberInput
         value={value}
         className="flex border-transparent shadow-none in-focus-within:border bg-transparent"

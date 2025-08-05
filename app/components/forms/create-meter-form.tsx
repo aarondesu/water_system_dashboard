@@ -44,7 +44,7 @@ export default function CreateMeterForm() {
       loading: "Creating meter...",
       success: () => {
         form.reset(); // Only reset form after successfully creating meter
-        navigate("/dashboard/meters");
+        navigate("/dashboard/meter");
 
         return "Successfully created meter!";
       },

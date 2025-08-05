@@ -87,6 +87,7 @@ export default function EditMeterForm() {
                     form.setValue("subscriber_id", id);
                   }}
                   disabled={result.isLoading}
+                  skipMeter={true}
                 />
               </FormControl>
               <FormMessage />

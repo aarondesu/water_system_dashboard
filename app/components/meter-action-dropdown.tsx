@@ -5,6 +5,7 @@ import {
   Pencil,
   Plus,
   Trash2,
+  UserMinus,
 } from "lucide-react";
 import { Button } from "./ui/button";
 import {
@@ -25,13 +26,14 @@ import {
 import { Link } from "react-router";
 import { useState } from "react";
 import {
+  useClearMeterMutation,
   useDeleteMeterMutation,
   useSetStatusMutation,
 } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import { useConfirmationDialog } from "./confirmation-dialog-provider";
 import type { Row } from "@tanstack/react-table";
-import type { Meter } from "~/types";
+import type { ApiError, Meter } from "~/types";
 
 interface MeterActionDropdownProps {
   id: number;
@@ -45,10 +47,32 @@ export default function MeterActionDropdown({
   const [open, setOpen] = useState<boolean>(false);
   const [deleteMeter, result] = useDeleteMeterMutation();
   const { createDialog } = useConfirmationDialog();
+  const [clearMeter, clearMeterResults] = useClearMeterMutation();
   const [setMeterStatus, statusResults] = useSetStatusMutation();
   const [status, setStatus] = useState<"active" | "inactive">(
     row.original.status
   );
+
+  const handleUnassign = () => {
+    createDialog({
+      title: "Unassign Meter",
+      description:
+        "Are you sure you want to unassign this meter? Action is irreversible.",
+      action: () => {
+        toast.promise(clearMeter(id).unwrap(), {
+          loading: "Unassigning meter...",
+          success: "Successfully unassigned meter",
+          error: (error) => {
+            if ("status" in error) {
+              return (error as ApiError).data.errors[0];
+            } else {
+              return "Unknown Error Occurred";
+            }
+          },
+        });
+      },
+    });
+  };
 
   return (
     <>
@@ -71,6 +95,15 @@ export default function MeterActionDropdown({
               <Droplets />
               <span>Create Reading</span>
             </Link>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={handleUnassign}
+            disabled={row.original.subscriber_id === null}
+          >
+            <span className="flex items-center space-x-2">
+              <UserMinus className="w-4 h-4" />
+              <span>Unassign</span>
+            </span>
           </DropdownMenuItem>
           <DropdownMenuGroup>
             <DropdownMenuSub>

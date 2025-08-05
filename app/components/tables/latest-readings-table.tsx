@@ -61,7 +61,12 @@ export default function LatestReadingTable({ data }: LatestReadingTableProps) {
   });
   return (
     <div className="grid">
-      <DataTable table={table} isLoading={false} hideColumns={false} />
+      <DataTable
+        table={table}
+        disabled={false}
+        hideColumns={false}
+        hideNavigation={true}
+      />
     </div>
   );
 }

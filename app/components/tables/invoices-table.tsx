@@ -17,6 +17,12 @@ import { Button } from "../ui/button";
 import { Link } from "react-router";
 import { useIsMobile } from "~/hooks/use-mobile";
 import GenerateInvoiceDialog from "../generate-invoice-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "../ui/dropdown-menu";
 
 const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
   {
@@ -47,9 +53,11 @@ const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
   },
   {
     accessorKey: "invoice_number",
-    header: "Invoice Number",
+    header: () => <span className="flex justify-end">Invoice Number</span>,
     cell: ({ row }) => (
-      <span className="font-semibold">{row.original.invoice_number}</span>
+      <span className="font-semibold flex justify-end">
+        {row.original.invoice_number}
+      </span>
     ),
   },
   {
@@ -155,7 +163,7 @@ export default function InvoicesTable() {
     <div className="space-y-3">
       <DataTable
         table={table}
-        isLoading={isLoading}
+        disabled={isLoading}
         actions={
           <div className="flex flex-row gap-1">
             <Button size="icon" onClick={refetch}>
@@ -166,21 +174,27 @@ export default function InvoicesTable() {
                 )}
               />
             </Button>
-            <Button
-              size={isMobile ? "icon" : "default"}
-              variant="outline"
-              asChild
-            >
-              <Link to="/dashboard/invoice/create">
-                <PlusCircle className="w-4 h-4" />
-                {!isMobile && "Create"}
-              </Link>
-            </Button>
-            <GenerateInvoiceDialog />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button size={isMobile ? "icon" : "default"} variant="outline">
+                  <PlusCircle className="w-4 h-4" />
+                  {!isMobile && "Create"}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start">
+                <DropdownMenuItem asChild>
+                  <Link to={`/dashboard/invoice/create`}>Single</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={`/dashboard/invoice/create/multiple`}>
+                    Multiple
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         }
       />
-      <DataTableNavigation table={table} />
     </div>
   );
 }

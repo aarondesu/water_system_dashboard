@@ -151,7 +151,7 @@ export default function ReadingsTable() {
     <div className="space-y-3">
       <DataTable
         table={table}
-        isLoading={isLoading}
+        disabled={isLoading}
         actions={
           <Collapsible>
             <div className="flex flex-row gap-2">
@@ -183,7 +183,7 @@ export default function ReadingsTable() {
                       to="/dashboard/reading/create"
                       className="flex items-center gap-2"
                     >
-                      {!isMobile && "Single"}
+                      Single
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
@@ -191,7 +191,7 @@ export default function ReadingsTable() {
                       to="/dashboard/reading/create/multiple"
                       className="flex items-center gap-2"
                     >
-                      {!isMobile && "Multiple"}
+                      Multiple
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -237,7 +237,6 @@ export default function ReadingsTable() {
           </Collapsible>
         }
       />
-      <DataTableNavigation table={table} />
     </div>
   );
 }

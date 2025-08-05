@@ -11,7 +11,6 @@ import { useGetAllMetersQuery } from "~/redux/apis/meterApi";
 import type { Meter } from "~/types";
 import { Checkbox } from "../ui/checkbox";
 import { DataTable } from "../ui/data-table";
-import DataTableNavigation from "../data-table-navigation";
 import MeterActionDropdown from "../meter-action-dropdown";
 import AssignSubscriberMeter from "../assign-subscriber-meter";
 import { Button } from "../ui/button";
@@ -65,6 +64,7 @@ const columns: ColumnDef<Meter>[] = [
     header: ({ column }) => (
       <Button
         variant="ghost"
+        className="w-full justify-between rounded-none"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
         Meter #
@@ -82,7 +82,7 @@ const columns: ColumnDef<Meter>[] = [
     cell: ({ row }) => (
       <Link
         to={`/dashboard/meters/${row.original.id}`}
-        className="flex font-semibold"
+        className="font-semibold border-b border-dotted border-b-blue-700"
       >
         {row.original.number}
       </Link>
@@ -167,7 +167,7 @@ export default function MetersTable() {
   return (
     <div className="space-y-3">
       <DataTable
-        isLoading={isLoading}
+        disabled={isLoading}
         table={table}
         actions={
           <div className="flex gap-2">
@@ -197,7 +197,6 @@ export default function MetersTable() {
           </div>
         }
       />
-      <DataTableNavigation table={table} />
     </div>
   );
 }

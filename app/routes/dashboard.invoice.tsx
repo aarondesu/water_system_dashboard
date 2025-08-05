@@ -1,0 +1,19 @@
+import CreateMeterForm from "~/components/forms/create-meter-form";
+import InvoicesTable from "~/components/tables/invoices-table";
+
+export function meta() {
+  return [{ title: "Invoices | Dashboard" }];
+}
+
+export default function InvoicePage() {
+  return (
+    <div className="flex flex-col gap-10">
+      <div className="">
+        <h2 className="font-bold text-3xl">Invoices</h2>
+      </div>
+      <div className="">
+        <InvoicesTable />
+      </div>
+    </div>
+  );
+}
