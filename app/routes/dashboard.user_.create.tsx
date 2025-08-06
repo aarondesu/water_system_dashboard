@@ -4,7 +4,7 @@ export function meta() {
   return [{ title: "Create New User | Dashboard" }];
 }
 
-export default function CreateUsersPage() {
+export default function UserCreatePage() {
   return (
     <div className="flex flex-col gap-10">
       <div className="">
