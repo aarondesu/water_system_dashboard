@@ -58,7 +58,7 @@ const columns: ColumnDef<Invoice>[] = [
     header: "Status",
     cell: ({ row }) => (
       <Badge
-        variant={row.original.status === "paid" ? "destructive" : "default"}
+        variant={row.original.status === "paid" ? "default" : "destructive"}
       >
         {row.original.status}
       </Badge>

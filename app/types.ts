@@ -59,7 +59,7 @@ export type Invoice = {
   due_date: Date;
   created_at?: string;
   updated_at?: string;
-  arrears: number;
+  arrears?: Invoice[];
 };
 
 export type ApiError = {

@@ -9,7 +9,6 @@ import type { Meter, Reading, Subscriber } from "~/types";
 import { Checkbox } from "../ui/checkbox";
 import { useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { DataTable } from "../ui/data-table";
-import DataTableNavigation from "../data-table-navigation";
 import { ChevronsUpDown, CirclePlus, Filter, RefreshCcw } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";

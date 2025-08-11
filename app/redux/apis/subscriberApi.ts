@@ -32,10 +32,10 @@ export const subscriberApi = baseApi.injectEndpoints({
     }),
     getSubscriber: builder.query<
       Subscriber & { meter: Meter; invoices: Invoice[] },
-      number
+      { id: number; populate?: string }
     >({
-      query: (id) => ({
-        url: `/subscribers/${id}`,
+      query: (data) => ({
+        url: `/subscribers/${data.id}?populate=${data.populate || "*"}`,
         method: "GET",
       }),
       transformResponse: (result: {

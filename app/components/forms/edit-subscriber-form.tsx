@@ -36,7 +36,9 @@ export default function EditSubscriberForm() {
   const id = Number(params.id);
 
   const [updateSubscriber, results] = useUpdateSubscriberMutation();
-  const { data, isSuccess, isLoading } = useGetSubscriberQuery(id);
+  const { data, isSuccess, isLoading } = useGetSubscriberQuery({
+    id: id,
+  });
 
   const navigate = useNavigate();
 

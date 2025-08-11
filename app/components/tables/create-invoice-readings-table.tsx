@@ -6,7 +6,6 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import DataTableNavigation from "../data-table-navigation";
 import { Button } from "../ui/button";
 import { ChevronsRight, MoreHorizontal } from "lucide-react";
 import {

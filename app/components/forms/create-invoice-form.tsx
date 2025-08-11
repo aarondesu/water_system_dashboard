@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "../ui/form";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import SelectSubscriberInput from "../select-subscriber-input";
 import { Input } from "../ui/input";
 import { useGetSubscriberQuery } from "~/redux/apis/subscriberApi";
@@ -17,7 +17,10 @@ import { Button } from "../ui/button";
 import SelectReadingInput from "../select-reading-input";
 import CreateInvoiceReadingsTable from "../tables/create-invoice-readings-table";
 import DateSelector from "../ui/date-selector";
-import { useCreateInvoiceMutation } from "~/redux/apis/invoiceApi";
+import {
+  useCreateInvoiceMutation,
+  useGetArrearsQuery,
+} from "~/redux/apis/invoiceApi";
 import { toast } from "sonner";
 import type { ApiError, Invoice, Reading } from "~/types";
 import { cn, formatNumber } from "~/lib/utils";
@@ -39,7 +42,7 @@ export default function CreateInvoiceForm() {
   const [selected, setSelected] = useState<boolean>(
     params.get("subscriber_id") ? true : false
   );
-  const [subscriber, setSubscriber] = useState<number>(
+  const [subscriber_id, setSubscriber] = useState<number>(
     Number(params.get("subscriber_id"))
   );
   const [createInvoice, invoiceResults] = useCreateInvoiceMutation();
@@ -48,7 +51,11 @@ export default function CreateInvoiceForm() {
   const [currentReading, setCurrentReading] = useState<Reading>();
 
   const { data, isLoading, isFetching, isSuccess, refetch } =
-    useGetSubscriberQuery(subscriber);
+    useGetSubscriberQuery({ id: subscriber_id });
+
+  const getArrearsQuery = useGetArrearsQuery({
+    subscriber_id: subscriber_id,
+  });
 
   const disableInput =
     !selected || isLoading || isFetching || invoiceResults.isLoading;
@@ -61,6 +68,16 @@ export default function CreateInvoiceForm() {
       rate_per_unit: 0,
     },
   });
+
+  const total_arrears = useMemo(() => {
+    if (!getArrearsQuery.data || getArrearsQuery.data.length === 0) return 0;
+    // Calculate total arrears from the fetched data
+    return Number(
+      getArrearsQuery.data.reduce((total, arrear) => {
+        return Number(total) + Number(arrear.amount_due ?? 0);
+      }, 0)
+    );
+  }, [getArrearsQuery.data]);
 
   const onSubmit = form.handleSubmit((data) => {
     toast.promise(createInvoice(data as Invoice).unwrap(), {
@@ -93,7 +110,7 @@ export default function CreateInvoiceForm() {
   });
 
   useEffect(() => {
-    if (isSuccess && subscriber !== 0) {
+    if (isSuccess && subscriber_id !== 0) {
       form.reset({
         subscriber_id: data.id,
         meter_id: data.meter?.id,
@@ -110,7 +127,7 @@ export default function CreateInvoiceForm() {
         )
       );
     }
-  }, [data, isSuccess, subscriber]);
+  }, [data, isSuccess, subscriber_id]);
 
   const amount_due =
     (Number(currentReading?.reading || 0) -
@@ -311,10 +328,7 @@ export default function CreateInvoiceForm() {
               <div className="grid grid-cols-2">
                 <span className="font-bold text-muted-foreground">Arrears</span>
                 <span className="text-right">
-                  &#8369;{" "}
-                  {formatNumber(
-                    data?.invoices[0] ? data?.invoices[0].arrears : 0
-                  )}
+                  &#8369; {formatNumber(total_arrears)}
                 </span>
               </div>
               <div className="grid grid-cols-2">
@@ -323,10 +337,7 @@ export default function CreateInvoiceForm() {
                 </span>
                 <span className="text-right">
                   &#8369;{" "}
-                  {formatNumber(
-                    Number(data?.invoices[0] ? data?.invoices[0].arrears : 0) +
-                      Number(amount_due)
-                  )}
+                  {formatNumber(Number(total_arrears) + Number(amount_due))}
                 </span>
               </div>
             </div>

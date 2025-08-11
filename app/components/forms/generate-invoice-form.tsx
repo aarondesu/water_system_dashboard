@@ -68,7 +68,6 @@ export default function GenerateInvoiceForm() {
           rate_per_unit: formData.rate_per_unit,
           meter_id: Number(meter.id || 0),
           subscriber_id: Number(meter.subscriber_id || 0),
-          arrears: 0,
           current_reading_id: meter.readings[0].id || 0,
           invoice_number: "",
           amount_due: 0,

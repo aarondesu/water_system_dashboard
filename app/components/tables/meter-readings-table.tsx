@@ -1,5 +1,4 @@
 import type { Meter, Reading } from "~/types";
-import DataTableNavigation from "../data-table-navigation";
 import { DataTable } from "../ui/data-table";
 import {
   getCoreRowModel,

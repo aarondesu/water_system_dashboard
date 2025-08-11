@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useGetAllInvoiceQuery } from "~/redux/apis/invoiceApi";
 import { DataTable } from "../ui/data-table";
 import type { Invoice, Subscriber } from "~/types";
-import DataTableNavigation from "../data-table-navigation";
 import { cn, formatNumber } from "~/lib/utils";
 import { Badge } from "../ui/badge";
 import { MoreHorizontal, Pencil, PlusCircle, RefreshCcw } from "lucide-react";
@@ -55,8 +54,13 @@ const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
     accessorKey: "invoice_number",
     header: () => <span className="flex justify-end">Invoice Number</span>,
     cell: ({ row }) => (
-      <span className="font-semibold flex justify-end">
-        {row.original.invoice_number}
+      <span className="font-semibold flex justify-end ">
+        <Link
+          to={`/invoice/view/${row.original.id}`}
+          className="border-b border-blue-500 border-dotted"
+        >
+          {row.original.invoice_number}
+        </Link>
       </span>
     ),
   },

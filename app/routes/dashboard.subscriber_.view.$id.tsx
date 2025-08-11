@@ -9,7 +9,7 @@ export function meta() {
 
 export default function ViewSubscriberPage() {
   const params = useParams();
-  const { data, isLoading } = useGetSubscriberQuery(Number(params.id));
+  const { data, isLoading } = useGetSubscriberQuery({ id: Number(params.id) });
 
   return (
     <div className="flex flex-col gap-10">

@@ -35,13 +35,23 @@ export const invoiceApi = baseApi.injectEndpoints({
       number
     >({
       query: (id) => ({
-        url: `/invoices/${id}`,
+        url: `/invoices/${id}?populate=*`,
         method: "GET",
       }),
       transformResponse: (result: {
         success: boolean;
         data: Invoice & { subscriber: Subscriber; meter: Meter };
       }) => result.data,
+      transformErrorResponse: (response: ApiError) => response,
+      providesTags: ["invoices"],
+    }),
+    getArrears: builder.query<Invoice[], { subscriber_id: number }>({
+      query: ({ subscriber_id }) => ({
+        url: `/invoices/arrears/${subscriber_id}`,
+        method: "GET",
+      }),
+      transformResponse: (result: { success: boolean; data: Invoice[] }) =>
+        result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["invoices"],
     }),
@@ -73,4 +83,5 @@ export const {
   useCreateInvoiceMutation,
   useGetInvoiceQuery,
   useCreateMultiipleInvoicesMutation,
+  useGetArrearsQuery,
 } = invoiceApi;

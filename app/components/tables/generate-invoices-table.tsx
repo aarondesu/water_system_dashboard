@@ -8,7 +8,6 @@ import { useMemo } from "react";
 import { formatNumber } from "~/lib/utils";
 import type { Meter, Reading, Subscriber } from "~/types";
 import { DataTable } from "../ui/data-table";
-import DataTableNavigation from "../data-table-navigation";
 
 interface GenerateInvoicesTableProps {
   data: (Meter & { subscriber?: Subscriber; readings: Reading[] })[];
