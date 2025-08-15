@@ -383,6 +383,7 @@ export default function CreateMultipleInvoicesForm() {
             className="p-0"
             size="icon"
             type="button"
+            disabled={createMultipleInvoicesResults.isLoading}
             onClick={() => onDeleteSubscriber(row.original.id || 0)}
           >
             <XIcon />
@@ -522,7 +523,10 @@ export default function CreateMultipleInvoicesForm() {
                 <Button
                   variant="outline"
                   onClick={onResetAll}
-                  disabled={tableData.length === 0}
+                  disabled={
+                    tableData.length === 0 ||
+                    createMultipleInvoicesResults.isLoading
+                  }
                 >
                   Reset
                 </Button>

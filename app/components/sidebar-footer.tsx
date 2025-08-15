@@ -16,7 +16,6 @@ export default function ApplicationSidebarFooter() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        ``
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton>

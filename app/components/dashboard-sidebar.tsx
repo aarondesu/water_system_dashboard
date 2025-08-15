@@ -1,9 +1,12 @@
 import {
+  Calculator,
+  Cog,
   DollarSign,
   Droplets,
   FileText,
   Gauge,
   LayoutDashboard,
+  Settings,
   Users,
   Users2,
 } from "lucide-react";
@@ -25,7 +28,6 @@ import { Link, useLocation } from "react-router";
 import { useAuth } from "./authentication-provider";
 import SidebarLogo from "./sidebar-logo";
 import ApplicationSidebarFooter from "./sidebar-footer";
-import QuickCreateDialog from "./quick-create-dialog";
 
 type Action = {
   url: string;
@@ -77,6 +79,12 @@ const links: Category[] = [
         label: "Water Readings",
         url: "/dashboard/reading",
         icon: Droplets,
+      },
+
+      {
+        label: "Formulas",
+        url: "/dashboard/formula",
+        icon: Calculator,
       },
     ],
   },

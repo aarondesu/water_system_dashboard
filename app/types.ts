@@ -111,3 +111,22 @@ export type DashboardResults = {
     list: { month: string; total_amount_due: number }[];
   };
 };
+
+export type Formula = {
+  id: number;
+  name: string;
+  description: string;
+  expression: string;
+  created_at?: string;
+  updated_at?: string;
+};
+
+export type FormulaVariable = {
+  id: number;
+  name: string;
+  formula_id: number;
+  value: number;
+  unit: string;
+  created_at?: string;
+  updated_at?: string;
+};
