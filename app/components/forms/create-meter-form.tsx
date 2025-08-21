@@ -17,20 +17,14 @@ import { useCreateMeterMutation } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
 import type { ApiError } from "~/types";
 import { useNavigate } from "react-router";
-
-const formSchema = z.object({
-  subscriber_id: z.number().optional(),
-  number: z.coerce.number().min(1, "Meter number must be greater than 1"),
-  note: z.string(),
-  status: z.enum(["active", "inactive"]),
-});
+import { meterSchema } from "~/schemas";
 
 export default function CreateMeterForm() {
   const [createMeter, result] = useCreateMeterMutation();
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof meterSchema>>({
+    resolver: zodResolver(meterSchema),
     defaultValues: {
       subscriber_id: undefined,
       number: 0,

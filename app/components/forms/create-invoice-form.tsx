@@ -27,15 +27,7 @@ import { cn, formatNumber } from "~/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "react-router";
 import SubscriberInvoiceTable from "../tables/subscriber-invoice-table";
-
-const formSchema = z.object({
-  subscriber_id: z.coerce.number(),
-  meter_id: z.coerce.number(),
-  previous_reading_id: z.number().or(z.undefined()),
-  current_reading_id: z.number().min(1, "Current Reading is required"),
-  rate_per_unit: z.coerce.number().min(1, "Rate Per unit is required"),
-  due_date: z.date(),
-});
+import { invoiceSchema } from "~/schemas";
 
 export default function CreateInvoiceForm() {
   const [params] = useSearchParams();
@@ -60,8 +52,8 @@ export default function CreateInvoiceForm() {
   const disableInput =
     !selected || isLoading || isFetching || invoiceResults.isLoading;
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof invoiceSchema>>({
+    resolver: zodResolver(invoiceSchema),
     defaultValues: {
       subscriber_id: 0,
       current_reading_id: Number(params.get("reading_id")) || 0,

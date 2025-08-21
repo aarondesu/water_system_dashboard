@@ -20,16 +20,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate, useParams } from "react-router";
 import { useEffect } from "react";
-
-const formSchema = z.object({
-  first_name: z.string().nonempty({ message: "First Name must not be empty" }),
-  last_name: z.string().nonempty({ message: "Last Name must not be empty" }),
-  mobile_number: z
-    .string()
-    .nonempty({ message: "Mobile number must not be empty" }),
-  address: z.string().nonempty({ message: "First Name must not be empty" }),
-  email: z.string().email().optional().or(z.literal("")),
-});
+import { subscriberSchema } from "~/schemas";
 
 export default function EditSubscriberForm() {
   const params = useParams();
@@ -44,8 +35,8 @@ export default function EditSubscriberForm() {
 
   const isLoadingData = isLoading || results.isLoading;
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof subscriberSchema>>({
+    resolver: zodResolver(subscriberSchema),
   });
 
   const onSubmit = form.handleSubmit((data) => {

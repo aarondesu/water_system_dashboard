@@ -14,30 +14,14 @@ import { Button } from "../ui/button";
 import { useCreateUserMutation } from "~/redux/apis/userApi";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
-
-const formSchema = z
-  .object({
-    // Account Details
-    username: z.string().nonempty({ message: "Username is required" }),
-    password: z.string().nonempty({ message: "Password is required" }),
-    confirm_password: z
-      .string()
-      .nonempty({ message: "Confirm Password is required" }),
-    // Personal Details
-    first_name: z.string(),
-    last_name: z.string(),
-  })
-  .refine((data) => data.password === data.confirm_password, {
-    message: "Passwords must match.",
-    path: ["confirm_password"],
-  });
+import { userSchema } from "~/schemas";
 
 export default function CreateUserForm() {
   const [createUser, results] = useCreateUserMutation();
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof userSchema>>({
+    resolver: zodResolver(userSchema),
     defaultValues: {
       username: "",
       password: "",

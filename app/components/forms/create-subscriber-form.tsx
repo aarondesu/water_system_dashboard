@@ -16,23 +16,14 @@ import { useCreateSubscriberMutation } from "~/redux/apis/subscriberApi";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useNavigate } from "react-router";
-
-const formSchema = z.object({
-  first_name: z.string().nonempty({ message: "First Name must not be empty" }),
-  last_name: z.string().nonempty({ message: "Last Name must not be empty" }),
-  mobile_number: z
-    .string()
-    .nonempty({ message: "Mobile number must not be empty" }),
-  address: z.string().nonempty({ message: "First Name must not be empty" }),
-  email: z.string().email().optional().or(z.literal("")),
-});
+import { subscriberSchema } from "~/schemas";
 
 export default function CreateSubscriberForm() {
   const [createSubscriber, results] = useCreateSubscriberMutation();
   const navigate = useNavigate();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof subscriberSchema>>({
+    resolver: zodResolver(subscriberSchema),
     defaultValues: {
       first_name: "",
       last_name: "",

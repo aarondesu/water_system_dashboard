@@ -21,13 +21,7 @@ import { toast } from "sonner";
 import type { ApiError } from "~/types";
 import { useParams, useSearchParams } from "react-router";
 import { useEffect } from "react";
-
-const formSchema = z.object({
-  subscriber_id: z.coerce.number().optional(),
-  number: z.coerce.number().min(1, "Meter number must be greater than 1"),
-  note: z.coerce.string(),
-  status: z.enum(["active", "inactive"]),
-});
+import { meterSchema } from "~/schemas";
 
 export default function EditMeterForm() {
   const params = useParams();
@@ -36,8 +30,8 @@ export default function EditMeterForm() {
   const [updateMeter, result] = useUpdateMeterMutation();
   const { data, isSuccess } = useGetMeterQuery(id);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof meterSchema>>({
+    resolver: zodResolver(meterSchema),
     defaultValues: {
       subscriber_id: data?.subscriber_id,
       note: data?.note,

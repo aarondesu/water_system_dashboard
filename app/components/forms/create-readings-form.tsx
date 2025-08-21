@@ -27,20 +27,7 @@ import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertCircleIcon, Terminal } from "lucide-react";
-
-const formSchema = z.object({
-  meter_id: z.number().min(1, { message: "Select meter for reading" }),
-  reading: z.coerce
-    .number()
-    .min(1, { message: "Current meter reading is required" }),
-  start_date: z.coerce.date({
-    message: "Start and End date are required",
-  }),
-  end_date: z.coerce.date({
-    message: "Start and End date are required",
-  }),
-  note: z.string().optional().or(z.literal("")),
-});
+import { readingSchema } from "~/schemas";
 
 export default function CreateReadingsForm() {
   const [selected, setSelected] = useState<boolean>(false);
@@ -53,8 +40,8 @@ export default function CreateReadingsForm() {
   const [param] = useSearchParams();
   const meter_id = Number(param.get("meter")) || 0;
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof readingSchema>>({
+    resolver: zodResolver(readingSchema),
     defaultValues: {
       meter_id: meter_id,
       reading: 0,

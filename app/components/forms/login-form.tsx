@@ -23,11 +23,7 @@ import logo from "~/assets/logoipsum-282.svg";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import type { ApiError } from "~/types";
 import { useGetCookiesQuery } from "~/redux/apis/utilityApi";
-
-const formSchema = z.object({
-  username: z.string({ required_error: "Username is required" }),
-  password: z.string({ required_error: "Password is required" }),
-});
+import { loginSchema } from "~/schemas";
 
 export default function LoginForm({
   className,
@@ -37,8 +33,8 @@ export default function LoginForm({
   const cookieQuery = useGetCookiesQuery();
   const { setToken, logout } = useAuth();
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof loginSchema>>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       username: "",
       password: "",
