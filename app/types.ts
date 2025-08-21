@@ -130,3 +130,8 @@ export type FormulaVariable = {
   created_at?: string;
   updated_at?: string;
 };
+
+export type FormulaTableColumn = {
+  header: string;
+  value: string;
+};
