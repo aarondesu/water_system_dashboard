@@ -1,5 +1,5 @@
 import { baseApi } from "./baseApi";
-import type { Formula, FormulaVariable } from "~/types";
+import type { Formula, FormulaTableColumn, FormulaVariable } from "~/types";
 
 export const formulaApi = baseApi.injectEndpoints({
   overrideExisting: false,
@@ -20,7 +20,10 @@ export const formulaApi = baseApi.injectEndpoints({
     }),
     createFormula: builder.mutation<
       void,
-      Formula & { variables: FormulaVariable[] }
+      Partial<Formula> & {
+        variables: Partial<FormulaVariable>[];
+        columns: Partial<FormulaTableColumn>[];
+      }
     >({
       query: (data) => ({
         url: "/formulas",
@@ -29,6 +32,17 @@ export const formulaApi = baseApi.injectEndpoints({
       }),
       invalidatesTags: ["formulas"],
     }),
+    deleteFormula: builder.mutation<void, number>({
+      query: (data) => ({
+        url: "/formulas",
+        method: "DELETE",
+      }),
+      invalidatesTags: ["formulas"],
+    }),
   }),
 });
-export const { useGetAllFormulasQuery, useCreateFormulaMutation } = formulaApi;
+export const {
+  useGetAllFormulasQuery,
+  useCreateFormulaMutation,
+  useDeleteFormulaMutation,
+} = formulaApi;
