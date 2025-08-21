@@ -18,10 +18,12 @@ import { Input } from "./ui/input";
 
 interface FormulaColumnFieldsProps {
   result: string;
+  isLoading: boolean;
 }
 
 export default function FormulaColumnFields({
   result,
+  isLoading,
 }: FormulaColumnFieldsProps) {
   const form = useFormContext<z.infer<typeof formulaSchema>>();
 
@@ -107,6 +109,7 @@ export default function FormulaColumnFields({
                 variant="secondary"
                 className="w-8 h-8"
                 onClick={addNewColumn}
+                disabled={isLoading}
               >
                 <Plus />
               </Button>
@@ -123,7 +126,7 @@ export default function FormulaColumnFields({
                             className="w-6 h-6"
                             variant="outline"
                             type="button"
-                            disabled={column.isStatic}
+                            disabled={column.isStatic || isLoading}
                             onClick={() => removeColumn(index)}
                           >
                             <Minus />
@@ -136,7 +139,7 @@ export default function FormulaColumnFields({
                             <FormItem>
                               <FormLabel>Header</FormLabel>
                               <Input
-                                disabled={column.isStatic}
+                                disabled={column.isStatic || isLoading}
                                 {...form.register(`columns.${index}.header`)}
                               />
                             </FormItem>
@@ -149,7 +152,7 @@ export default function FormulaColumnFields({
                             <FormItem className="grow">
                               <FormLabel>Value</FormLabel>
                               <Input
-                                disabled={column.isStatic}
+                                disabled={column.isStatic || isLoading}
                                 {...form.register(`columns.${index}.value`)}
                               />
                             </FormItem>

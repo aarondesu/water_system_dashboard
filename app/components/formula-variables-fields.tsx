@@ -26,10 +26,12 @@ import {
 interface FormulaVariablesFieldsProps {
   result: string;
   onEvaluate: (success: boolean, result: string) => void;
+  isLoading: boolean;
 }
 
 export default function FormulaVariablesFields({
   onEvaluate,
+  isLoading,
   result,
 }: FormulaVariablesFieldsProps) {
   const form = useFormContext<z.infer<typeof formulaSchema>>();
@@ -63,9 +65,11 @@ export default function FormulaVariablesFields({
 
   const evaluateExpression = () => {
     try {
+      form.trigger();
+
       const result = evaluate(form.getValues("expression") ?? "", variables);
 
-      onEvaluate(false, result);
+      onEvaluate(true, result);
     } catch (error) {
       onEvaluate(false, String(error));
     }
@@ -82,7 +86,7 @@ export default function FormulaVariablesFields({
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input {...field} />
+                <Input {...field} disabled={isLoading} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,6 +100,7 @@ export default function FormulaVariablesFields({
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
+                  disabled={isLoading}
                   placeholder="Give a description for the fromula"
                   {...field}
                 />
@@ -139,6 +144,7 @@ export default function FormulaVariablesFields({
               <FormControl>
                 <Textarea
                   {...field}
+                  disabled={isLoading}
                   placeholder="eg. (consumption * rate_per_unit)"
                 />
               </FormControl>
@@ -154,7 +160,7 @@ export default function FormulaVariablesFields({
                   variant="outline"
                   className=""
                   onClick={evaluateExpression}
-                  disabled={form.watch("expression").length === 0}
+                  disabled={form.watch("expression").length === 0 || isLoading}
                 >
                   Test
                 </Button>
@@ -198,7 +204,7 @@ export default function FormulaVariablesFields({
                         size="icon"
                         className="w-6 h-6"
                         variant="outline"
-                        disabled={variable.isStatic}
+                        disabled={variable.isStatic || isLoading}
                         onClick={() => removeVariable(index)}
                       >
                         <Minus />
@@ -216,7 +222,7 @@ export default function FormulaVariablesFields({
                                   <FormLabel>Name</FormLabel>
                                   <FormControl>
                                     <Input
-                                      disabled={variable.isStatic}
+                                      disabled={variable.isStatic || isLoading}
                                       {...form.register(
                                         `variables.${index}.name`
                                       )}
@@ -236,6 +242,7 @@ export default function FormulaVariablesFields({
                                     {...form.register(
                                       `variables.${index}.value`
                                     )}
+                                    disabled={isLoading}
                                     type="number"
                                     step="any"
                                   />
@@ -259,7 +266,7 @@ export default function FormulaVariablesFields({
                                 <FormItem>
                                   <FormLabel>Unit</FormLabel>
                                   <Input
-                                    disabled={variable.isStatic}
+                                    disabled={variable.isStatic || isLoading}
                                     {...form.register(
                                       `variables.${index}.unit`
                                     )}
@@ -276,7 +283,7 @@ export default function FormulaVariablesFields({
                                   <FormLabel>Description</FormLabel>
                                   <FormControl>
                                     <Textarea
-                                      disabled={variable.isStatic}
+                                      disabled={variable.isStatic || isLoading}
                                       {...form.register(
                                         `variables.${index}.description`
                                       )}

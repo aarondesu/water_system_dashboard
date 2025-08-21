@@ -132,6 +132,8 @@ export type FormulaVariable = {
 };
 
 export type FormulaTableColumn = {
+  id: number;
+  formula_id: number;
   header: string;
   value: string;
 };
