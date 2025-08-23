@@ -8,7 +8,6 @@ import { formulaSchema } from "~/schemas";
 import FormulaColumnFields from "../formula-column-fields";
 import FormulaVariablesFields from "../formula-variables-fields";
 import { useCreateFormulaMutation } from "~/redux/apis/formulaApi";
-import type { Formula, FormulaTableColumn, FormulaVariable } from "~/types";
 import { toast } from "sonner";
 
 export default function CreateFormulaForm() {
@@ -47,12 +46,8 @@ export default function CreateFormulaForm() {
   const onSubmit = form.handleSubmit((data) => {
     // Remove consumption variable
     data.variables = data.variables.filter((v) => v.name !== "consumption");
-    const args: Partial<Formula> & {
-      variables: Partial<FormulaVariable>[];
-      columns: Partial<FormulaTableColumn>[];
-    } = data;
 
-    toast.promise(createFormula(args).unwrap(), {
+    toast.promise(createFormula(data).unwrap(), {
       success: () => {
         form.reset(initialValues);
 
@@ -67,6 +62,11 @@ export default function CreateFormulaForm() {
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-4">
+        <div className="p-2 border rounded-md bg-green-50">
+          {Object.entries(form.formState.errors).map(([type, message]) => (
+            <p key={type}>{message.message}</p>
+          ))}
+        </div>
         <FormulaVariablesFields
           isLoading={isLoading}
           result={result}

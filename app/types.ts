@@ -127,6 +127,7 @@ export type FormulaVariable = {
   formula_id: number;
   value: number;
   unit: string;
+  description: string;
   created_at?: string;
   updated_at?: string;
 };

@@ -5,7 +5,10 @@ export const formulaApi = baseApi.injectEndpoints({
   overrideExisting: false,
   endpoints: (builder) => ({
     getAllFormulas: builder.query<
-      (Formula & { variables: FormulaVariable[] })[],
+      (Formula & {
+        variables: FormulaVariable[];
+        columns: FormulaTableColumn[];
+      })[],
       void
     >({
       query: () => ({
@@ -14,7 +17,10 @@ export const formulaApi = baseApi.injectEndpoints({
       }),
       transformResponse: (result: {
         success: boolean;
-        data: (Formula & { variables: FormulaVariable[] })[];
+        data: (Formula & {
+          variables: FormulaVariable[];
+          columns: FormulaTableColumn[];
+        })[];
       }) => result.data,
       providesTags: ["formulas"],
     }),

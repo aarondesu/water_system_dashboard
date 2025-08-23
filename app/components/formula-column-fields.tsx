@@ -12,9 +12,10 @@ import {
 import { evaluate } from "mathjs";
 import { formatNumber } from "~/lib/utils";
 import { Button } from "./ui/button";
-import { Minus, Plus } from "lucide-react";
+import { InfoIcon, Minus, Plus } from "lucide-react";
 import { FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 interface FormulaColumnFieldsProps {
   result: string;
@@ -114,6 +115,15 @@ export default function FormulaColumnFields({
                 <Plus />
               </Button>
             </div>
+            <Alert>
+              <InfoIcon />
+              <AlertDescription>
+                You can use mathematical expressions in the "Value" field. For
+                example, enter `a + b * 2` to calculate using variables defined
+                above. Supported operators: +, -, *, /, ^, parentheses, min,
+                max, and variables.
+              </AlertDescription>
+            </Alert>
             <Table>
               <TableBody>
                 {form.watch("columns").map((column, index) => (

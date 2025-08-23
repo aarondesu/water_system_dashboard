@@ -12,7 +12,13 @@ import {
 import { Textarea } from "./ui/textarea";
 import { AnimatePresence, motion } from "motion/react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { ChevronsUpDown, Minus, Plus, TriangleAlert } from "lucide-react";
+import {
+  ChevronsUpDown,
+  InfoIcon,
+  Minus,
+  Plus,
+  TriangleAlert,
+} from "lucide-react";
 import { Input } from "./ui/input";
 import { formatNumber } from "~/lib/utils";
 import { Button } from "./ui/button";
@@ -130,7 +136,7 @@ export default function FormulaVariablesFields({
                     )}
                   </AnimatePresence> */}
               <Alert>
-                <AlertTitle>Define your expression here</AlertTitle>
+                <InfoIcon />
                 <AlertDescription>
                   Define your formula clearly. Start by identifying the
                   variables you will use (e.g., price, quantity, taxRate,
@@ -138,7 +144,8 @@ export default function FormulaVariablesFields({
                   equation that calculates the total amount to be paid. For
                   example: (price * quantity) * (1 + taxRate) - discount. Make
                   sure the formula follows the correct order of operations so
-                  the result is accurate.
+                  the result is accurate. Supported operators: +, -, *, /, ^,
+                  parentheses, min, max, and variables.
                 </AlertDescription>
               </Alert>
               <FormControl>

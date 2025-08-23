@@ -5,8 +5,10 @@ const formulaVariable = z.object({
     .string()
     .min(1, { message: "Variable name must be longer than 1 character" }),
   description: z.string().optional(),
-  value: z.coerce.number(),
-  unit: z.string(),
+  value: z.coerce.number().min(1, {
+    message: "Value must be greater than 1",
+  }),
+  unit: z.string().optional(),
   isStatic: z.boolean().default(false).optional(),
 });
 
@@ -17,9 +19,9 @@ export const formulaTableColumn = z.object({
 });
 
 export const formulaSchema = z.object({
-  name: z.string(),
-  expression: z.string(),
-  description: z.string(),
+  name: z.string().min(1, "Name is required"),
+  expression: z.string().min(1, "Expression is required"),
+  description: z.string().optional(),
   variables: z.array(formulaVariable),
   columns: z.array(formulaTableColumn),
 });
