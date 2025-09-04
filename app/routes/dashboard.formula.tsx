@@ -3,11 +3,19 @@ import { Button } from "~/components/ui/button";
 import { useGetAllFormulasQuery } from "~/redux/apis/formulaApi";
 import type { Formula, FormulaTableColumn, FormulaVariable } from "~/types";
 import { evaluate } from "mathjs";
-import { Plus } from "lucide-react";
+import { ChevronsUpDown, Pencil, Plus } from "lucide-react";
 import { Link } from "react-router";
 import { Table, TableBody, TableCell, TableRow } from "~/components/ui/table";
 import { Skeleton } from "~/components/ui/skeleton";
 import SelectFormulaInput from "~/components/select-formula-input";
+import { cn, formatNumber } from "~/lib/utils";
+import { Input } from "~/components/ui/input";
+import { Textarea } from "~/components/ui/textarea";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "~/components/ui/collapsible";
 
 export function meta() {
   return [{ title: "Formulas | Dashboard" }];
@@ -40,8 +48,9 @@ export default function FormulaPage() {
   const evaluateExpression = () => {
     try {
       const evaluated = evaluate(selectedFormula?.expression ?? "", variables);
+      console.log(result);
 
-      setResult((result) => (result = evaluated));
+      setResult((result) => (result = String(evaluated)));
     } catch (error) {
       console.error(error);
       setResult((result) => (result = "Error"));
@@ -67,6 +76,17 @@ export default function FormulaPage() {
             <Link to={"/dashboard/formula/create"}>
               <Plus />
               <span>New</span>
+            </Link>
+          </Button>
+          <Button variant="outline" disabled={!selectedFormula} asChild>
+            <Link
+              to={`/dashboard/formula/edit/${selectedFormula?.id}`}
+              className={cn(
+                !selectedFormula && "pointer-events-none opacity-50"
+              )}
+            >
+              <Pencil />
+              <span>Edit</span>
             </Link>
           </Button>
         </div>
@@ -116,7 +136,7 @@ export default function FormulaPage() {
               <h3 className="font-bold text-xl">Result</h3>
               <div className="flex gap-1">
                 <div className="p-2 text-muted-foreground border rounded-md text-sm grow">
-                  {result ?? "N/A"}
+                  {formatNumber(Number(result)) ?? "N/A"}
                 </div>
                 <Button
                   disabled={!selectedFormula}
@@ -137,22 +157,33 @@ export default function FormulaPage() {
                       <div className="grid grid-cols-2 gap-4">
                         <div className="">
                           <div className="font-semibold">Name</div>
-                          <div>consumption</div>
+                          <div>
+                            <Input disabled placeholder="consumption" />
+                          </div>
                         </div>
                         <div>
                           <div className="font-semibold">Value</div>
-                          <div>{consumption}</div>
+                          <div>
+                            <Input
+                              disabled
+                              placeholder={formatNumber(consumption)}
+                            />
+                          </div>
                         </div>
                       </div>
                       <div className="">
                         <div className="font-semibold">Unit</div>
-                        <div>m&sup3;</div>
+                        <div>
+                          <Input disabled placeholder="m³" />
+                        </div>
                       </div>
                       <div className="">
                         <div className="font-semibold">Description</div>
                         <div>
-                          Amount of consumed water. Is automatically added by
-                          the system.
+                          <Textarea
+                            disabled
+                            placeholder="Amount of consumed water. Is automatically added by the system."
+                          />
                         </div>
                       </div>
                     </TableCell>
@@ -162,24 +193,51 @@ export default function FormulaPage() {
                   selectedFormula.variables.map((variable, index) => (
                     <TableRow key={index}>
                       <TableCell className="space-y-4">
-                        <div className="grid grid-cols-2 gap-4">
-                          <div className="">
-                            <div className="font-semibold">Name</div>
-                            <div>{variable.name}</div>
+                        <Collapsible>
+                          <div className="flex gap-4 items-end">
+                            <div className="grow">
+                              <div className="font-semibold">Name</div>
+                              <div>
+                                <Input disabled placeholder={variable.name} />
+                              </div>
+                            </div>
+                            <div className="grow">
+                              <div className="font-semibold">Value</div>
+                              <div>
+                                <Input
+                                  disabled
+                                  placeholder={formatNumber(variable.value)}
+                                />
+                              </div>
+                            </div>
+                            <CollapsibleTrigger asChild>
+                              <Button variant="outline" size="icon">
+                                <ChevronsUpDown />
+                              </Button>
+                            </CollapsibleTrigger>
                           </div>
-                          <div>
-                            <div className="font-semibold">Value</div>
-                            <div>{variable.value}</div>
-                          </div>
-                        </div>
-                        <div className="">
-                          <div className="font-semibold">Unit</div>
-                          <div>{variable.unit ?? "N/A"}</div>
-                        </div>
-                        <div className="">
-                          <div className="font-semibold">Description</div>
-                          <div>{variable.description ?? "N/A"}</div>
-                        </div>
+
+                          <CollapsibleContent>
+                            <div className="">
+                              <div className="font-semibold">Unit</div>
+                              <div>
+                                <Input
+                                  disabled
+                                  placeholder={variable.unit ?? "N/A"}
+                                />
+                              </div>
+                            </div>
+                            <div className="">
+                              <div className="font-semibold">Description</div>
+                              <div>
+                                <Textarea
+                                  disabled
+                                  placeholder={variable.description ?? "N/A"}
+                                />
+                              </div>
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
                       </TableCell>
                     </TableRow>
                   ))}
