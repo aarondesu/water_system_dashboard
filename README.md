@@ -1,18 +1,6 @@
-# Welcome to React Router!
+# Water Billing System Frontend
 
-A modern, production-ready template for building full-stack React applications using React Router.
-
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/remix-run/react-router-templates/tree/main/default)
-
-## Features
-
-- 🚀 Server-side rendering
-- ⚡️ Hot Module Replacement (HMR)
-- 📦 Asset bundling and optimization
-- 🔄 Data loading and mutations
-- 🔒 TypeScript by default
-- 🎉 TailwindCSS for styling
-- 📖 [React Router docs](https://reactrouter.com/)
+This project is a rewrite of a water billing system I've created over a year ago. This is the frontend part of the project. Still in WIP. Features are subjected to change.
 
 ## Getting Started
 
@@ -84,4 +72,4 @@ This template comes with [Tailwind CSS](https://tailwindcss.com/) already config
 
 ---
 
-Built with ❤️ using React Router.
+Built using Vite and React Router v7 Framework mode as a SSA
