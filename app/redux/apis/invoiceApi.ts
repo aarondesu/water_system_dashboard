@@ -5,6 +5,10 @@ import type {
   ApiError,
   Subscriber,
   Meter,
+  Formula,
+  FormulaVariable,
+  FormulaTableColumn,
+  Reading,
 } from "~/types";
 import { baseApi } from "./baseApi";
 import { buildUrlParams } from "~/lib/utils";
@@ -13,7 +17,7 @@ export const invoiceApi = baseApi.injectEndpoints({
   overrideExisting: false,
   endpoints: (builder) => ({
     getAllInvoice: builder.query<
-      PaginationResults<Invoice & { subscriber: Subscriber }>,
+      PaginationResults<Invoice & { subscriber: Subscriber; formula: Formula }>,
       PaginationArgs
     >({
       query: (args) => ({
@@ -25,13 +29,24 @@ export const invoiceApi = baseApi.injectEndpoints({
       }),
       transformResponse: (result: {
         success: boolean;
-        data: PaginationResults<Invoice & { subscriber: Subscriber }>;
+        data: PaginationResults<
+          Invoice & { subscriber: Subscriber; formula: Formula }
+        >;
       }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["invoices"],
     }),
     getInvoice: builder.query<
-      Invoice & { subscriber: Subscriber; meter: Meter },
+      Invoice & {
+        subscriber: Subscriber;
+        meter: Meter;
+        previous_reading: Reading;
+        current_reading: Reading;
+        formula: Formula & {
+          variables: FormulaVariable[];
+          columns: FormulaTableColumn[];
+        };
+      },
       number
     >({
       query: (id) => ({
@@ -40,7 +55,16 @@ export const invoiceApi = baseApi.injectEndpoints({
       }),
       transformResponse: (result: {
         success: boolean;
-        data: Invoice & { subscriber: Subscriber; meter: Meter };
+        data: Invoice & {
+          subscriber: Subscriber;
+          meter: Meter;
+          previous_reading: Reading;
+          current_reading: Reading;
+          formula: Formula & {
+            variables: FormulaVariable[];
+            columns: FormulaTableColumn[];
+          };
+        };
       }) => result.data,
       transformErrorResponse: (response: ApiError) => response,
       providesTags: ["invoices"],
@@ -84,4 +108,5 @@ export const {
   useGetInvoiceQuery,
   useCreateMultiipleInvoicesMutation,
   useGetArrearsQuery,
+  usePrefetch,
 } = invoiceApi;

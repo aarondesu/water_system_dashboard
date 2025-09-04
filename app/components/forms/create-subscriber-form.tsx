@@ -18,7 +18,13 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { subscriberSchema } from "~/schemas";
 
-export default function CreateSubscriberForm() {
+interface CreateSubscriberFormProps {
+  onCreateSuccess?: () => void;
+}
+
+export default function CreateSubscriberForm({
+  onCreateSuccess = () => null,
+}: CreateSubscriberFormProps) {
   const [createSubscriber, results] = useCreateSubscriberMutation();
   const navigate = useNavigate();
 
@@ -37,8 +43,9 @@ export default function CreateSubscriberForm() {
     toast.promise(createSubscriber(data).unwrap(), {
       loading: "Creating subscriber...",
       success: () => {
+        onCreateSuccess();
         form.reset();
-        navigate("/dashboard/subscriber");
+
         return "Successfully created subscriber!";
       },
       error: (error) => {

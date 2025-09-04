@@ -12,7 +12,6 @@ import {
   CommandItem,
   CommandList,
 } from "./ui/command";
-import { Skeleton } from "./ui/skeleton";
 
 interface SelectSubscriberInputProps {
   value: number;

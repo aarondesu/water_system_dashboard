@@ -19,7 +19,13 @@ import type { ApiError } from "~/types";
 import { useNavigate } from "react-router";
 import { meterSchema } from "~/schemas";
 
-export default function CreateMeterForm() {
+interface CreateMeterFormProps {
+  onCreateSuccess: () => void;
+}
+
+export default function CreateMeterForm({
+  onCreateSuccess = () => null,
+}: CreateMeterFormProps) {
   const [createMeter, result] = useCreateMeterMutation();
   const navigate = useNavigate();
 
@@ -38,7 +44,7 @@ export default function CreateMeterForm() {
       loading: "Creating meter...",
       success: () => {
         form.reset(); // Only reset form after successfully creating meter
-        navigate("/dashboard/meter");
+        onCreateSuccess();
 
         return "Successfully created meter!";
       },

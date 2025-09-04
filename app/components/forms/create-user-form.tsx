@@ -16,7 +16,13 @@ import { toast } from "sonner";
 import { useNavigate } from "react-router";
 import { userSchema } from "~/schemas";
 
-export default function CreateUserForm() {
+interface CreateUserFormProps {
+  onCreateSuccess?: () => void;
+}
+
+export default function CreateUserForm({
+  onCreateSuccess = () => null,
+}: CreateUserFormProps) {
   const [createUser, results] = useCreateUserMutation();
   const navigate = useNavigate();
 
@@ -35,7 +41,9 @@ export default function CreateUserForm() {
     toast.promise(createUser(data).unwrap(), {
       loading: "Creating user...",
       success: () => {
-        navigate("/dashboard/users");
+        onCreateSuccess();
+        form.reset();
+
         return "Successfully created a new user";
       },
       error: "Failed to create new user",
@@ -129,7 +137,7 @@ export default function CreateUserForm() {
           </div>
         </div>
         <div className="">
-          <Button type="submit" disabled={results.isLoading}>
+          <Button type="submit" className="w-full" disabled={results.isLoading}>
             Create
           </Button>
         </div>

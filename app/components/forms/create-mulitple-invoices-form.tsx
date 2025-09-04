@@ -10,7 +10,7 @@ import {
   CommandList,
 } from "../ui/command";
 import { useGetLatestReadingsPerMeterQuery } from "~/redux/apis/readingApi";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Meter, Reading, Subscriber, Invoice, ApiError } from "~/types";
 import { data } from "react-router";
 import { DataTable } from "../ui/data-table";
@@ -210,7 +210,7 @@ export default function CreateMultipleInvoicesForm() {
     });
   });
 
-  const onAddSubscriber = () => {
+  const onAddSubscriber = useCallback(() => {
     const selectedMeter = latestMeterReadingResults.data?.find(
       (m) => m.id === value
     );
@@ -232,9 +232,9 @@ export default function CreateMultipleInvoicesForm() {
 
       form.setValue(`invoices.${selectedMeter.id || 0}`, invoice);
     }
-  };
+  }, [value]);
 
-  const onAddAllSubscriber = () => {
+  const onAddAllSubscriber = useCallback(() => {
     setTableData((tableData) => {
       const newTableData = Array.from(
         new Set([...tableData, ...(filteredSelect || [])])
@@ -260,17 +260,20 @@ export default function CreateMultipleInvoicesForm() {
 
       return newTableData;
     });
-  };
+  }, [filteredSelect, tableData]);
 
-  const onDeleteSubscriber = (id: number) => {
-    setTableData((tableData) => tableData.filter((m) => m.id !== id));
-    const invoices = form.getValues("invoices");
+  const onDeleteSubscriber = useCallback(
+    (id: number) => {
+      setTableData((tableData) => tableData.filter((m) => m.id !== id));
+      const invoices = form.getValues("invoices");
 
-    const udpatedInvoices = { ...invoices };
-    delete udpatedInvoices[id];
+      const udpatedInvoices = { ...invoices };
+      delete udpatedInvoices[id];
 
-    form.setValue("invoices", udpatedInvoices);
-  };
+      form.setValue("invoices", udpatedInvoices);
+    },
+    [tableData]
+  );
 
   const onResetAll = () => {
     createDialog({

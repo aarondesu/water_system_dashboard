@@ -5,10 +5,7 @@ import {
   useClearMeterMutation,
 } from "~/redux/apis/meterApi";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
 import type { ApiError } from "~/types";
-import { Button } from "./ui/button";
-import { Ban } from "lucide-react";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useConfirmationDialog } from "./confirmation-dialog-provider";
 

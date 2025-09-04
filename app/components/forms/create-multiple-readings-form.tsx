@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   useCreateBulkReadingsMutation,
   useGetLatestReadingPerMeterQuery,
@@ -64,8 +64,10 @@ export default function CreateMultipleReadingsForm() {
     useCreateBulkReadingsMutation();
   const { createDialog } = useConfirmationDialog();
 
-  const filteredSelect = latestReadingResults.data?.filter(
-    (meter) => !tableData.includes(meter)
+  const filteredSelect = useMemo(
+    () =>
+      latestReadingResults.data?.filter((meter) => !tableData.includes(meter)),
+    [latestReadingResults]
   );
 
   /**
@@ -98,35 +100,36 @@ export default function CreateMultipleReadingsForm() {
   /**
    * Button functions
    */
-  const addMeter = () => {
+  const addMeter = useCallback(() => {
     if (meter) {
       const selectedMeter = filteredSelect?.find((m) => m.id === meter);
       if (selectedMeter) {
         setTableData((tableData) => [...tableData, selectedMeter]);
         setMeter(0);
-
-        toast.info("Added meter to the table!");
       }
     }
-  };
+  }, [meter, filteredSelect]);
 
-  const addAllmeters = () => {
+  const addAllmeters = useCallback(() => {
     setTableData((tableData) =>
       Array.from(new Set([...tableData, ...(latestReadingResults.data || [])]))
     );
-  };
+  }, [tableData, latestReadingResults.data]);
 
-  const deleteRow = (id: number) => {
-    setTableData((tableData) => tableData.filter((m) => m.id !== id));
-    const currentMeters = form.getValues("readings");
+  const deleteRow = useCallback(
+    (id: number) => {
+      setTableData((tableData) => tableData.filter((m) => m.id !== id));
+      const currentMeters = form.getValues("readings");
 
-    const updatedMeters = { ...currentMeters };
-    delete updatedMeters[id];
+      const updatedMeters = { ...currentMeters };
+      delete updatedMeters[id];
 
-    form.setValue("readings", updatedMeters);
-  };
+      form.setValue("readings", updatedMeters);
+    },
+    [tableData, form]
+  );
 
-  const resetTable = () => {
+  const resetTable = useCallback(() => {
     createDialog({
       title: "Reset Table",
       description:
@@ -136,7 +139,7 @@ export default function CreateMultipleReadingsForm() {
         form.resetField("readings");
       },
     });
-  };
+  }, [form]);
 
   /**
    * Column definitions

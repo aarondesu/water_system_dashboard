@@ -2,11 +2,9 @@ import {
   getCoreRowModel,
   getPaginationRowModel,
   useReactTable,
-  type VisibilityState,
   type ColumnDef,
   getSortedRowModel,
   type SortingState,
-  type ColumnFiltersState,
   getFilteredRowModel,
 } from "@tanstack/react-table";
 import {
@@ -22,13 +20,10 @@ import {
   ChevronDown,
   ChevronsUpDown,
   ChevronUp,
-  Pencil,
-  Plus,
-  RefreshCcw,
   Search,
   Trash2,
 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { cn, resolvePromises } from "~/lib/utils";
 import { Link } from "react-router";
@@ -143,14 +138,13 @@ export default function SubscribersTable() {
     onSortingChange: setSorting,
     getFilteredRowModel: getFilteredRowModel(),
     onGlobalFilterChange: setGlobalFilter,
-    autoResetPageIndex: false,
     state: {
       sorting: sorting,
       globalFilter: globalFilter,
     },
   });
 
-  const onDeleteButtonPressed = () => {
+  const OnDeleteSubscribers = useCallback(() => {
     createDialog({
       title: "Delete Selected Subscribers",
       description:
@@ -172,7 +166,7 @@ export default function SubscribersTable() {
         });
       },
     });
-  };
+  }, [table, refetch]);
 
   return (
     <div className="flex flex-col w-full space-y-3">
@@ -181,58 +175,40 @@ export default function SubscribersTable() {
         table={table}
         actions={
           <div className="flex w-full gap-1">
-            <Button
-              size="icon"
-              onClick={() => refetch()}
-              disabled={isLoading || isFetching}
-            >
-              <RefreshCcw
-                className={cn(
-                  "w-15 h-15",
-                  isFetching || isLoading ? "animate-spin" : "animate-none"
-                )}
-              />
-            </Button>
-            <Button
-              size={isMobile ? "icon" : "default"}
-              disabled={isLoading}
-              variant="outline"
-              asChild
-            >
-              <Link to="/dashboard/subscriber/create">
-                <Plus />
-                {!isMobile && <span>Create</span>}
-              </Link>
-            </Button>
-            <Button
-              size={isMobile ? "icon" : "default"}
-              variant="outline"
-              disabled={
-                isLoading ||
-                isFetching ||
-                !table.getIsSomeRowsSelected() ||
-                isDeleting
-              }
-              onClick={onDeleteButtonPressed}
-            >
-              <Trash2 />
-              {!isMobile && <span>Delete</span>}
-            </Button>
-            <div className="w-full">
-              <form onClick={(e) => e.preventDefault()}>
-                <div className="flex items-center border p-0 rounded-md">
-                  <Search className="mx-2 w-4 h-4 text-muted-foreground " />
-                  <Input
-                    className="border-transparent shadow-none"
-                    placeholder="Filter columns..."
-                    value={(globalFilter as string) ?? ""}
-                    onChange={(event) =>
-                      table.setGlobalFilter(String(event.target.value))
-                    }
-                  />
-                </div>
-              </form>
-            </div>
+            {table.getFilteredSelectedRowModel().rows.length === 0 ? (
+              <div className="w-full">
+                <form onClick={(e) => e.preventDefault()}>
+                  <div className="flex items-center border p-0 rounded-md">
+                    <Search className="mx-2 w-4 h-4 text-muted-foreground " />
+                    <Input
+                      className="border-transparent shadow-none"
+                      placeholder="Filter columns..."
+                      value={(globalFilter as string) ?? ""}
+                      onChange={(event) =>
+                        table.setGlobalFilter(String(event.target.value))
+                      }
+                    />
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={
+                  isLoading ||
+                  isFetching ||
+                  !table.getIsSomeRowsSelected() ||
+                  isDeleting
+                }
+                onClick={OnDeleteSubscribers}
+              >
+                <Trash2 />
+                <span>
+                  Delete {table.getFilteredSelectedRowModel().rows.length}{" "}
+                  rows{" "}
+                </span>
+              </Button>
+            )}
           </div>
         }
       />

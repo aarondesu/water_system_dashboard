@@ -8,14 +8,13 @@ import {
 import { useState } from "react";
 import { useGetAllInvoiceQuery } from "~/redux/apis/invoiceApi";
 import { DataTable } from "../ui/data-table";
-import type { Invoice, Subscriber } from "~/types";
+import type { Formula, Invoice, Subscriber } from "~/types";
 import { cn, formatNumber } from "~/lib/utils";
 import { Badge } from "../ui/badge";
-import { MoreHorizontal, Pencil, PlusCircle, RefreshCcw } from "lucide-react";
+import { PlusCircle, RefreshCcw } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router";
 import { useIsMobile } from "~/hooks/use-mobile";
-import GenerateInvoiceDialog from "../generate-invoice-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -23,32 +22,13 @@ import {
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
 
-const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
+const columns: ColumnDef<
+  Invoice & { subscriber: Subscriber; formula: Formula }
+>[] = [
   {
     id: "select",
     enableGlobalFilter: false,
     enableHiding: false,
-    // enableSorting: false,
-    // header: ({ table }) => (
-    //   <div className="flex justify-end">
-    //     <Checkbox
-    //       checked={
-    //         table.getIsAllPageRowsSelected() ||
-    //         (table.getIsSomeRowsSelected() && "indeterminate")
-    //       }
-    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-    //       aria-label="Select All"
-    //     />
-    //   </div>
-    // ),
-    // cell: ({ row }) => (
-    //   <div className="flex justify-end">
-    //     <Checkbox
-    //       checked={row.getIsSelected()}
-    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-    //     />
-    //   </div>
-    // ),
   },
   {
     accessorKey: "invoice_number",
@@ -84,11 +64,9 @@ const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "rate_per_unit",
-    header: "Rate",
-    cell: ({ row }) => (
-      <span>&#8369; {formatNumber(row.original.rate_per_unit)} /m&sup3;</span>
-    ),
+    accessorKey: "formula",
+    header: "Formula",
+    cell: ({ row }) => <span>{row.original.formula.name}</span>,
   },
   {
     accessorKey: "amount_due",
@@ -113,30 +91,6 @@ const columns: ColumnDef<Invoice & { subscriber: Subscriber }>[] = [
     accessorKey: "due_date",
     header: "Due Date",
   },
-  // {
-  //   id: "actions",
-  //   enableHiding: false,
-  //   cell: ({ row }) => (
-  //     <DropdownMenu>
-  //       <DropdownMenuTrigger asChild>
-  //         <Button variant="ghost" className="h-8 w-8 p-0">
-  //           <span className="sr-only">Open Menu</span>
-  //           <MoreHorizontal className="h-4 w-4" />
-  //         </Button>
-  //       </DropdownMenuTrigger>
-  //       <DropdownMenuContent align="end" className="w-48">
-  //         <DropdownMenuLabel className="font-bold">Actions</DropdownMenuLabel>
-  //         <DropdownMenuSeparator />
-  //         <DropdownMenuItem asChild>
-  //           <Link to={`/dashboard/meters/edit?id=${1}`}>
-  //             <Pencil />
-  //             <span>Edit</span>
-  //           </Link>
-  //         </DropdownMenuItem>
-  //       </DropdownMenuContent>
-  //     </DropdownMenu>
-  //   ),
-  // },
 ];
 
 export default function InvoicesTable() {

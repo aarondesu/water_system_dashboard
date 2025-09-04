@@ -10,15 +10,8 @@ import {
   FormMessage,
 } from "./ui/form";
 import { Textarea } from "./ui/textarea";
-import { AnimatePresence, motion } from "motion/react";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import {
-  ChevronsUpDown,
-  InfoIcon,
-  Minus,
-  Plus,
-  TriangleAlert,
-} from "lucide-react";
+import { ChevronsUpDown, InfoIcon, Minus, Plus } from "lucide-react";
 import { Input } from "./ui/input";
 import { formatNumber } from "~/lib/utils";
 import { Button } from "./ui/button";
@@ -28,6 +21,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { useCallback } from "react";
 
 interface FormulaVariablesFieldsProps {
   result: string;
@@ -50,7 +44,7 @@ export default function FormulaVariablesFields({
       return acc;
     }, {});
 
-  const addNewVariable = () => {
+  const addNewVariable = useCallback(() => {
     const variables = form.getValues("variables");
     variables.push({
       name: "",
@@ -60,26 +54,32 @@ export default function FormulaVariablesFields({
     });
 
     form.setValue("variables", variables);
-  };
+  }, [form]);
 
-  const removeVariable = (id: number) => {
-    const variables = form.getValues("variables");
-    delete variables[id];
+  const removeVariable = useCallback(
+    (id: number) => {
+      const variables = form.getValues("variables");
+      delete variables[id];
 
-    form.setValue("variables", variables);
-  };
+      form.setValue("variables", variables);
+    },
+    [form]
+  );
 
-  const evaluateExpression = () => {
+  const evaluateExpression = useCallback(() => {
     try {
-      form.trigger();
-
+      form.clearErrors("expression");
       const result = evaluate(form.getValues("expression") ?? "", variables);
 
       onEvaluate(true, result);
     } catch (error) {
+      form.setError("expression", {
+        message: String(error),
+        type: "pattern",
+      });
       onEvaluate(false, String(error));
     }
-  };
+  }, [form, onEvaluate, variables]);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -155,6 +155,8 @@ export default function FormulaVariablesFields({
                   placeholder="eg. (consumption * rate_per_unit)"
                 />
               </FormControl>
+              <FormMessage />
+
               <span className="flex gap-1">
                 <Input
                   disabled={true}
@@ -172,12 +174,11 @@ export default function FormulaVariablesFields({
                   Test
                 </Button>
               </span>
-              <FormMessage />
             </FormItem>
           )}
         />
       </div>
-      <div className="space-y-4">
+      <div className="space-y-2">
         <div className="flex gap-2 items-center">
           <h3 className="font-bold text-xl">Formula Variables</h3>
           <Button
@@ -190,12 +191,21 @@ export default function FormulaVariablesFields({
             <Plus />
           </Button>
         </div>
+        <Alert>
+          <InfoIcon />
+          <AlertDescription>
+            <p>
+              Variables are names used to represent fixed values in a formula.
+              eg: rate = 80
+            </p>
+          </AlertDescription>
+        </Alert>
         <FormField
           control={form.control}
           name="variables"
           render={() => (
             <FormItem>
-              <FormMessage />
+              <FormMessage className="p-3 border border-red-100 rounded-md" />
             </FormItem>
           )}
         />

@@ -22,12 +22,29 @@ import {
   useGetArrearsQuery,
 } from "~/redux/apis/invoiceApi";
 import { toast } from "sonner";
-import type { ApiError, Invoice, Reading } from "~/types";
+import type {
+  ApiError,
+  Formula,
+  FormulaTableColumn,
+  FormulaVariable,
+  Invoice,
+  Reading,
+} from "~/types";
 import { cn, formatNumber } from "~/lib/utils";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "react-router";
 import SubscriberInvoiceTable from "../tables/subscriber-invoice-table";
 import { invoiceSchema } from "~/schemas";
+import { useGetAllFormulasQuery } from "~/redux/apis/formulaApi";
+import SelectFormulaInput from "../select-formula-input";
+import { evaluate } from "mathjs";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHeader,
+  TableRow,
+} from "../ui/table";
 
 export default function CreateInvoiceForm() {
   const [params] = useSearchParams();
@@ -39,15 +56,25 @@ export default function CreateInvoiceForm() {
   );
   const [createInvoice, invoiceResults] = useCreateInvoiceMutation();
 
-  const [previousReading, setPreviousReading] = useState<Reading>();
-  const [currentReading, setCurrentReading] = useState<Reading>();
+  const [selectedFormula, setSelectedFormula] = useState<
+    Formula & { variables: FormulaVariable[]; columns: FormulaTableColumn[] }
+  >();
 
   const { data, isLoading, isFetching, isSuccess, refetch } =
     useGetSubscriberQuery({ id: subscriber_id });
 
+  const { data: formulaData } = useGetAllFormulasQuery();
+
   const getArrearsQuery = useGetArrearsQuery({
     subscriber_id: subscriber_id,
   });
+
+  const [previousReading, setPreviousReading] = useState<Reading>();
+  const [currentReading, setCurrentReading] = useState<Reading | undefined>(
+    data?.meter?.readings?.find(
+      (r) => r.id === Number(params.get("reading_id"))
+    )
+  );
 
   const disableInput =
     !selected || isLoading || isFetching || invoiceResults.isLoading;
@@ -57,7 +84,6 @@ export default function CreateInvoiceForm() {
     defaultValues: {
       subscriber_id: 0,
       current_reading_id: Number(params.get("reading_id")) || 0,
-      rate_per_unit: 0,
     },
   });
 
@@ -71,6 +97,45 @@ export default function CreateInvoiceForm() {
     );
   }, [getArrearsQuery.data]);
 
+  const total_consumption = useMemo(() => {
+    const consumption =
+      Number(currentReading?.reading ?? 0) -
+      Number(previousReading?.reading ?? 0);
+
+    return consumption ?? 0;
+  }, [currentReading, previousReading]);
+
+  const variables = useMemo(() => {
+    const v = selectedFormula?.variables.reduce<Record<string, number>>(
+      (acc, item) => {
+        acc[item.name] = item.value;
+        return acc;
+      },
+      {}
+    );
+
+    if (v) {
+      v.consumption = total_consumption;
+    }
+
+    return v;
+  }, [selectedFormula, total_consumption]);
+
+  const amount_due = useMemo(() => {
+    if (variables && selectedFormula) {
+      try {
+        const result = evaluate(selectedFormula.expression ?? "", variables);
+
+        return Number(result) ?? 0;
+      } catch (error) {
+        console.log(error);
+        return 0;
+      }
+    }
+
+    return 0;
+  }, [variables, total_arrears]);
+
   const onSubmit = form.handleSubmit((data) => {
     toast.promise(createInvoice(data as Invoice).unwrap(), {
       loading: "Creating invoice...",
@@ -81,7 +146,6 @@ export default function CreateInvoiceForm() {
           meter_id: 0,
           previous_reading_id: 0,
           current_reading_id: 0,
-          rate_per_unit: data.rate_per_unit,
           due_date: data.due_date,
         });
 
@@ -108,23 +172,10 @@ export default function CreateInvoiceForm() {
         meter_id: data.meter?.id,
         previous_reading_id: 0,
         current_reading_id: Number(params.get("reading_id") || 0),
-        rate_per_unit: form.getValues("rate_per_unit"),
         due_date: form.getValues("due_date"),
       });
-
-      // Set the current reading to the preselected reading based on the search param
-      setCurrentReading(
-        data?.meter?.readings?.find(
-          (r) => r.id === Number(params.get("reading_id"))
-        )
-      );
     }
   }, [data, isSuccess, subscriber_id]);
-
-  const amount_due =
-    (Number(currentReading?.reading || 0) -
-      Number(previousReading?.reading || 0)) *
-    Number(form.watch("rate_per_unit") || 0);
 
   return (
     <Form {...form}>
@@ -253,35 +304,33 @@ export default function CreateInvoiceForm() {
                   Total Consumption
                 </span>
                 <span className="text-right">
-                  {formatNumber(
-                    (currentReading?.reading || 0) -
-                      (previousReading?.reading || 0)
-                  )}{" "}
-                  m&sup3;
+                  {formatNumber(total_consumption)} m&sup3;
                 </span>
               </div>
               <FormField
                 control={form.control}
-                name="rate_per_unit"
+                name="formula_id"
                 render={({ field }) => (
                   <FormItem className="grid grid-cols-2 items-center">
                     <span className="font-bold text-muted-foreground">
-                      Rate per unit( &#8369;/m&sup3; )
+                      Formula
                     </span>
                     <FormControl>
                       <div className="flex items-center justify-end">
-                        <Input
-                          {...field}
-                          className={cn(
-                            "border-transparent shadow-none text-right w-16 h-8 px-2 hover:bg-input/20",
-                            !field.value && field.value < 1 && "bg-input",
-                            "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          )}
-                          inputMode="numeric"
-                          type="number"
-                          disabled={disableInput}
+                        <SelectFormulaInput
+                          disabled={!selected}
+                          data={formulaData ?? []}
+                          onChange={(value) => {
+                            const formula = formulaData?.find(
+                              (f) => f.id === Number(value)
+                            );
+
+                            if (formula) {
+                              setSelectedFormula((f) => (f = formula));
+                              form.setValue("formula_id", formula.id);
+                            }
+                          }}
                         />
-                        <span className="text-sm">&#8369;/m&sup3;</span>
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -328,8 +377,7 @@ export default function CreateInvoiceForm() {
                   Total Amount Due
                 </span>
                 <span className="text-right">
-                  &#8369;{" "}
-                  {formatNumber(Number(total_arrears) + Number(amount_due))}
+                  &#8369; {formatNumber(Number(total_arrears) + amount_due)}
                 </span>
               </div>
             </div>
@@ -343,6 +391,39 @@ export default function CreateInvoiceForm() {
               </Button>
             </div>
           </div>
+        </div>
+        <div className="space-y-8 p-4 bg-gray-50">
+          <h3 className="text-center font-semibold text-xl">
+            Sample of Invoice details Report
+          </h3>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                {selectedFormula &&
+                  selectedFormula.columns.map((column, index) => (
+                    <TableCell key={index}>{column.header}</TableCell>
+                  ))}
+                <TableCell>Amount Due</TableCell>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                {selectedFormula &&
+                  selectedFormula.columns.map((column, index) => {
+                    try {
+                      return (
+                        <TableCell key={index}>
+                          {formatNumber(evaluate(column.value, variables) ?? 0)}
+                        </TableCell>
+                      );
+                    } catch (error) {
+                      return <TableCell key={index}>Error</TableCell>;
+                    }
+                  })}
+                <TableCell>{formatNumber(amount_due)}</TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
         </div>
         <div className="">
           <div className="flex flex-col gap-4">

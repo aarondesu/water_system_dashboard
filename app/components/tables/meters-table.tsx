@@ -6,10 +6,10 @@ import {
   useReactTable,
   type ColumnDef,
   type PaginationState,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import { useGetAllMetersQuery } from "~/redux/apis/meterApi";
 import type { Meter } from "~/types";
-import { Checkbox } from "../ui/checkbox";
 import { DataTable } from "../ui/data-table";
 import MeterActionDropdown from "../meter-action-dropdown";
 import AssignSubscriberMeter from "../assign-subscriber-meter";
@@ -18,20 +18,14 @@ import {
   ChevronDown,
   ChevronsUpDown,
   ChevronUp,
-  Notebook,
-  PlusCircle,
-  RefreshCcw,
+  Search,
+  Trash2,
 } from "lucide-react";
-import { cn } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { Link } from "react-router";
 import { Badge } from "../ui/badge";
 import { useState } from "react";
-import {
-  HoverCard,
-  HoverCardContent,
-  HoverCardTrigger,
-} from "../ui/hover-card";
+import { Input } from "../ui/input";
 
 const columns: ColumnDef<Meter>[] = [
   {
@@ -39,25 +33,6 @@ const columns: ColumnDef<Meter>[] = [
     enableHiding: false,
     enableSorting: false,
     enableGlobalFilter: false,
-    // header: ({ table }) => (
-    //   <div className="flex justify-end">
-    //     <Checkbox
-    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-    //       checked={
-    //         table.getIsAllPageRowsSelected() ||
-    //         (table.getIsSomeRowsSelected() && "indeterminate")
-    //       }
-    //     />
-    //   </div>
-    // ),
-    // cell: ({ row }) => (
-    //   <div className="flex justify-end">
-    //     <Checkbox
-    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-    //       checked={row.getIsSelected()}
-    //     />
-    //   </div>
-    // ),
   },
   {
     accessorKey: "number",
@@ -142,6 +117,8 @@ export default function MetersTable() {
   const { data, isLoading, isFetching, refetch } = useGetAllMetersQuery();
   const isMobile = useIsMobile();
 
+  const [globalFilter, setGlobalFilter] = useState<any>();
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: 0,
@@ -156,11 +133,14 @@ export default function MetersTable() {
     onPaginationChange: setPagination,
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
     autoResetPageIndex: false,
     manualSorting: true,
     state: {
       sorting: sorting,
       pagination: pagination,
+      globalFilter: globalFilter,
     },
   });
 
@@ -170,30 +150,38 @@ export default function MetersTable() {
         disabled={isLoading}
         table={table}
         actions={
-          <div className="flex gap-2">
-            <Button
-              size="icon"
-              disabled={isLoading || isFetching}
-              onClick={refetch}
-            >
-              <RefreshCcw
-                className={cn(
-                  "w-4 h-4",
-                  isFetching ? "animate-spin" : "animate-none"
-                )}
-              />
-            </Button>
-            <Button
-              disabled={isLoading}
-              variant="outline"
-              size={isMobile ? "icon" : "default"}
-              asChild
-            >
-              <Link to="/dashboard/meter/create">
-                <PlusCircle className="w-4 h-4" />
-                {!isMobile && <span>Create</span>}
-              </Link>
-            </Button>
+          <div className="flex w-full gap-1">
+            {table.getFilteredSelectedRowModel().rows.length === 0 ? (
+              <div className="w-full">
+                <form onClick={(e) => e.preventDefault()}>
+                  <div className="flex items-center border p-0 rounded-md">
+                    <Search className="mx-2 w-4 h-4 text-muted-foreground " />
+                    <Input
+                      className="border-transparent shadow-none"
+                      placeholder="Filter columns..."
+                      value={(globalFilter as string) ?? ""}
+                      onChange={(event) =>
+                        table.setGlobalFilter(String(event.target.value))
+                      }
+                    />
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={
+                  isLoading || isFetching || !table.getIsSomeRowsSelected()
+                  // isDeleting
+                }
+              >
+                <Trash2 />
+                <span>
+                  Delete {table.getFilteredSelectedRowModel().rows.length}{" "}
+                  rows{" "}
+                </span>
+              </Button>
+            )}
           </div>
         }
       />

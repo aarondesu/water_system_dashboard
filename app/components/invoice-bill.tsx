@@ -1,10 +1,13 @@
-import type { Invoice, Meter, Subscriber } from "~/types";
-import {
-  useEffect,
-  useMemo,
-  useState,
-  type ComponentPropsWithRef,
-} from "react";
+import type {
+  Invoice,
+  Meter,
+  Subscriber,
+  Formula,
+  FormulaTableColumn,
+  FormulaVariable,
+  Reading,
+} from "~/types";
+import { useMemo, type ComponentPropsWithRef } from "react";
 import QRCode from "react-qr-code";
 
 import logo from "~/assets/logoipsum-282.svg";
@@ -19,14 +22,39 @@ import {
 } from "./ui/table";
 import { formatNumber } from "~/lib/utils";
 import dayjs from "dayjs";
+import { evaluate } from "mathjs";
 
 const VITE_BASE_URL = import.meta.env.VITE_BASE_URL || "http://localhost:5173/";
 
 interface InvoiceBillProps extends ComponentPropsWithRef<"div"> {
-  invoice: Invoice & { subscriber: Subscriber; meter: Meter };
+  invoice: Invoice & {
+    subscriber: Subscriber;
+    meter: Meter;
+    previous_reading: Reading;
+    current_reading: Reading;
+    formula: Formula & {
+      variables: FormulaVariable[];
+      columns: FormulaTableColumn[];
+    };
+  };
 }
 
 export default function InvoiceBill({ invoice, ...props }: InvoiceBillProps) {
+  const variables = useMemo(() => {
+    const v = invoice.formula.variables.reduce<Record<string, number>>(
+      (arr, item) => {
+        arr[item.name] = item.value;
+
+        return arr;
+      },
+      {}
+    );
+
+    v.consumption = invoice.consumption;
+
+    return v;
+  }, [invoice]);
+
   const total_arrears = useMemo<number>(() => {
     if (!invoice.arrears || invoice.arrears.length === 0) return 0;
     return Number(
@@ -82,42 +110,74 @@ export default function InvoiceBill({ invoice, ...props }: InvoiceBillProps) {
             <span>{invoice.meter.number}</span>
           </span>
           <span className="flex flex-col">
-            <span className="font-semibold">Due Date</span>
-            <span>{dayjs(invoice.due_date).format("MMMM D, YYYY")}</span>
+            <span className="font-semibold">Previous Reading</span>
+            <span>
+              {`${Intl.NumberFormat("en-us", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(invoice.previous_reading.reading ?? 0)} `}{" "}
+              m&sup3;
+            </span>
+          </span>
+          <span className="flex flex-col">
+            <span className="font-semibold">Current Reading</span>
+            <span>
+              {`${Intl.NumberFormat("en-us", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(invoice.current_reading.reading ?? 0)} `}{" "}
+              m&sup3;
+            </span>
+          </span>
+          <span className="flex flex-col">
+            <span className="font-semibold">Consumption</span>
+            <span>
+              {`${Intl.NumberFormat("en-us", {
+                style: "decimal",
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              }).format(invoice.consumption ?? 0)} `}{" "}
+              m&sup3;
+            </span>
           </span>
         </div>
       </div>
       {/* Invoice details section */}
       <div className="mt-8">
         <Table>
-          <TableCaption className="select-none">Meter Information</TableCaption>
+          <TableCaption className="select-none">
+            Detailed Payment Information
+          </TableCaption>
           <TableHeader className="bg-background">
             <TableRow className="">
-              <TableHead className="font-semibold text-foreground">
-                Date
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                Consumption
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                Rate per Unit
-              </TableHead>
-              <TableHead className="font-semibold text-foreground">
-                Amount{" "}
-              </TableHead>
+              {invoice.formula.columns.map((column, index) => (
+                <TableHead key={index} className="font-semibold">
+                  {column.header}
+                </TableHead>
+              ))}
+              <TableHead className="font-semibold">Amount Due</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell>{invoice.created_at}</TableCell>
+              {invoice.formula.columns.map((column, index) => {
+                const result = evaluate(column.value, variables);
+
+                return (
+                  <TableCell key={index}>
+                    {result === 0
+                      ? "-"
+                      : Intl.NumberFormat("en-us", {}).format(result)}
+                  </TableCell>
+                );
+              })}
               <TableCell>
-                {formatNumber(invoice.consumption ?? 0)} m&sup3;
-              </TableCell>
-              <TableCell>
-                &#8369; {formatNumber(invoice.rate_per_unit ?? 0)} /m&sup3;
-              </TableCell>
-              <TableCell>
-                &#8369; {formatNumber(invoice.amount_due ?? 0)}
+                {Intl.NumberFormat("en-us", {
+                  style: "currency",
+                  currency: "PHP",
+                }).format(invoice.amount_due)}
               </TableCell>
             </TableRow>
           </TableBody>
@@ -125,10 +185,13 @@ export default function InvoiceBill({ invoice, ...props }: InvoiceBillProps) {
       </div>
       {/* Payment status section */}
       <div className="mt-8 flex flex-col gap-1 p-6 bg-background">
-        <div className="grid grid-cols-2">
+        <div className="grid grid-cols-2 mt-8">
           <span className="font-semibold text-sm">Amount Due</span>
           <span className="text-end text-sm">
-            &#8369; {formatNumber(invoice.amount_due ?? 0)}
+            {Intl.NumberFormat("en-us", {
+              style: "currency",
+              currency: "PHP",
+            }).format(invoice.amount_due)}
           </span>
         </div>
         <div className="grid grid-cols-2">
@@ -139,7 +202,10 @@ export default function InvoiceBill({ invoice, ...props }: InvoiceBillProps) {
                 <li key={index} className="text-sm grid grid-cols-2">
                   <span>{arrear.invoice_number}</span>
                   <span className="text-end">
-                    &#8369; {formatNumber(arrear.amount_due ?? 0)}
+                    {Intl.NumberFormat("en-us", {
+                      style: "currency",
+                      currency: "PHP",
+                    }).format(arrear.amount_due)}
                   </span>
                 </li>
               ))
@@ -153,7 +219,10 @@ export default function InvoiceBill({ invoice, ...props }: InvoiceBillProps) {
         <div className="grid grid-cols-2">
           <span className="font-semibold text-sm">Total Amount Due</span>
           <span className="text-end text-sm">
-            &#8369; {formatNumber(total_amount_due)}
+            {Intl.NumberFormat("en-us", {
+              style: "currency",
+              currency: "PHP",
+            }).format(total_amount_due)}
           </span>
         </div>
         <div className="grid grid-cols-2 mt-4">
@@ -167,8 +236,12 @@ export default function InvoiceBill({ invoice, ...props }: InvoiceBillProps) {
             Total Amount after Due Date ( includes 10% surcharge )
           </span>
           <span className="text-end text-sm">
-            &#8369;{" "}
-            {`( ${formatNumber(total_amount_due)} + ${formatNumber(surcharge)} ) ${formatNumber(Number(total_amount_due) + Number(surcharge))} `}
+            {`${Intl.NumberFormat("en-us", {
+              style: "currency",
+              currency: "PHP",
+            }).format(
+              total_amount_due + surcharge
+            )} ( ${formatNumber(total_amount_due)} + ${formatNumber(surcharge)} )`}
           </span>
         </div>
       </div>

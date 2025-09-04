@@ -1,12 +1,10 @@
 import {
   Calculator,
-  Cog,
   DollarSign,
   Droplets,
   FileText,
   Gauge,
   LayoutDashboard,
-  Settings,
   Users,
   Users2,
 } from "lucide-react";
@@ -28,6 +26,7 @@ import { Link, useLocation } from "react-router";
 import { useAuth } from "./authentication-provider";
 import SidebarLogo from "./sidebar-logo";
 import ApplicationSidebarFooter from "./sidebar-footer";
+import { useCallback } from "react";
 
 type Action = {
   url: string;
@@ -110,14 +109,17 @@ export default function DashboardSidebar() {
   const { open } = useSidebar();
   const location = useLocation();
 
-  const checkUrl = (url: string) => {
-    // Check if url is dashboard, if it is check if the location is dashboard only to avoid uncessarry highlighting
-    if (url === "/dashboard") {
-      return location.pathname === "/dashboard";
-    } else {
-      return location.pathname.startsWith(url);
-    }
-  };
+  const checkUrl = useCallback(
+    (url: string) => {
+      // Check if url is dashboard, if it is check if the location is dashboard only to avoid uncessarry highlighting
+      if (url === "/dashboard") {
+        return location.pathname === "/dashboard";
+      } else {
+        return location.pathname.startsWith(url);
+      }
+    },
+    [location.pathname]
+  );
 
   return (
     <Sidebar collapsible="icon" variant="sidebar">

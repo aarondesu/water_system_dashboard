@@ -6,13 +6,6 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { Button } from "../ui/button";
-import { ChevronsRight, MoreHorizontal } from "lucide-react";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "../ui/dropdown-menu";
 
 interface CreateInvoiceReadingsTableProps {
   readings: Reading[];

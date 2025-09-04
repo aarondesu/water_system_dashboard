@@ -3,7 +3,6 @@ import {
   Info,
   MoreHorizontal,
   Pencil,
-  Plus,
   Trash2,
   UserMinus,
 } from "lucide-react";

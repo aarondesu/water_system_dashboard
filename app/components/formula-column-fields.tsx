@@ -15,7 +15,8 @@ import { Button } from "./ui/button";
 import { InfoIcon, Minus, Plus } from "lucide-react";
 import { FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
-import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { Alert, AlertDescription } from "./ui/alert";
+import { useCallback, useMemo } from "react";
 
 interface FormulaColumnFieldsProps {
   result: string;
@@ -28,15 +29,17 @@ export default function FormulaColumnFields({
 }: FormulaColumnFieldsProps) {
   const form = useFormContext<z.infer<typeof formulaSchema>>();
 
-  const variables = form
-    .watch("variables")
-    .reduce<Record<string, number>>((acc, item) => {
-      acc[item.name] = Number(item.value);
+  const variables = useMemo(() => {
+    return form
+      .watch("variables")
+      .reduce<Record<string, number>>((acc, item) => {
+        acc[item.name] = Number(item.value);
 
-      return acc;
-    }, {});
+        return acc;
+      }, {});
+  }, [form.watch]);
 
-  const addNewColumn = () => {
+  const addNewColumn = useCallback(() => {
     const columns = form.getValues("columns");
     columns.push({
       header: "",
@@ -44,14 +47,17 @@ export default function FormulaColumnFields({
     });
 
     form.setValue("columns", columns);
-  };
+  }, [form]);
 
-  const removeColumn = (id: number) => {
-    const columns = form.getValues("columns");
-    delete columns[id];
+  const removeColumn = useCallback(
+    (id: number) => {
+      const columns = form.getValues("columns");
+      delete columns[id];
 
-    form.setValue("columns", columns);
-  };
+      form.setValue("columns", columns);
+    },
+    [form]
+  );
 
   return (
     <div className="space-y-4">

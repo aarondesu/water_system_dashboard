@@ -5,6 +5,7 @@ import {
   type SortingState,
   useReactTable,
   type ColumnDef,
+  getFilteredRowModel,
 } from "@tanstack/react-table";
 import type { ApiError, User } from "~/types";
 import { Checkbox } from "../ui/checkbox";
@@ -24,8 +25,7 @@ import {
   ChevronUp,
   MoreHorizontal,
   Pencil,
-  Plus,
-  RefreshCcw,
+  Search,
   Trash2,
 } from "lucide-react";
 import dayjs from "dayjs";
@@ -35,10 +35,10 @@ import {
 } from "~/redux/apis/userApi";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { DataTable } from "../ui/data-table";
-import { Link } from "react-router";
-import { isValidElement, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { resolvePromises } from "~/lib/utils";
+import { Input } from "../ui/input";
 
 export default function UsersTable() {
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -46,6 +46,8 @@ export default function UsersTable() {
   const [deleteUser, deleteUserResults] = useDeleteUserMutation();
   const isMobile = useIsMobile();
   const [isDeleting, setDeleting] = useState<boolean>(false);
+
+  const [globalFilter, setGlobalFilter] = useState<any>();
 
   const columns: ColumnDef<User>[] = useMemo(
     () => [
@@ -78,6 +80,11 @@ export default function UsersTable() {
             />
           </div>
         ),
+      },
+      {
+        accessorKey: "id",
+        header: "ID",
+        enableHiding: false,
       },
       {
         accessorKey: "username",
@@ -180,12 +187,16 @@ export default function UsersTable() {
     getPaginationRowModel: getPaginationRowModel(),
     onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    onGlobalFilterChange: setGlobalFilter,
+
     state: {
       sorting: sorting,
+      globalFilter: globalFilter,
     },
   });
 
-  const onDeleteButtonPressed = () => {
+  const onDeleteButtonPressed = useCallback(() => {
     const tasks: (() => Promise<any>)[] = [];
     const usersToDelete = table.getFilteredSelectedRowModel().rows;
     setDeleting(true);
@@ -205,52 +216,51 @@ export default function UsersTable() {
         return "Successfully deleted user";
       },
     });
-  };
+  }, [table, refetch]);
 
   return (
     <div className="space-y-3">
       <DataTable
-        actions={
-          <div className="flex gap-1">
-            <Button
-              size="icon"
-              disabled={isLoading || isFetching}
-              onClick={() => refetch()}
-            >
-              <RefreshCcw
-                className={isFetching ? "animate-spin" : "animate-none"}
-              />
-            </Button>
-            <Button
-              asChild
-              disabled={isLoading || isFetching}
-              variant="outline"
-              size={isMobile ? "icon" : "default"}
-            >
-              <Link to="/dashboard/user/create">
-                <Plus />
-                {!isMobile && <span>Create</span>}
-              </Link>
-            </Button>
-            <Button
-              variant="outline"
-              disabled={
-                isLoading ||
-                isFetching ||
-                !table.getIsSomeRowsSelected() ||
-                isDeleting
-              }
-              size={isMobile ? "icon" : "default"}
-              onClick={onDeleteButtonPressed}
-            >
-              <Trash2 />
-              {!isMobile && <span>Delete</span>}
-            </Button>
-          </div>
-        }
         table={table}
         disabled={isLoading}
-        hideColumns={false}
+        actions={
+          <div className="flex w-full gap-1">
+            {table.getFilteredSelectedRowModel().rows.length === 0 ? (
+              <div className="w-full">
+                <form onClick={(e) => e.preventDefault()}>
+                  <div className="flex items-center border p-0 rounded-md">
+                    <Search className="mx-2 w-4 h-4 text-muted-foreground " />
+                    <Input
+                      className="border-transparent shadow-none"
+                      placeholder="Filter columns..."
+                      value={(globalFilter as string) ?? ""}
+                      onChange={(event) =>
+                        table.setGlobalFilter(String(event.target.value))
+                      }
+                    />
+                  </div>
+                </form>
+              </div>
+            ) : (
+              <Button
+                variant="outline"
+                disabled={
+                  isLoading ||
+                  isFetching ||
+                  !table.getIsSomeRowsSelected() ||
+                  isDeleting
+                }
+                onClick={() => null}
+              >
+                <Trash2 />
+                <span>
+                  Delete {table.getFilteredSelectedRowModel().rows.length}{" "}
+                  rows{" "}
+                </span>
+              </Button>
+            )}
+          </div>
+        }
       />
     </div>
   );

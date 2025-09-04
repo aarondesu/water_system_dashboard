@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useMemo, useState } from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -48,12 +48,16 @@ export function ConfirmationDialogProvider({
 
   const isMobile = useIsMobile();
 
-  const value: DialogState = {
-    createDialog: (props) => {
-      setDialogProps(props);
-      setOpen(true);
-    },
-  };
+  const value = useMemo(
+    () =>
+      ({
+        createDialog: (props) => {
+          setDialogProps(props);
+          setOpen(true);
+        },
+      }) as DialogState,
+    []
+  );
 
   return (
     <>

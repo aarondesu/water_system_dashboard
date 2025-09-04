@@ -5,13 +5,6 @@ import {
 } from "@tanstack/react-table";
 import type { Meter, Reading } from "~/types";
 import { DataTable } from "../ui/data-table";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "../ui/card";
 import { formatNumber } from "~/lib/utils";
 import dayjs from "dayjs";
 

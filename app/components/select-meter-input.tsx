@@ -1,17 +1,15 @@
 import { useEffect, useState } from "react";
-import { useGetAllMetersQuery } from "~/redux/apis/meterApi";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
 import { cn } from "~/lib/utils";
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
 } from "./ui/command";
-import { ChevronsUpDown, FastForward } from "lucide-react";
+import { ChevronsUpDown } from "lucide-react";
 import type { Meter, Subscriber } from "~/types";
 
 interface SelectMeterInputProps {
