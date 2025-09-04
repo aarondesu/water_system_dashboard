@@ -50,11 +50,12 @@ export type Invoice = {
   invoice_number: string;
   subscriber_id: number;
   meter_id: number;
+  formula_id: number;
   previous_reading_id?: number;
   current_reading_id: number;
-  consumption?: number;
+  consumption: number;
   rate_per_unit: number;
-  amount_due?: number;
+  amount_due: number;
   status?: "unpaid" | "partial" | "paid";
   due_date: Date;
   created_at?: string;
@@ -66,7 +67,7 @@ export type ApiError = {
   status: number;
   data: {
     success: boolean;
-    errors: string[][];
+    errors: Record<string, Array<string>>;
   };
 };
 
