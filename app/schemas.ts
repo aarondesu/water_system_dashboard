@@ -4,11 +4,11 @@ const formulaVariable = z.object({
   name: z
     .string()
     .min(1, { message: "Variable name must be longer than 1 character" }),
-  description: z.string().optional(),
+  description: z.coerce.string().optional(),
   value: z.coerce.number().min(1, {
     message: "Value must be greater than 1",
   }),
-  unit: z.string().optional(),
+  unit: z.coerce.string().optional(),
   isStatic: z.boolean().default(false).optional(),
 });
 
@@ -29,9 +29,10 @@ export const formulaSchema = z.object({
 export const invoiceSchema = z.object({
   subscriber_id: z.coerce.number(),
   meter_id: z.coerce.number(),
+  formula_id: z.coerce.number(),
   previous_reading_id: z.number().or(z.undefined()),
   current_reading_id: z.number().min(1, "Current Reading is required"),
-  rate_per_unit: z.coerce.number().min(1, "Rate Per unit is required"),
+  // rate_per_unit: z.coerce.number().min(1, "Rate Per unit is required"),
   due_date: z.date(),
 });
 
