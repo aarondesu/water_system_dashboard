@@ -31,7 +31,7 @@ import type {
   Reading,
 } from "~/types";
 import { cn, formatNumber } from "~/lib/utils";
-import { Loader2 } from "lucide-react";
+import { Loader2, TriangleAlert } from "lucide-react";
 import { useSearchParams } from "react-router";
 import SubscriberInvoiceTable from "../tables/subscriber-invoice-table";
 import { invoiceSchema } from "~/schemas";
@@ -45,6 +45,8 @@ import {
   TableHeader,
   TableRow,
 } from "../ui/table";
+import { AlertDialog } from "../ui/alert-dialog";
+import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 
 export default function CreateInvoiceForm() {
   const [params] = useSearchParams();
@@ -182,6 +184,17 @@ export default function CreateInvoiceForm() {
       <form onSubmit={onSubmit} className="flex flex-col gap-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="flex flex-col gap-4">
+            {data && !data?.meter && (
+              <Alert>
+                <TriangleAlert />
+                <AlertTitle>Head's Up</AlertTitle>
+                <AlertDescription>
+                  Unable to proceed with invoice creation. Subscriber is not
+                  assigned to a meter. Assign a meter to the subscriber before
+                  proceeding
+                </AlertDescription>
+              </Alert>
+            )}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -238,7 +251,7 @@ export default function CreateInvoiceForm() {
                             data?.meter?.readings?.find((r) => r.id === id)
                           );
                         }}
-                        disabled={disableInput}
+                        disabled={disableInput || !data?.meter}
                       />
                     </FormControl>
                     <FormMessage />
@@ -261,7 +274,7 @@ export default function CreateInvoiceForm() {
                             data?.meter?.readings?.find((r) => r.id === id)
                           );
                         }}
-                        disabled={disableInput}
+                        disabled={disableInput || !data?.meter}
                       />
                     </FormControl>
                     <FormMessage />
@@ -382,7 +395,11 @@ export default function CreateInvoiceForm() {
               </div>
             </div>
             <div className="flex">
-              <Button type="submit" className="w-full" disabled={disableInput}>
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={disableInput || !data?.meter}
+              >
                 {invoiceResults.isLoading ? (
                   <Loader2 className="animate-spin" />
                 ) : (
