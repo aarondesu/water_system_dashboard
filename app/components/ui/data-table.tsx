@@ -44,7 +44,7 @@ import {
 } from "./select";
 
 interface DataTableProps<TData, TValue> {
-  disabled: boolean;
+  disabled?: boolean;
   actions?: React.ReactNode;
   finalRow?: React.ReactNode;
   hideColumns?: boolean;

@@ -5,14 +5,14 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import type { Meter, Reading, Subscriber } from "~/types";
+import type { Meter, PaginationResults, Reading, Subscriber } from "~/types";
 import { Checkbox } from "../ui/checkbox";
 import { useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { DataTable } from "../ui/data-table";
 import { ChevronsUpDown, CirclePlus, Filter, RefreshCcw } from "lucide-react";
 import { Link } from "react-router";
 import { Button } from "../ui/button";
-import { useState } from "react";
+import { useState, type Dispatch, type SetStateAction } from "react";
 import ReadingActionDropdown from "../reading-action-dropdown";
 import { cn, formatNumber } from "~/lib/utils";
 import { useIsMobile } from "~/hooks/use-mobile";
@@ -115,22 +115,27 @@ const formSchema = z.object({
   reading: z.number(),
 });
 
-export default function ReadingsTable() {
+interface ReadingsTableProps {
+  data?: PaginationResults<
+    Reading & {
+      meter: Meter & {
+        subscriber?: Subscriber;
+      };
+    }
+  >;
+  pagination: PaginationState;
+  setPagination: Dispatch<SetStateAction<PaginationState>>;
+}
+
+export default function ReadingsTable({
+  pagination,
+  setPagination,
+  data,
+}: ReadingsTableProps) {
   const isMobile = useIsMobile();
   const [meter, setMeter] = useState<string>("");
   const [reading, setReading] = useState<string>("");
   const [date, setDate] = useState<Date>();
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-
-  const { data, isLoading, isFetching, refetch } = useGetAllReadingsQuery({
-    page_index: pagination.pageIndex + 1,
-    rows: pagination.pageSize,
-    meter: meter,
-    reading: reading,
-  });
 
   const table = useReactTable({
     columns: columns,
@@ -150,51 +155,10 @@ export default function ReadingsTable() {
     <div className="space-y-3">
       <DataTable
         table={table}
-        disabled={isLoading}
+        // disabled={isLoading}
         actions={
           <Collapsible>
             <div className="flex flex-row gap-2">
-              <Button
-                size="icon"
-                disabled={isLoading || isFetching}
-                onClick={refetch}
-              >
-                <RefreshCcw
-                  className={cn(
-                    "w-4 h-4",
-                    isLoading || isFetching ? "animate-spin" : "animate-none"
-                  )}
-                />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    size={isMobile ? "icon" : "default"}
-                    variant="outline"
-                  >
-                    <CirclePlus />
-                    Create
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start">
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/dashboard/reading/create"
-                      className="flex items-center gap-2"
-                    >
-                      Single
-                    </Link>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem asChild>
-                    <Link
-                      to="/dashboard/reading/create/multiple"
-                      className="flex items-center gap-2"
-                    >
-                      Multiple
-                    </Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
               <form
                 onSubmit={(form) => {
                   form.preventDefault();
@@ -224,15 +188,6 @@ export default function ReadingsTable() {
                 </Button>
               </CollapsibleTrigger>
             </div>
-            <CollapsibleContent className="mt-2 flex gap-2 align-bottom">
-              <div className="space-y-1">
-                <Label>Filter Date</Label>
-                <div className="flex gap-2">
-                  <MonthSelector />
-                  <YearSelector />
-                </div>
-              </div>
-            </CollapsibleContent>
           </Collapsible>
         }
       />
