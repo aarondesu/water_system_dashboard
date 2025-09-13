@@ -77,11 +77,11 @@ export default function LoginForm({
                     results.error.data !== null &&
                     "success" in results.error.data ? (
                       <ul className="list-inside list-disc text-sm">
-                        {(results.error as ApiError).data.errors.map(
-                          (error, index) => (
-                            <li key={index}>{error}</li>
-                          )
-                        )}
+                        {Object.entries(
+                          (results.error as ApiError).data.errors
+                        ).map((error, index) => (
+                          <li key={index}>{error}</li>
+                        ))}
                       </ul>
                     ) : (
                       <span>

@@ -64,6 +64,8 @@ export default function AppLoadingStatus() {
       {visible && (
         <motion.div
           className="absolute top-0 min-w-svw max-w-svw z-50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
           exit={{
             opacity: 0,
           }}

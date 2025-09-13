@@ -14,6 +14,7 @@ import "./app.css";
 import { Toaster } from "sonner";
 import { Loader2 } from "lucide-react";
 import { useIsMobile } from "./hooks/use-mobile";
+import AppLoadingStatus from "./components/app-loading-status";
 
 export const links: Route.LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
@@ -46,11 +47,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
   );
 }
 
+export async function loader() {}
+
 export function HydrateFallback() {
   return (
     <div className="flex min-h-svh items-center justify-center bg-muted">
       <div className="flex flex-col items-center text-center gap-2">
-        <span className="font-bold text-xl">Loading</span>
+        <span className="font-bold text-xl">Initializing Application</span>
         <Loader2 className="animate-spin w-[32px] h-[32px]" />
       </div>
     </div>
@@ -62,6 +65,8 @@ export default function App() {
 
   return (
     <Provider store={store}>
+      <AppLoadingStatus />
+
       <Toaster position="bottom-center" />
       <Outlet />
     </Provider>
