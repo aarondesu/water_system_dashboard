@@ -19,4 +19,4 @@ export const dashboardApi = baseApi.injectEndpoints({
   }),
 });
 
-export const { useGetDashboardQuery } = dashboardApi;
+export const { useGetDashboardQuery, usePrefetch } = dashboardApi;

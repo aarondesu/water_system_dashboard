@@ -39,7 +39,6 @@ export default function WaterConsumptionChart({
       <CardContent className="mt-12">
         <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
           <BarChart accessibilityLayer data={data}>
-            <CartesianGrid vertical={false} />
             <XAxis
               dataKey="month"
               tickLine={false}

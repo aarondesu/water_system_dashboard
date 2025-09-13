@@ -104,4 +104,5 @@ export const {
   useGetLatestReadingsPerMeterQuery,
   useGetLatestReadingPerMeterQuery,
   useCreateBulkReadingsMutation,
+  usePrefetch,
 } = readingApi;

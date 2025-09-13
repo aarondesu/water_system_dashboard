@@ -3,7 +3,14 @@ import { useState } from "react";
 import CreateSubscriberForm from "~/components/forms/create-subscriber-form";
 import SubscribersTable from "~/components/tables/subscribers-table";
 import { Button } from "~/components/ui/button";
-import { Dialog, DialogContent, DialogTrigger } from "~/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
 import type { Route } from "./+types/dashboard.subscriber";
 import { store } from "~/redux/store";
 import { subscriberApi } from "~/redux/apis/subscriberApi";
@@ -45,6 +52,13 @@ export default function DashboardSubscriberPage({
             </Button>
           </DialogTrigger>
           <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create Subscriber</DialogTitle>
+              <DialogDescription>
+                Fill out the form to add a new subscriber’s details to the
+                system.
+              </DialogDescription>
+            </DialogHeader>
             <CreateSubscriberForm
               onCreateSuccess={() => setOpen((open) => false)}
             />

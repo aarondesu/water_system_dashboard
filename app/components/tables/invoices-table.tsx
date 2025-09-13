@@ -32,6 +32,7 @@ const columns: ColumnDef<
   },
   {
     accessorKey: "invoice_number",
+    enableHiding: false,
     header: () => <span className="flex justify-end">Invoice Number</span>,
     cell: ({ row }) => (
       <span className="font-semibold flex justify-end ">

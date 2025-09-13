@@ -37,4 +37,5 @@ export const {
   useGetAllusersQuery,
   useCreateUserMutation,
   useDeleteUserMutation,
+  usePrefetch,
 } = userApi;

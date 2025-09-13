@@ -29,7 +29,13 @@ import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { AlertCircleIcon, Terminal } from "lucide-react";
 import { readingSchema } from "~/schemas";
 
-export default function CreateReadingsForm() {
+interface CreateReadingsFormProps {
+  onCreateSuccess: () => void;
+}
+
+export default function CreateReadingsForm({
+  onCreateSuccess,
+}: CreateReadingsFormProps) {
   const [selected, setSelected] = useState<boolean>(false);
   const getAllMeterResults = useGetAllMetersQuery();
   const [getMeter, getMeterResults] = useLazyGetMeterQuery();
@@ -62,7 +68,9 @@ export default function CreateReadingsForm() {
           start_date: data.start_date,
           end_date: data.end_date,
         });
-        // navigate("/dashboard/readings");
+
+        onCreateSuccess();
+
         return "Successfully created reading";
       },
       error: "Failed to create reading",

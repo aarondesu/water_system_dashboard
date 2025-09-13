@@ -1,4 +1,5 @@
 import { Outlet } from "react-router";
+import AppLoadingStatus from "~/components/app-loading-status";
 import { AuthenticationProvider } from "~/components/authentication-provider";
 import { ConfirmationDialogProvider } from "~/components/confirmation-dialog-provider";
 import DashboardSidebar from "~/components/dashboard-sidebar";

@@ -99,4 +99,5 @@ export const {
   useLazyGetMeterQuery,
   useUpdateMeterMutation,
   useSetStatusMutation,
+  usePrefetch,
 } = meterApi;

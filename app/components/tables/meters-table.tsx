@@ -113,11 +113,14 @@ const columns: ColumnDef<Meter>[] = [
   },
 ];
 
-export default function MetersTable() {
-  const { data, isLoading, isFetching, refetch } = useGetAllMetersQuery();
+interface MetersTableProps {
+  data: Meter[];
+}
+
+export default function MetersTable({ data }: MetersTableProps) {
   const isMobile = useIsMobile();
 
-  const [globalFilter, setGlobalFilter] = useState<any>();
+  const [globalFilter, setGlobalFilter] = useState<any>([]);
 
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -147,7 +150,6 @@ export default function MetersTable() {
   return (
     <div className="space-y-3">
       <DataTable
-        disabled={isLoading}
         table={table}
         actions={
           <div className="flex w-full gap-1">
@@ -171,7 +173,7 @@ export default function MetersTable() {
               <Button
                 variant="outline"
                 disabled={
-                  isLoading || isFetching || !table.getIsSomeRowsSelected()
+                  !table.getIsSomeRowsSelected()
                   // isDeleting
                 }
               >

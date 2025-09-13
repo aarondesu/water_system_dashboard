@@ -28,9 +28,7 @@ export default function SelectSubscriberInput({
   className,
   skipMeter = false,
 }: SelectSubscriberInputProps) {
-  const { data, isLoading, isSuccess } = useGetAllSubscribersQuery({
-    order: "asc",
-  });
+  const { data, isLoading, isSuccess } = useGetAllSubscribersQuery({});
 
   const [open, setOpen] = useState<boolean>(false);
   const subscriber = data?.find((u) => u.id === value);

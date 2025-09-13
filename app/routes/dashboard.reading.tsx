@@ -14,21 +14,22 @@ import type { Route } from "./+types/dashboard.reading";
 import { store } from "~/redux/store";
 import { readingApi, useGetAllReadingsQuery } from "~/redux/apis/readingApi";
 import { type PaginationState } from "@tanstack/react-table";
+import CreateMultipleReadingsForm from "~/components/forms/create-multiple-readings-form";
+import CreateReadingDialog from "~/components/create-reading-dialog";
+import CreateMultipleReadingDialog from "~/components/create-multiple-reading-dialog";
 
 export async function clientLoader({ request }: Route.ClientLoaderArgs) {
-  await store
-    .dispatch(
-      readingApi.endpoints.getAllReadings.initiate({
-        page_index: 1,
-        rows: 10,
-      })
-    )
-    .unwrap()
-    .then((data) => data)
-    .catch((error) => {
-      console.log(error);
-      return undefined;
-    });
+  // Prefetch data
+  await store.dispatch(
+    readingApi.endpoints.getAllReadings.initiate({
+      page_index: 1,
+      rows: 10,
+    })
+  );
+
+  await store.dispatch(
+    readingApi.endpoints.getLatestReadingPerMeter.initiate()
+  );
 }
 
 export function meta() {
@@ -51,21 +52,8 @@ export default function ReadingPage({ loaderData }: Route.ComponentProps) {
     <div className="flex flex-col gap-4">
       <div className="flex gap-2">
         <h2 className="font-bold text-2xl grow">Readings</h2>
-        <Dialog open={open} onOpenChange={setOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <Plus /> Create new reading
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-[1000px] md:min-w-[1000px]">
-            <DialogHeader>
-              <DialogTitle>Create new Reading</DialogTitle>
-            </DialogHeader>
-            <CreateReadingsForm
-              onCreateSuccess={() => setOpen((open) => false)}
-            />
-          </DialogContent>
-        </Dialog>
+        <CreateReadingDialog />
+        <CreateMultipleReadingDialog />
       </div>
       <div className="">
         <ReadingsTable

@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useMemo } from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router";
 import { toast } from "sonner";
 import { useLogoutMutation, useUserQuery } from "~/redux/apis/authApi";
@@ -28,36 +28,39 @@ export function AuthenticationProvider({
 
   const location = useLocation();
   const navigate = useNavigate();
+  const value = useMemo(
+    () =>
+      ({
+        logout: () => {
+          if (
+            sessionStorage.getItem(session_token_key) &&
+            sessionStorage.getItem(session_token_key) !== ""
+          ) {
+            toast.promise(logout().unwrap(), {
+              loading: "Logging out...",
+              success: () => {
+                sessionStorage.clear();
+                navigate("/dashboard/login");
 
-  const value = {
-    logout: () => {
-      if (
-        sessionStorage.getItem(session_token_key) &&
-        sessionStorage.getItem(session_token_key) !== ""
-      ) {
-        toast.promise(logout().unwrap(), {
-          loading: "Logging out...",
-          success: () => {
-            sessionStorage.clear();
-            navigate("/dashboard/login");
+                return "Successfully logged out!";
+              },
+              error: () => {
+                sessionStorage.clear();
+                navigate("/dashboard/login");
 
-            return "Successfully logged out!";
-          },
-          error: () => {
-            sessionStorage.clear();
-            navigate("/dashboard/login");
+                return "Successfully logged out!";
+              },
+            });
+          }
+        },
+        setToken: (token) => {
+          sessionStorage.setItem(session_token_key, token);
 
-            return "Successfully logged out!";
-          },
-        });
-      }
-    },
-    setToken: (token) => {
-      sessionStorage.setItem(session_token_key, token);
-
-      navigate("/dashboard");
-    },
-  } as AuthenticationState;
+          navigate("/dashboard");
+        },
+      }) as AuthenticationState,
+    [logout, navigate]
+  );
 
   useEffect(() => {
     // Check if not logged in

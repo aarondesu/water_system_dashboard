@@ -301,7 +301,7 @@ export default function CreateMultipleReadingsForm() {
   return (
     <Form {...form}>
       <form onSubmit={onSubmit} className="space-y-4">
-        <div className="bg-background p-6 rounded-md space-y-4">
+        <div className="bg-background rounded-md space-y-4">
           <h5 className="text-foreground font-semibold">Reading details</h5>
           <div className="grid grid-cols-1 md:grid-cols-2">
             <div className="space-y-2">

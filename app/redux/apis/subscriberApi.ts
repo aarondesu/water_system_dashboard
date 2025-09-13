@@ -90,4 +90,5 @@ export const {
   useUpdateSubscriberMutation,
   useDeleteSubscriberMutation,
   useBulkDeleteSubscirberMutation,
+  usePrefetch,
 } = subscriberApi;
