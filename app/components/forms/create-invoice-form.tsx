@@ -31,7 +31,7 @@ import type {
   Reading,
 } from "~/types";
 import { cn, formatNumber } from "~/lib/utils";
-import { Loader2, TriangleAlert } from "lucide-react";
+import { ChevronsUpDown, Loader2, TriangleAlert } from "lucide-react";
 import { useSearchParams } from "react-router";
 import SubscriberInvoiceTable from "../tables/subscriber-invoice-table";
 import { invoiceSchema } from "~/schemas";
@@ -42,13 +42,25 @@ import {
   Table,
   TableBody,
   TableCell,
+  TableHead,
   TableHeader,
   TableRow,
 } from "../ui/table";
 import { AlertDialog } from "../ui/alert-dialog";
 import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "../ui/collapsible";
 
-export default function CreateInvoiceForm() {
+interface CreateInvoiceFormProps {
+  onSuccess: () => void;
+}
+
+export default function CreateInvoiceForm({
+  onSuccess,
+}: CreateInvoiceFormProps) {
   const [params] = useSearchParams();
   const [selected, setSelected] = useState<boolean>(
     params.get("subscriber_id") ? true : false
@@ -155,7 +167,8 @@ export default function CreateInvoiceForm() {
         setPreviousReading(undefined);
 
         setSubscriber(0);
-        refetch();
+
+        onSuccess();
 
         return "Successfully created invoice";
       },
@@ -282,11 +295,19 @@ export default function CreateInvoiceForm() {
                 )}
               />
             </div>
-            <div>
-              <CreateInvoiceReadingsTable
-                readings={data?.meter?.readings || []}
-              />
-            </div>
+            <Collapsible defaultOpen>
+              <CollapsibleTrigger asChild>
+                <Button className="justify-between" variant="ghost">
+                  Meter Readings
+                  <ChevronsUpDown />
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="mt-2">
+                <CreateInvoiceReadingsTable
+                  readings={data?.meter?.readings || []}
+                />
+              </CollapsibleContent>
+            </Collapsible>
           </div>
           <div className="flex flex-col gap-4 bg-muted p-6 rounded-md">
             <div className="">
@@ -410,17 +431,22 @@ export default function CreateInvoiceForm() {
           </div>
         </div>
         <div className="space-y-8 p-4 bg-gray-50">
-          <h3 className="text-center font-semibold text-xl">
-            Sample of Invoice details Report
-          </h3>
-          <Table>
+          <span className="text-center">
+            <h3 className="text-muted-foreground font-semibold text-xl">
+              Sample of Invoice Detailed Report
+            </h3>
+            <p className="text-sm">
+              Uses the columns that are present on formula creation
+            </p>
+          </span>
+          <Table className="mt-6">
             <TableHeader>
               <TableRow>
                 {selectedFormula &&
                   selectedFormula.columns.map((column, index) => (
-                    <TableCell key={index}>{column.header}</TableCell>
+                    <TableHead key={index}>{column.header}</TableHead>
                   ))}
-                <TableCell>Amount Due</TableCell>
+                <TableHead className="text-right">Amount Due</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -437,12 +463,14 @@ export default function CreateInvoiceForm() {
                       return <TableCell key={index}>Error</TableCell>;
                     }
                   })}
-                <TableCell>{formatNumber(amount_due)}</TableCell>
+                <TableCell className="text-right">
+                  {formatNumber(amount_due)}
+                </TableCell>
               </TableRow>
             </TableBody>
           </Table>
         </div>
-        <div className="">
+        {/* <div className="">
           <div className="flex flex-col gap-4">
             <h5 className="text-sm font-semibold">
               Previous Subscriber Invoices
@@ -452,7 +480,7 @@ export default function CreateInvoiceForm() {
               isLoading={isLoading || isFetching}
             />
           </div>
-        </div>
+        </div> */}
       </form>
     </Form>
   );

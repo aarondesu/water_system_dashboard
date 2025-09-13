@@ -91,7 +91,7 @@ export const readingApi = baseApi.injectEndpoints({
           readings,
         },
         transformErrorResponse: (response: ApiError) => response,
-        invalidatesTags: ["readings", "meters"],
+        invalidatesTags: ["readings"],
       }),
     }),
   }),

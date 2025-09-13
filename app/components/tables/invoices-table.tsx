@@ -123,36 +123,36 @@ export default function InvoicesTable() {
       <DataTable
         table={table}
         disabled={isLoading}
-        actions={
-          <div className="flex flex-row gap-1">
-            <Button size="icon" onClick={refetch}>
-              <RefreshCcw
-                className={cn(
-                  "w-4 h-4",
-                  isLoading || isFetching ? "animate-spin" : "animate-none"
-                )}
-              />
-            </Button>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button size={isMobile ? "icon" : "default"} variant="outline">
-                  <PlusCircle className="w-4 h-4" />
-                  {!isMobile && "Create"}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem asChild>
-                  <Link to={`/dashboard/invoice/create`}>Single</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link to={`/dashboard/invoice/create/multiple`}>
-                    Multiple
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        }
+        // actions={
+        //   <div className="flex flex-row gap-1">
+        //     <Button size="icon" onClick={refetch}>
+        //       <RefreshCcw
+        //         className={cn(
+        //           "w-4 h-4",
+        //           isLoading || isFetching ? "animate-spin" : "animate-none"
+        //         )}
+        //       />
+        //     </Button>
+        //     <DropdownMenu>
+        //       <DropdownMenuTrigger asChild>
+        //         <Button size={isMobile ? "icon" : "default"} variant="outline">
+        //           <PlusCircle className="w-4 h-4" />
+        //           {!isMobile && "Create"}
+        //         </Button>
+        //       </DropdownMenuTrigger>
+        //       <DropdownMenuContent align="start">
+        //         <DropdownMenuItem asChild>
+        //           <Link to={`/dashboard/invoice/create`}>Single</Link>
+        //         </DropdownMenuItem>
+        //         <DropdownMenuItem asChild>
+        //           <Link to={`/dashboard/invoice/create/multiple`}>
+        //             Multiple
+        //           </Link>
+        //         </DropdownMenuItem>
+        //       </DropdownMenuContent>
+        //     </DropdownMenu>
+        //   </div>
+        // }
       />
     </div>
   );

@@ -67,7 +67,7 @@ export default function CreateMultipleReadingsForm() {
   const filteredSelect = useMemo(
     () =>
       latestReadingResults.data?.filter((meter) => !tableData.includes(meter)),
-    [latestReadingResults]
+    [latestReadingResults, tableData]
   );
 
   /**
@@ -110,6 +110,16 @@ export default function CreateMultipleReadingsForm() {
     }
   }, [meter, filteredSelect]);
 
+  const addMeterTest = useCallback(
+    (id: number) => {
+      const selectedMeter = filteredSelect?.find((m) => m.id === id);
+      if (selectedMeter) {
+        setTableData((tableData) => [...tableData, selectedMeter]);
+      }
+    },
+    [filteredSelect]
+  );
+
   const addAllmeters = useCallback(() => {
     setTableData((tableData) =>
       Array.from(new Set([...tableData, ...(latestReadingResults.data || [])]))
@@ -144,9 +154,9 @@ export default function CreateMultipleReadingsForm() {
   /**
    * Column definitions
    */
-  const columns: ColumnDef<
-    Meter & { subscriber?: Subscriber; readings: Reading[] }
-  >[] = useMemo(
+  const columns = useMemo<
+    ColumnDef<Meter & { subscriber?: Subscriber; readings: Reading[] }>[]
+  >(
     () => [
       {
         accessorKey: "number",
@@ -256,6 +266,7 @@ export default function CreateMultipleReadingsForm() {
             size="icon"
             variant="ghost"
             className="p-0"
+            type="button"
             onClick={() => deleteRow(row.original.id || 0)}
           >
             <XIcon />
@@ -332,7 +343,7 @@ export default function CreateMultipleReadingsForm() {
               latestReadingResults.isLoading ||
               createBulkReadingsResults.isLoading
             }
-            onChange={setMeter}
+            onChange={addMeterTest}
             value={meter}
             className="w-full md:w-[300px]"
           />
