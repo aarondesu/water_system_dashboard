@@ -1,5 +1,10 @@
 import { baseApi } from "./baseApi";
-import type { Formula, FormulaTableColumn, FormulaVariable } from "~/types";
+import type {
+  ApiError,
+  Formula,
+  FormulaTableColumn,
+  FormulaVariable,
+} from "~/types";
 
 export const formulaApi = baseApi.injectEndpoints({
   overrideExisting: false,
@@ -15,6 +20,7 @@ export const formulaApi = baseApi.injectEndpoints({
         url: "/formulas",
         method: "GET",
       }),
+      transformErrorResponse: (response: ApiError) => response,
       transformResponse: (result: {
         success: boolean;
         data: (Formula & {
@@ -33,6 +39,7 @@ export const formulaApi = baseApi.injectEndpoints({
         method: "GET",
       }),
       providesTags: ["formulas"],
+      transformErrorResponse: (response: ApiError) => response,
       transformResponse: (result: {
         success: boolean;
         data: Formula & {
@@ -56,6 +63,7 @@ export const formulaApi = baseApi.injectEndpoints({
         method: "PUT",
         body: data.formula,
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["formulas"],
     }),
     createFormula: builder.mutation<
@@ -70,13 +78,26 @@ export const formulaApi = baseApi.injectEndpoints({
         method: "POST",
         body: data,
       }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["formulas"],
     }),
     deleteFormula: builder.mutation<void, number>({
-      query: (data) => ({
-        url: "/formulas",
+      query: (id) => ({
+        url: `/formulas/${id}`,
         method: "DELETE",
       }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["formulas"],
+    }),
+    bulkDeleteFormula: builder.mutation<void, number[]>({
+      query: (ids) => ({
+        url: "/formulas",
+        method: "DELETE",
+        body: {
+          ids: ids,
+        },
+      }),
+      transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["formulas"],
     }),
   }),
@@ -85,6 +106,7 @@ export const {
   useGetAllFormulasQuery,
   useCreateFormulaMutation,
   useDeleteFormulaMutation,
+  useBulkDeleteFormulaMutation,
   useGetFormulaQuery,
   useUpdateFormulaMutation,
   usePrefetch,
