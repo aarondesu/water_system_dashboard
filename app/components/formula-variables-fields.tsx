@@ -196,7 +196,9 @@ export default function FormulaVariablesFields({
           <AlertDescription>
             <p>
               Variables are names used to represent fixed values in a formula.
-              eg: rate = 80
+              eg: rate = 80. The only exception here will be the consumption.
+              This variable is automatically assigned during the computation
+              process.
             </p>
           </AlertDescription>
         </Alert>
