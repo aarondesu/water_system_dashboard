@@ -27,9 +27,7 @@ import LatestReadingTable from "~/components/tables/latest-readings-table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
 import { Badge } from "~/components/ui/badge";
 import { store } from "~/redux/store";
-import { useAppSelector } from "~/redux/hooks";
-import { QueryStatus } from "@reduxjs/toolkit/query";
-
+import { useMemo } from "react";
 export async function clientLoader({}: Route.ClientLoaderArgs) {
   const result = await store
     .dispatch(dashboardApi.endpoints.getDashboard.initiate())
@@ -53,20 +51,37 @@ export function meta({}: Route.MetaArgs) {
 export default function DashboardHome({
   loaderData: data,
 }: Route.ComponentProps) {
-  const currentConsumption = data?.readings.current_total_reading
-    ? data.readings.current_total_reading.total_consumption
-    : 0;
-  const previousConsumption =
-    data?.readings.previous_total_reading.total_consumption ?? 0;
+  const currentConsumption = useMemo(
+    () =>
+      data?.readings.current_total_reading
+        ? data.readings.current_total_reading.total_consumption
+        : 0,
+    [data]
+  );
+  const previousConsumption = useMemo(
+    () => data?.readings.previous_total_reading.total_consumption ?? 0,
+    [data]
+  );
 
-  const consumption_percentage =
-    ((currentConsumption - previousConsumption) / previousConsumption) * 100;
+  const consumption_percentage = useMemo(
+    () =>
+      ((currentConsumption - previousConsumption) / previousConsumption) * 100,
+    [currentConsumption, previousConsumption]
+  );
 
-  const currentBalance = data?.invoice.current_balance.total_amount_due || 0;
-  const previousBalance = data?.invoice.previous_balance.total_amount_due || 0;
+  const currentBalance = useMemo(
+    () => data?.invoice.current_balance.total_amount_due || 0,
+    [data]
+  );
+  const previousBalance = useMemo(
+    () => data?.invoice.previous_balance.total_amount_due || 0,
+    [data]
+  );
 
-  const balancePercentage =
-    ((currentBalance - previousBalance) / previousBalance) * 100;
+  const balancePercentage = useMemo(
+    () => ((currentBalance - previousBalance) / previousBalance) * 100,
+    [currentBalance, previousBalance]
+  );
 
   return (
     <div className="space-y-4">
