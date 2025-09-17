@@ -27,7 +27,7 @@ export default function FormulaTable() {
 
   const prefetchFormula = usePrefetch("getFormula");
 
-  const columns: ColumnDef<Formula>[] = useMemo(() => {
+  const columns: ColumnDef<Formula>[] = useMemo<ColumnDef<Formula>[]>(() => {
     return [
       {
         id: "select",
@@ -82,7 +82,7 @@ export default function FormulaTable() {
         meta: "w-[100px]",
         cell: ({ row }) => <FormulaActionDropdown id={row.original.id} />,
       },
-    ] satisfies ColumnDef<Formula>[];
+    ];
   }, [prefetchFormula]);
 
   const table = useReactTable({

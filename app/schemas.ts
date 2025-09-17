@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const formulaVariable = z.object({
+  id: z.coerce.number().optional(),
   name: z
     .string()
     .min(1, { message: "Variable name must be longer than 1 character" }),
@@ -10,12 +11,15 @@ const formulaVariable = z.object({
   }),
   unit: z.coerce.string().optional(),
   isStatic: z.boolean().default(false).optional(),
+  delete: z.coerce.boolean().optional(),
 });
 
 export const formulaTableColumn = z.object({
+  id: z.coerce.number().optional(),
   header: z.string(),
   value: z.string(),
   isStatic: z.boolean().default(false).optional(),
+  delete: z.coerce.boolean().optional(),
 });
 
 export const formulaSchema = z.object({

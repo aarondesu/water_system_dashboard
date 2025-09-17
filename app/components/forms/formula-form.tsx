@@ -20,6 +20,7 @@ import type {
   FormulaVariable,
 } from "~/types";
 import { useConfirmationDialog } from "../confirmation-dialog-provider";
+import { useNavigate } from "react-router";
 
 interface CreateFormulaForm {
   data?: Formula & {
@@ -34,29 +35,34 @@ export default function FormulaForm({
   mode = "create",
 }: CreateFormulaForm) {
   const { createDialog } = useConfirmationDialog();
+  const navigate = useNavigate();
 
-  const initialValues: z.infer<typeof formulaSchema> = {
-    name: data?.name ?? "",
-    description: data?.description ?? "",
-    variables: [
-      {
-        name: "consumption",
-        description: "This is automatically added during computation.",
-        value: 10,
-        unit: "",
-        isStatic: true,
-      },
-      ...(data?.variables ?? []),
-    ],
-    columns: data?.columns ?? [
-      {
-        header: "Consumption",
-        value: "consumption",
-        isStatic: true,
-      },
-    ],
-    expression: data?.expression ?? "",
-  };
+  const initialValues = useMemo<z.infer<typeof formulaSchema>>(
+    () => ({
+      name: data?.name ?? "",
+      description: data?.description ?? "",
+      variables: [
+        {
+          name: "consumption",
+          description: "This is automatically added during computation.",
+          value: 10,
+          unit: "",
+          isStatic: true,
+        },
+        ...(data?.variables ?? []),
+      ],
+      columns: data?.columns ?? [
+        {
+          header: "Consumption",
+          value: "consumption",
+          isStatic: true,
+        },
+      ],
+      expression: data?.expression ?? "",
+    }),
+    [data]
+  );
+
   const form = useForm<z.infer<typeof formulaSchema>>({
     resolver: zodResolver(formulaSchema),
     defaultValues: initialValues,
@@ -68,12 +74,6 @@ export default function FormulaForm({
   const [result, setResult] = useState<string>("");
   const [createFormula, createFormulaResults] = useCreateFormulaMutation();
   const [updateFormula, updateFormulaResults] = useUpdateFormulaMutation();
-
-  // FORM DEBUG
-  // const { errors } = form.formState;
-  // useEffect(() => {
-  //   console.log(errors);
-  // }, [errors]);
 
   const onSubmit = form.handleSubmit((d) => {
     // Remove consumption variable
@@ -117,16 +117,30 @@ export default function FormulaForm({
             });
           } else {
             // TODO: Add update logic
-            const ddd: Partial<
-              Formula & {
-                variables: Partial<FormulaVariable>[];
-                columns: Partial<FormulaTableColumn>[];
-              }
-            > = {
+            const finalData = {
               ...d,
               id: data?.id ?? 0,
             };
-            console.log(ddd);
+
+            toast.promise(
+              updateFormula({
+                id: data?.id ?? 0,
+                formula: d,
+              }).unwrap(),
+              {
+                loading: "Updating formula...",
+                success: () => {
+                  form.reset(initialValues);
+                  navigate("/dashboard/formula");
+
+                  return "Successfully updated formula!";
+                },
+                error: (err) => {
+                  console.log(err);
+                  return "Error";
+                },
+              }
+            );
           }
         },
       });
@@ -140,6 +154,10 @@ export default function FormulaForm({
           <div key={index}>{error.message}</div>
         ))}
         <FormulaVariablesFields
+          mode={mode}
+          onVariablesChange={() =>
+            setTestSuccessful((success) => (success = false))
+          }
           isLoading={
             createFormulaResults.isLoading || updateFormulaResults.isLoading
           }
@@ -150,6 +168,7 @@ export default function FormulaForm({
           }}
         />
         <FormulaColumnFields
+          mode={mode}
           isLoading={
             createFormulaResults.isLoading || updateFormulaResults.isLoading
           }

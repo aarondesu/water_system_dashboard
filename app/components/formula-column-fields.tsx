@@ -12,7 +12,7 @@ import {
 import { evaluate } from "mathjs";
 import { formatNumber } from "~/lib/utils";
 import { Button } from "./ui/button";
-import { InfoIcon, Minus, Plus } from "lucide-react";
+import { Ban, InfoIcon, Minus, Plus } from "lucide-react";
 import { FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
 import { Alert, AlertDescription } from "./ui/alert";
@@ -21,11 +21,13 @@ import { useCallback, useMemo } from "react";
 interface FormulaColumnFieldsProps {
   result: string;
   isLoading: boolean;
+  mode: "create" | "edit";
 }
 
 export default function FormulaColumnFields({
   result,
   isLoading,
+  mode,
 }: FormulaColumnFieldsProps) {
   const form = useFormContext<z.infer<typeof formulaSchema>>();
 
@@ -52,9 +54,33 @@ export default function FormulaColumnFields({
   const removeColumn = useCallback(
     (id: number) => {
       const columns = form.getValues("columns");
-      delete columns[id];
+
+      if (mode === "create") {
+        delete columns[id];
+
+        form.setValue("columns", columns);
+      } else {
+        // Check if ID exists, if it exists mark for deletion, if not remove it from list
+        if (columns[id].id) {
+          columns[id].delete = true;
+        } else {
+          delete columns[id];
+        }
+      }
 
       form.setValue("columns", columns);
+    },
+    [form]
+  );
+
+  const cancelRemoval = useCallback(
+    (id: number) => {
+      if (mode === "edit") {
+        const columns = form.getValues("columns");
+        columns[id].delete = false;
+
+        form.setValue("columns", columns);
+      }
     },
     [form]
   );
@@ -137,16 +163,29 @@ export default function FormulaColumnFields({
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <div className="pt-5">
-                          <Button
-                            size="icon"
-                            className="w-6 h-6"
-                            variant="outline"
-                            type="button"
-                            disabled={column.isStatic || isLoading}
-                            onClick={() => removeColumn(index)}
-                          >
-                            <Minus />
-                          </Button>
+                          {column.delete ? (
+                            <Button
+                              size="icon"
+                              className="w-6 h-6"
+                              variant="outline"
+                              type="button"
+                              disabled={column.isStatic || isLoading}
+                              onClick={() => cancelRemoval(index)}
+                            >
+                              <Ban />
+                            </Button>
+                          ) : (
+                            <Button
+                              size="icon"
+                              className="w-6 h-6"
+                              variant="outline"
+                              type="button"
+                              disabled={column.isStatic || isLoading}
+                              onClick={() => removeColumn(index)}
+                            >
+                              <Minus />
+                            </Button>
+                          )}
                         </div>
                         <FormField
                           control={form.control}

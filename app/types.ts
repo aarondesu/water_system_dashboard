@@ -131,6 +131,7 @@ export type FormulaVariable = {
   description: string;
   created_at?: string;
   updated_at?: string;
+  delete?: boolean;
 };
 
 export type FormulaTableColumn = {

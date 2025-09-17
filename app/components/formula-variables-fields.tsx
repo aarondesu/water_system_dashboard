@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { formulaSchema } from "~/schemas";
-import { useFormContext } from "react-hook-form";
+import { useFormContext, useWatch } from "react-hook-form";
 import { evaluate } from "mathjs";
 import {
   FormControl,
@@ -11,7 +11,14 @@ import {
 } from "./ui/form";
 import { Textarea } from "./ui/textarea";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
-import { ChevronsUpDown, InfoIcon, Minus, Plus } from "lucide-react";
+import {
+  AlertTriangle,
+  Ban,
+  ChevronsUpDown,
+  InfoIcon,
+  Minus,
+  Plus,
+} from "lucide-react";
 import { Input } from "./ui/input";
 import { formatNumber } from "~/lib/utils";
 import { Button } from "./ui/button";
@@ -21,30 +28,44 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 
 interface FormulaVariablesFieldsProps {
   result: string;
   onEvaluate: (success: boolean, result: string) => void;
+  onVariablesChange: () => void;
   isLoading: boolean;
+  mode: "create" | "edit";
 }
 
 export default function FormulaVariablesFields({
   onEvaluate,
+  onVariablesChange,
   isLoading,
   result,
+  mode,
 }: FormulaVariablesFieldsProps) {
   const form = useFormContext<z.infer<typeof formulaSchema>>();
+  const watchedVariables = useWatch({
+    control: form.control,
+    name: "variables",
+  });
 
-  const variables = form
-    .watch("variables")
-    .reduce<Record<string, number>>((acc, item) => {
-      acc[item.name] = Number(item.value);
+  const variables = useMemo(() => {
+    return (watchedVariables ?? []).reduce<Record<string, number>>(
+      (acc, item) => {
+        if (item.delete === true) return acc;
 
-      return acc;
-    }, {});
+        acc[item.name] = Number(item.value);
+
+        return acc;
+      },
+      {}
+    );
+  }, [watchedVariables]);
 
   const addNewVariable = useCallback(() => {
+    onVariablesChange();
     const variables = form.getValues("variables");
     variables.push({
       name: "",
@@ -58,10 +79,35 @@ export default function FormulaVariablesFields({
 
   const removeVariable = useCallback(
     (id: number) => {
+      onVariablesChange();
       const variables = form.getValues("variables");
-      delete variables[id];
+
+      if (mode === "create") {
+        delete variables[id];
+      } else {
+        // Check if ID exists, if exists mark for deletion, if not remove it from array
+        if (variables[id].id) {
+          variables[id].delete = true;
+        } else {
+          delete variables[id];
+        }
+      }
 
       form.setValue("variables", variables);
+    },
+    [form]
+  );
+
+  const cancelRemoval = useCallback(
+    (id: number) => {
+      onVariablesChange();
+
+      if (mode === "edit") {
+        const variables = form.getValues("variables");
+        variables[id].delete = false;
+
+        form.setValue("variables", variables);
+      }
     },
     [form]
   );
@@ -216,105 +262,139 @@ export default function FormulaVariablesFields({
             <TableBody>
               {form.watch("variables").map((variable, index) => (
                 <TableRow key={index}>
-                  <TableCell className="flex gap-4 py-4">
-                    <div className="">
-                      <Button
-                        type="button"
-                        size="icon"
-                        className="w-6 h-6"
-                        variant="outline"
-                        disabled={variable.isStatic || isLoading}
-                        onClick={() => removeVariable(index)}
-                      >
-                        <Minus />
-                      </Button>
-                    </div>
-                    <div className="grow space-y-2">
-                      <Collapsible defaultOpen={variable.isStatic}>
-                        <div className="flex items-end gap-2">
-                          <div className="grow grid grid-cols-2 gap-4">
-                            <FormField
-                              control={form.control}
-                              name={`variables.${index}.name`}
-                              render={() => (
-                                <FormItem>
-                                  <FormLabel>Name</FormLabel>
-                                  <FormControl>
+                  <TableCell className="">
+                    {variable.delete && variable.delete === true && (
+                      <Alert>
+                        <AlertTriangle />
+                        <AlertDescription>For Deletion</AlertDescription>
+                      </Alert>
+                    )}
+                    <div className="flex gap-4 py-4">
+                      <div className="">
+                        {!variable.delete ? (
+                          <Button
+                            type="button"
+                            size="icon"
+                            className="w-6 h-6"
+                            variant="outline"
+                            disabled={
+                              variable.isStatic || isLoading || variable.delete
+                            }
+                            onClick={() => removeVariable(index)}
+                          >
+                            <Minus />
+                          </Button>
+                        ) : (
+                          <Button
+                            type="button"
+                            size="icon"
+                            className="w-6 h-6"
+                            variant="outline"
+                            onClick={() => cancelRemoval(index)}
+                          >
+                            <Ban />
+                          </Button>
+                        )}
+                      </div>
+                      <div className="grow space-y-2">
+                        <Collapsible defaultOpen={variable.isStatic}>
+                          <div className="flex items-end gap-2">
+                            <div className="grow grid grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name={`variables.${index}.name`}
+                                render={() => (
+                                  <FormItem>
+                                    <FormLabel>Name</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        disabled={
+                                          variable.isStatic ||
+                                          isLoading ||
+                                          variable.delete
+                                        }
+                                        {...form.register(
+                                          `variables.${index}.name`
+                                        )}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name={`variables.${index}.value`}
+                                render={({}) => (
+                                  <FormItem>
+                                    <FormLabel>Value</FormLabel>
                                     <Input
-                                      disabled={variable.isStatic || isLoading}
                                       {...form.register(
-                                        `variables.${index}.name`
+                                        `variables.${index}.value`
+                                      )}
+                                      disabled={isLoading || variable.delete}
+                                      type="number"
+                                      step="any"
+                                    />
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                            <CollapsibleTrigger asChild>
+                              <Button size="icon" type="button" variant="ghost">
+                                <ChevronsUpDown />
+                              </Button>
+                            </CollapsibleTrigger>
+                          </div>
+                          <CollapsibleContent>
+                            <div className="space-y-4 mt-4">
+                              <FormField
+                                control={form.control}
+                                name="variables"
+                                render={({}) => (
+                                  <FormItem>
+                                    <FormLabel>Unit</FormLabel>
+                                    <Input
+                                      disabled={
+                                        variable.isStatic ||
+                                        isLoading ||
+                                        variable.delete
+                                      }
+                                      {...form.register(
+                                        `variables.${index}.unit`
                                       )}
                                     />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name={`variables.${index}.value`}
-                              render={({}) => (
-                                <FormItem>
-                                  <FormLabel>Value</FormLabel>
-                                  <Input
-                                    {...form.register(
-                                      `variables.${index}.value`
-                                    )}
-                                    disabled={isLoading}
-                                    type="number"
-                                    step="any"
-                                  />
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          <CollapsibleTrigger asChild>
-                            <Button size="icon" type="button" variant="ghost">
-                              <ChevronsUpDown />
-                            </Button>
-                          </CollapsibleTrigger>
-                        </div>
-                        <CollapsibleContent>
-                          <div className="space-y-4 mt-4">
-                            <FormField
-                              control={form.control}
-                              name="variables"
-                              render={({}) => (
-                                <FormItem>
-                                  <FormLabel>Unit</FormLabel>
-                                  <Input
-                                    disabled={variable.isStatic || isLoading}
-                                    {...form.register(
-                                      `variables.${index}.unit`
-                                    )}
-                                  />
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            <FormField
-                              control={form.control}
-                              name="variables"
-                              render={({}) => (
-                                <FormItem>
-                                  <FormLabel>Description</FormLabel>
-                                  <FormControl>
-                                    <Textarea
-                                      disabled={variable.isStatic || isLoading}
-                                      {...form.register(
-                                        `variables.${index}.description`
-                                      )}
-                                    />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                              <FormField
+                                control={form.control}
+                                name="variables"
+                                render={({}) => (
+                                  <FormItem>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                                      <Textarea
+                                        disabled={
+                                          variable.isStatic ||
+                                          isLoading ||
+                                          variable.delete
+                                        }
+                                        {...form.register(
+                                          `variables.${index}.description`
+                                        )}
+                                      />
+                                    </FormControl>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
+                          </CollapsibleContent>
+                        </Collapsible>
+                      </div>
                     </div>
                   </TableCell>
                 </TableRow>

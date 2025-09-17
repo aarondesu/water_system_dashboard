@@ -52,10 +52,12 @@ export const formulaApi = baseApi.injectEndpoints({
       void,
       {
         id: number;
-        formula: Formula & {
-          variables: FormulaVariable[];
-          columns: FormulaTableColumn[];
-        };
+        formula: Partial<
+          Formula & {
+            variables: Partial<FormulaVariable>[];
+            columns: Partial<FormulaTableColumn>[];
+          }
+        >;
       }
     >({
       query: (data) => ({

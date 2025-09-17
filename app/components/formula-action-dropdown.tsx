@@ -48,7 +48,7 @@ export default function FormulaActionDropdown({
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
-      <DropdownMenuTrigger>
+      <DropdownMenuTrigger asChild>
         <Button variant="ghost" type="button" className="p-0" size="icon">
           <MoreHorizontalIcon className="" />
         </Button>
