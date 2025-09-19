@@ -1,5 +1,5 @@
-import { formulaSchema } from "~/schemas";
-import { useFormContext } from "react-hook-form";
+import { formulaSchema, formulaTableColumn } from "~/schemas";
+import { useFormContext, useWatch } from "react-hook-form";
 import { z } from "zod";
 import {
   Table,
@@ -12,16 +12,142 @@ import {
 import { evaluate } from "mathjs";
 import { formatNumber } from "~/lib/utils";
 import { Button } from "./ui/button";
-import { Ban, InfoIcon, Minus, Plus } from "lucide-react";
+import { Ban, GripVertical, InfoIcon, Minus, Plus } from "lucide-react";
 import { FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
 import { Alert, AlertDescription } from "./ui/alert";
 import { useCallback, useMemo } from "react";
+import {
+  arrayMove,
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
+import {
+  closestCenter,
+  DndContext,
+  KeyboardSensor,
+  MouseSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
+import { CSS } from "@dnd-kit/utilities";
 
 interface FormulaColumnFieldsProps {
   result: string;
   isLoading: boolean;
   mode: "create" | "edit";
+}
+
+function DragHandle({ id }: { id: number }) {
+  const { attributes, listeners } = useSortable({
+    id: id,
+  });
+
+  return (
+    <Button
+      {...attributes}
+      {...listeners}
+      type="button"
+      variant="ghost"
+      size="icon"
+      className="text-muted-foreground size-7 hover:bg-transparent"
+    >
+      <GripVertical className="size-5" />
+    </Button>
+  );
+}
+
+function DraggableRow({
+  index,
+  column,
+  removeColumn,
+  cancelRemoval,
+}: {
+  index: number;
+  column: z.infer<typeof formulaTableColumn>;
+  removeColumn: () => void;
+  cancelRemoval: () => void;
+}) {
+  const form = useFormContext<z.infer<typeof formulaSchema>>();
+  const { isDragging, setNodeRef, transform, transition } = useSortable({
+    id: index,
+  });
+
+  return (
+    <TableRow
+      key={index}
+      data-dragging={isDragging}
+      ref={setNodeRef}
+      className="relative z-0 data-[dragging=true]:z-10 data-[dragging=true]:opacity-80"
+      style={{
+        transform: CSS.Transform.toString(transform),
+        transition: transition,
+      }}
+    >
+      <TableCell className="w-fit">
+        <DragHandle id={index} />
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center gap-2">
+          <div className="pt-5">
+            {column.delete ? (
+              <Button
+                size="icon"
+                className="w-6 h-6"
+                variant="outline"
+                type="button"
+                disabled={column.isStatic}
+                onClick={cancelRemoval}
+              >
+                <Ban />
+              </Button>
+            ) : (
+              <Button
+                size="icon"
+                className="w-6 h-6"
+                variant="outline"
+                type="button"
+                disabled={column.isStatic}
+                onClick={removeColumn}
+              >
+                <Minus />
+              </Button>
+            )}
+          </div>
+          <FormField
+            control={form.control}
+            name={`columns.${index}.header`}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Header</FormLabel>
+                <Input
+                  disabled={column.isStatic}
+                  {...form.register(`columns.${index}.header`)}
+                />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name={`columns.${index}.value`}
+            render={({ field }) => (
+              <FormItem className="grow">
+                <FormLabel>Value</FormLabel>
+                <Input
+                  disabled={column.isStatic}
+                  {...form.register(`columns.${index}.value`)}
+                />
+              </FormItem>
+            )}
+          />
+        </div>
+      </TableCell>
+    </TableRow>
+  );
 }
 
 export default function FormulaColumnFields({
@@ -31,15 +157,38 @@ export default function FormulaColumnFields({
 }: FormulaColumnFieldsProps) {
   const form = useFormContext<z.infer<typeof formulaSchema>>();
 
+  const watchedVariables = useWatch({
+    control: form.control,
+    name: "variables",
+  });
+  const watchedColumns = useWatch({
+    control: form.control,
+    name: "columns",
+  });
+
+  const sensors = useSensors(
+    useSensor(MouseSensor, {}),
+    useSensor(TouchSensor, {}),
+    useSensor(KeyboardSensor, {})
+  );
+
+  const columnIds = useMemo(
+    () => watchedColumns.map((col, index) => index),
+    [watchedColumns]
+  );
+
   const variables = useMemo(() => {
-    return form
-      .watch("variables")
-      .reduce<Record<string, number>>((acc, item) => {
+    return (watchedVariables ?? []).reduce<Record<string, number>>(
+      (acc, item) => {
+        if (item.delete === true) return acc;
+
         acc[item.name] = Number(item.value);
 
         return acc;
-      }, {});
-  }, [form.watch]);
+      },
+      {}
+    );
+  }, [watchedVariables]);
 
   const addNewColumn = useCallback(() => {
     const columns = form.getValues("columns");
@@ -83,6 +232,19 @@ export default function FormulaColumnFields({
       }
     },
     [form]
+  );
+
+  const onDragEnd = useCallback(
+    (event: DragEndEvent) => {
+      const { active, over } = event;
+      if (active && over && active.id !== over.id) {
+        const oldIndex = columnIds.indexOf(Number(active.id));
+        const newIndex = columnIds.indexOf(Number(over.id));
+
+        form.setValue("columns", arrayMove(watchedColumns, oldIndex, newIndex));
+      }
+    },
+    [watchedColumns]
   );
 
   return (
@@ -156,69 +318,38 @@ export default function FormulaColumnFields({
                 max, and variables.
               </AlertDescription>
             </Alert>
-            <Table>
-              <TableBody>
-                {form.watch("columns").map((column, index) => (
-                  <TableRow key={index}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div className="pt-5">
-                          {column.delete ? (
-                            <Button
-                              size="icon"
-                              className="w-6 h-6"
-                              variant="outline"
-                              type="button"
-                              disabled={column.isStatic || isLoading}
-                              onClick={() => cancelRemoval(index)}
-                            >
-                              <Ban />
-                            </Button>
-                          ) : (
-                            <Button
-                              size="icon"
-                              className="w-6 h-6"
-                              variant="outline"
-                              type="button"
-                              disabled={column.isStatic || isLoading}
-                              onClick={() => removeColumn(index)}
-                            >
-                              <Minus />
-                            </Button>
-                          )}
-                        </div>
-                        <FormField
-                          control={form.control}
-                          name={`columns.${index}.header`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Header</FormLabel>
-                              <Input
-                                disabled={column.isStatic || isLoading}
-                                {...form.register(`columns.${index}.header`)}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name={`columns.${index}.value`}
-                          render={({ field }) => (
-                            <FormItem className="grow">
-                              <FormLabel>Value</FormLabel>
-                              <Input
-                                disabled={column.isStatic || isLoading}
-                                {...form.register(`columns.${index}.value`)}
-                              />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <Alert>
+              <InfoIcon />
+              <AlertDescription>
+                Reorder the column order by dragging the rows to the desired
+                position
+              </AlertDescription>
+            </Alert>
+            <DndContext
+              collisionDetection={closestCenter}
+              modifiers={[restrictToVerticalAxis]}
+              sensors={sensors}
+              onDragEnd={onDragEnd}
+            >
+              <Table>
+                <TableBody className="**:data-[slot=table-cell]:first:w-8">
+                  {form.watch("columns").map((column, index) => (
+                    <SortableContext
+                      key={index}
+                      items={columnIds}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      <DraggableRow
+                        removeColumn={() => removeColumn(index)}
+                        cancelRemoval={() => cancelRemoval(index)}
+                        index={index}
+                        column={column}
+                      />
+                    </SortableContext>
+                  ))}
+                </TableBody>
+              </Table>
+            </DndContext>
           </div>
         </div>
       </span>

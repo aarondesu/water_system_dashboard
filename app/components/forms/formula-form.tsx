@@ -79,6 +79,11 @@ export default function FormulaForm({
     // Remove consumption variable
     d.variables = d.variables.filter((v) => v.name !== "consumption");
 
+    // Set order of columns
+    d.columns.forEach((column, index) => (column.order = index));
+
+    console.log(d);
+
     if (d.variables.length === 0) {
       form.setError("variables", {
         message: "Variables need to be added other than the consumption",
@@ -130,7 +135,7 @@ export default function FormulaForm({
               {
                 loading: "Updating formula...",
                 success: () => {
-                  form.reset(initialValues);
+                  form.reset({});
                   navigate("/dashboard/formula");
 
                   return "Successfully updated formula!";

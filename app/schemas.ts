@@ -19,6 +19,7 @@ export const formulaTableColumn = z.object({
   header: z.string(),
   value: z.string(),
   isStatic: z.boolean().default(false).optional(),
+  order: z.coerce.number().optional(),
   delete: z.coerce.boolean().optional(),
 });
 
