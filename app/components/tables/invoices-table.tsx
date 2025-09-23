@@ -5,13 +5,27 @@ import {
   useReactTable,
   type ColumnDef,
 } from "@tanstack/react-table";
-import { useState } from "react";
-import { useGetAllInvoiceQuery } from "~/redux/apis/invoiceApi";
+import {
+  useCallback,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
+import {
+  useBulkDeleteInvoiceMutation,
+  useGetAllInvoiceQuery,
+} from "~/redux/apis/invoiceApi";
 import { DataTable } from "../ui/data-table";
-import type { Formula, Invoice, Subscriber } from "~/types";
+import type {
+  ApiError,
+  Formula,
+  Invoice,
+  PaginationResults,
+  Subscriber,
+} from "~/types";
 import { cn, formatNumber } from "~/lib/utils";
 import { Badge } from "../ui/badge";
-import { PlusCircle, RefreshCcw } from "lucide-react";
+import { PlusCircle, RefreshCcw, Trash2Icon } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router";
 import { useIsMobile } from "~/hooks/use-mobile";
@@ -21,6 +35,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu";
+import { Checkbox } from "../ui/checkbox";
+import { Input } from "../ui/input";
+import { useConfirmationDialog } from "../confirmation-dialog-provider";
+import { toast } from "sonner";
+import InvoiceActionDropdown from "../invoice-action-dropdown";
 
 const columns: ColumnDef<
   Invoice & { subscriber: Subscriber; formula: Formula }
@@ -29,13 +48,32 @@ const columns: ColumnDef<
     id: "select",
     enableGlobalFilter: false,
     enableHiding: false,
+    header: ({ table }) => (
+      <span className="flex justify-end">
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      </span>
+    ),
+    cell: ({ row }) => (
+      <span className="flex justify-end">
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+        />
+      </span>
+    ),
   },
   {
     accessorKey: "invoice_number",
     enableHiding: false,
-    header: () => <span className="flex justify-end">Invoice Number</span>,
+    header: () => <span className="justify-end">Invoice Number</span>,
     cell: ({ row }) => (
-      <span className="font-semibold flex justify-end ">
+      <span className="font-semibold justify-end bg-blue-100">
         <Link
           to={`/invoice/view/${row.original.id}`}
           className="border-b border-blue-500 border-dotted"
@@ -92,18 +130,31 @@ const columns: ColumnDef<
     accessorKey: "due_date",
     header: "Due Date",
   },
+  {
+    id: "actions",
+    enableHiding: false,
+    enableGlobalFilter: false,
+    enableColumnFilter: false,
+    cell: ({ row }) => <InvoiceActionDropdown id={row.original.id ?? 0} />,
+  },
 ];
 
-export default function InvoicesTable() {
+interface InvoicesTableProps {
+  data?: PaginationResults<
+    Invoice & { subscriber: Subscriber; formula: Formula }
+  >;
+  pagination: PaginationState;
+  setPagination: Dispatch<SetStateAction<PaginationState>>;
+}
+
+export default function InvoicesTable({
+  data,
+  pagination,
+  setPagination,
+}: InvoicesTableProps) {
   const isMobile = useIsMobile();
-  const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 10,
-  });
-  const { data, isLoading, isFetching, refetch } = useGetAllInvoiceQuery({
-    page_index: pagination.pageIndex + 1,
-    rows: pagination.pageSize,
-  });
+  const { createDialog } = useConfirmationDialog();
+  const [bulkDeleteInvoice, results] = useBulkDeleteInvoiceMutation();
 
   const table = useReactTable({
     columns: columns,
@@ -115,44 +166,62 @@ export default function InvoicesTable() {
     state: {
       pagination: pagination,
     },
+    initialState: {
+      columnVisibility: {
+        formula: false,
+      },
+    },
     pageCount: data?.pages,
   });
+
+  const onBulkDelete = useCallback(() => {
+    const invoiceIds = table
+      .getFilteredSelectedRowModel()
+      .rows.map((invoice) => invoice.original.id as number);
+
+    createDialog({
+      title: "Delete Invoices",
+      description:
+        "Are you sure you want to desdlete the selected invoices? Action is irreversible",
+      action: () => {
+        toast.promise(bulkDeleteInvoice(invoiceIds).unwrap(), {
+          loading: "Deleting invoices...",
+          success: "Successfully deleted invoices",
+          error: (error) => {
+            if ("data" in error) {
+              return (error as ApiError).data.errors[0];
+            }
+
+            return "Internal Server Error";
+          },
+        });
+
+        console.log(invoiceIds);
+      },
+    });
+  }, [table]);
 
   return (
     <div className="space-y-3">
       <DataTable
         table={table}
-        disabled={isLoading}
-        // actions={
-        //   <div className="flex flex-row gap-1">
-        //     <Button size="icon" onClick={refetch}>
-        //       <RefreshCcw
-        //         className={cn(
-        //           "w-4 h-4",
-        //           isLoading || isFetching ? "animate-spin" : "animate-none"
-        //         )}
-        //       />
-        //     </Button>
-        //     <DropdownMenu>
-        //       <DropdownMenuTrigger asChild>
-        //         <Button size={isMobile ? "icon" : "default"} variant="outline">
-        //           <PlusCircle className="w-4 h-4" />
-        //           {!isMobile && "Create"}
-        //         </Button>
-        //       </DropdownMenuTrigger>
-        //       <DropdownMenuContent align="start">
-        //         <DropdownMenuItem asChild>
-        //           <Link to={`/dashboard/invoice/create`}>Single</Link>
-        //         </DropdownMenuItem>
-        //         <DropdownMenuItem asChild>
-        //           <Link to={`/dashboard/invoice/create/multiple`}>
-        //             Multiple
-        //           </Link>
-        //         </DropdownMenuItem>
-        //       </DropdownMenuContent>
-        //     </DropdownMenu>
-        //   </div>
-        // }
+        actions={
+          <div className="flex w-full">
+            {table.getFilteredSelectedRowModel().rows.length === 0 ? (
+              <Input placeholder="Search Invoices..." />
+            ) : (
+              <Button
+                type="button"
+                variant="outline"
+                className=""
+                onClick={onBulkDelete}
+              >
+                <Trash2Icon />
+                Delete {table.getFilteredSelectedRowModel().rows.length} rows
+              </Button>
+            )}
+          </div>
+        }
       />
     </div>
   );
