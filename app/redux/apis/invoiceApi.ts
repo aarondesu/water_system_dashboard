@@ -99,6 +99,25 @@ export const invoiceApi = baseApi.injectEndpoints({
       transformErrorResponse: (response: ApiError) => response,
       invalidatesTags: ["invoices"],
     }),
+    deleteInvoice: builder.mutation<void, number>({
+      query: (id) => ({
+        url: `/invoices/${id}`,
+        method: "DELETE",
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["invoices"],
+    }),
+    bulkDeleteInvoice: builder.mutation<void, number[]>({
+      query: (ids) => ({
+        url: "/invoices",
+        method: "DELETE",
+        body: {
+          ids: ids,
+        },
+      }),
+      transformErrorResponse: (response: ApiError) => response,
+      invalidatesTags: ["invoices"],
+    }),
   }),
 });
 
@@ -108,5 +127,7 @@ export const {
   useGetInvoiceQuery,
   useCreateMultiipleInvoicesMutation,
   useGetArrearsQuery,
+  useDeleteInvoiceMutation,
+  useBulkDeleteInvoiceMutation,
   usePrefetch,
 } = invoiceApi;
