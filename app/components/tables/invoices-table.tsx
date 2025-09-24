@@ -192,7 +192,7 @@ export default function InvoicesTable({
               return (error as ApiError).data.errors[0];
             }
 
-            return "Internal Server Error";
+            return "Internal server error";
           },
         });
 
