@@ -133,7 +133,11 @@ export default function FormulaTable() {
                 />
               </div>
             ) : (
-              <Button variant="outline" onClick={deleteFormulas}>
+              <Button
+                variant="outline"
+                onClick={deleteFormulas}
+                disabled={results.isLoading}
+              >
                 <Trash2Icon />
                 {`Delete ${table.getFilteredSelectedRowModel().rows.length} rows`}
               </Button>

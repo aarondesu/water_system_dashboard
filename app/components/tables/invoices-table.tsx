@@ -215,6 +215,7 @@ export default function InvoicesTable({
                 variant="outline"
                 className=""
                 onClick={onBulkDelete}
+                disabled={results.isLoading}
               >
                 <Trash2Icon />
                 Delete {table.getFilteredSelectedRowModel().rows.length} rows
