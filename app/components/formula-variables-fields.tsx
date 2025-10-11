@@ -1,7 +1,6 @@
 import { z } from "zod";
 import { formulaSchema } from "~/schemas";
 import { useFormContext, useWatch } from "react-hook-form";
-import { evaluate } from "mathjs";
 import {
   FormControl,
   FormField,
@@ -29,6 +28,7 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { useCallback, useMemo } from "react";
+import { evaluate } from "~/lib/mathjs";
 
 interface FormulaVariablesFieldsProps {
   result: string;

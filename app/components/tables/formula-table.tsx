@@ -113,6 +113,9 @@ export default function FormulaTable() {
 
             return "Internal server error";
           },
+          finally: () => {
+            table.toggleAllRowsSelected(false);
+          },
         });
       },
     });

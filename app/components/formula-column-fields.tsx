@@ -9,14 +9,13 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { evaluate } from "mathjs";
 import { formatNumber } from "~/lib/utils";
 import { Button } from "./ui/button";
 import { Ban, GripVertical, InfoIcon, Minus, Plus } from "lucide-react";
 import { FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
 import { Alert, AlertDescription } from "./ui/alert";
-import { useCallback, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import {
   arrayMove,
   SortableContext,
@@ -35,6 +34,12 @@ import {
 } from "@dnd-kit/core";
 import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import { CSS } from "@dnd-kit/utilities";
+import { evaluate } from "~/lib/mathjs";
+
+type TableColumn = {
+  header: string;
+  value: string;
+};
 
 interface FormulaColumnFieldsProps {
   result: string;
@@ -156,6 +161,7 @@ export default function FormulaColumnFields({
   mode,
 }: FormulaColumnFieldsProps) {
   const form = useFormContext<z.infer<typeof formulaSchema>>();
+  const [tableData, setTableData] = useState<TableColumn[]>([]);
 
   const watchedVariables = useWatch({
     control: form.control,
@@ -247,6 +253,23 @@ export default function FormulaColumnFields({
     [watchedColumns]
   );
 
+  const onTableUpdate = useCallback(() => {
+    setTableData([]);
+    const columns = form.getValues("columns");
+
+    columns.map((col) => {
+      const evaluatedValue = evaluate(col.value, variables);
+
+      setTableData((prev) => [
+        ...prev,
+        {
+          header: col.header,
+          value: evaluatedValue,
+        },
+      ]);
+    });
+  }, []);
+
   return (
     <div className="space-y-4">
       <span>
@@ -254,14 +277,19 @@ export default function FormulaColumnFields({
         <p className="text-muted-foreground text-sm">
           Displays information on invoice on how the formula is computed
         </p>
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="">
-            <h4 className="font-bold text-lg">Table Preview</h4>
+            <div className="flex gap-2 items-center justify-between">
+              <h4 className="font-bold text-lg">Table Preview</h4>
+              <Button type="button" variant="outline" onClick={onTableUpdate}>
+                Update
+              </Button>
+            </div>
             <div className="">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {form.watch("columns").map((column, index) => (
+                    {tableData.map((column, index) => (
                       <TableHead key={index}>{column.header}</TableHead>
                     ))}
                     <TableHead>Amount Due</TableHead>
@@ -269,25 +297,12 @@ export default function FormulaColumnFields({
                 </TableHeader>
                 <TableBody>
                   <TableRow>
-                    {form.watch("columns").map((column, index) => {
-                      try {
-                        const result = evaluate(column.value, variables);
-
-                        return (
-                          <TableCell key={index}>
-                            {formatNumber(result)}
-                          </TableCell>
-                        );
-                      } catch (error) {
-                        // console.log(error);
-                        return (
-                          <TableCell key={index}>
-                            <span className="font-semibold text-red-200">
-                              Error
-                            </span>
-                          </TableCell>
-                        );
-                      }
+                    {tableData.map((column, index) => {
+                      return (
+                        <TableCell key={index}>
+                          {formatNumber(Number(column.value))}
+                        </TableCell>
+                      );
                     })}
                     <TableCell>{formatNumber(Number(result))}</TableCell>
                   </TableRow>
@@ -295,7 +310,7 @@ export default function FormulaColumnFields({
               </Table>
             </div>
           </div>
-          <div className="space-y-4">
+          <div className="space-y-2">
             <div className="flex items-center gap-2">
               <h4 className="font-bold text-lg">Table Columns</h4>
               <Button
